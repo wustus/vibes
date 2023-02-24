@@ -1,0 +1,1371 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		073C3DC5E4C84A61B9A89BD8 /* ALL_BUILD */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 94D0191B372349EF8CC7E0A1 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildPhases = (
+				23EE0695A3BB46E23367A0AD /* Generate CMakeFiles/ALL_BUILD */,
+			);
+			dependencies = (
+				D322492FD502454DA7CA6EC9 /* PBXTargetDependency */,
+				07003487059A418A846694ED /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+		0A05D648DDB945E884391EC9 /* install */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = D64413977E4345C6A645BE0C /* Build configuration list for PBXAggregateTarget "install" */;
+			buildPhases = (
+				93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */,
+			);
+			dependencies = (
+				363045FA0E1D45B6BE5CF016 /* PBXTargetDependency */,
+			);
+			name = install;
+			productName = install;
+		};
+		3C4601A1623341FC9830E733 /* update_mappings */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 6C1FD3F846234734A35CA5E2 /* Build configuration list for PBXAggregateTarget "update_mappings" */;
+			buildPhases = (
+				2F566A795345D3265ECF8D83 /* Generate src/CMakeFiles/update_mappings */,
+			);
+			dependencies = (
+			);
+			name = update_mappings;
+			productName = update_mappings;
+		};
+		BD01D9F675CC47D19BDE2E8B /* uninstall */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = B2F080490E1846C5829CB9DA /* Build configuration list for PBXAggregateTarget "uninstall" */;
+			buildPhases = (
+				481427541D451D69BC8FEBB7 /* Generate CMakeFiles/uninstall */,
+			);
+			dependencies = (
+				B4B18D8025DB4F57852473AC /* PBXTargetDependency */,
+			);
+			name = uninstall;
+			productName = uninstall;
+		};
+		DB00779C56514209B610C837 /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 1F26F3AD743C4D2D8FB09261 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildPhases = (
+				7FF3F7E2219A84467EAE0CB5 /* Generate CMakeFiles/ZERO_CHECK */,
+			);
+			dependencies = (
+			);
+			name = ZERO_CHECK;
+			productName = ZERO_CHECK;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		1446765BCA454285A5A7D238 /* /Users/justus/dev/vibes/lib/glfw/src/platform.h */ = {isa = PBXBuildFile; fileRef = 2A87308210154401A2A80DD6 /* /Users/justus/dev/vibes/lib/glfw/src/platform.h */; };
+		24D05D00C5734252A8991D11 /* /Users/justus/dev/vibes/lib/glfw/src/platform.c */ = {isa = PBXBuildFile; fileRef = C0254538180044DD87237BD8 /* /Users/justus/dev/vibes/lib/glfw/src/platform.c */; };
+		25B43F7CD3744CB3B4E49088 /* /Users/justus/dev/vibes/lib/glfw/src/null_platform.h */ = {isa = PBXBuildFile; fileRef = D3CB343F13A34D2FB13D1484 /* /Users/justus/dev/vibes/lib/glfw/src/null_platform.h */; };
+		2B38506A03814B1EA6504777 /* /Users/justus/dev/vibes/lib/glfw/src/monitor.c */ = {isa = PBXBuildFile; fileRef = 355ED887920D406A827CA07A /* /Users/justus/dev/vibes/lib/glfw/src/monitor.c */; };
+		3C6ABD075902494EB8F353B9 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_time.c */ = {isa = PBXBuildFile; fileRef = 6ACDE4CEC6364A668095B9A5 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_time.c */; };
+		4D3C6BFAF16E4FE69BC63664 /* /Users/justus/dev/vibes/lib/glfw/src/null_monitor.c */ = {isa = PBXBuildFile; fileRef = 4A4BE37341D94B65A0DF3E73 /* /Users/justus/dev/vibes/lib/glfw/src/null_monitor.c */; };
+		4DA9C47517FB423CA408BA5C /* /Users/justus/dev/vibes/lib/glfw/src/osmesa_context.c */ = {isa = PBXBuildFile; fileRef = D95F46F95B9D4453AC8E1D2A /* /Users/justus/dev/vibes/lib/glfw/src/osmesa_context.c */; };
+		538013E553494D9B976AB12E /* /Users/justus/dev/vibes/lib/glfw/src/null_joystick.h */ = {isa = PBXBuildFile; fileRef = DBA04D9512AF468FBDE1EC0E /* /Users/justus/dev/vibes/lib/glfw/src/null_joystick.h */; };
+		5F281E1E937D4C59A479BACD /* /Users/justus/dev/vibes/lib/glfw/src/posix_thread.h */ = {isa = PBXBuildFile; fileRef = 75A0E6B891DE4310A992F3CB /* /Users/justus/dev/vibes/lib/glfw/src/posix_thread.h */; };
+		6B4E352DB5A4491DB2848D02 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_joystick.h */ = {isa = PBXBuildFile; fileRef = 7DD45AD8140743EEA3BE3CCC /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_joystick.h */; };
+		707D1DD7A9744A0CA72C69E6 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_platform.h */ = {isa = PBXBuildFile; fileRef = E82D16F80ED5493DAB892EA0 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_platform.h */; };
+		7AB428977FC14E09B16439E3 /* /Users/justus/dev/vibes/lib/glfw/src/internal.h */ = {isa = PBXBuildFile; fileRef = 210F06AB237C47A48D5C5384 /* /Users/justus/dev/vibes/lib/glfw/src/internal.h */; };
+		80841944D61B42ECBA9A21C6 /* /Users/justus/dev/vibes/lib/glfw/src/window.c */ = {isa = PBXBuildFile; fileRef = 78468415771245D1878D5DD3 /* /Users/justus/dev/vibes/lib/glfw/src/window.c */; };
+		89A619B1A0BD49D5A74039F9 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_window.m */ = {isa = PBXBuildFile; fileRef = C58E3C8D58AD4CA59D31DCC6 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_window.m */; };
+		94F9F9333547431DA61C7073 /* /Users/justus/dev/vibes/lib/glfw/src/context.c */ = {isa = PBXBuildFile; fileRef = A829A8EE6CAA4D319AA92F4F /* /Users/justus/dev/vibes/lib/glfw/src/context.c */; };
+		9BFEC8268D304825ACCB371B /* /Users/justus/dev/vibes/lib/glfw/include/GLFW/glfw3native.h */ = {isa = PBXBuildFile; fileRef = 36464B0BFB8542DC9C7853AD /* /Users/justus/dev/vibes/lib/glfw/include/GLFW/glfw3native.h */; };
+		9D71D097BD4043AFB34492E9 /* /Users/justus/dev/vibes/lib/glfw/src/null_init.c */ = {isa = PBXBuildFile; fileRef = C17499E1CDCB40BCB181D3E3 /* /Users/justus/dev/vibes/lib/glfw/src/null_init.c */; };
+		9F10DC608FB84CDC8B346AF9 /* /Users/justus/dev/vibes/lib/glfw/src/init.c */ = {isa = PBXBuildFile; fileRef = 56CDDAB13F5B42788897D3A5 /* /Users/justus/dev/vibes/lib/glfw/src/init.c */; };
+		AAB1470E12D54551B0A990EB /* /Users/justus/dev/vibes/lib/glfw/src/vulkan.c */ = {isa = PBXBuildFile; fileRef = 338391EC7825405688A5881B /* /Users/justus/dev/vibes/lib/glfw/src/vulkan.c */; };
+		B512751FC9244797BA968A08 /* /Users/justus/dev/vibes/lib/glfw/src/posix_module.c */ = {isa = PBXBuildFile; fileRef = AB07A4FFF581439B858C04C8 /* /Users/justus/dev/vibes/lib/glfw/src/posix_module.c */; };
+		C17E4D38AFFC464EA7299B17 /* /Users/justus/dev/vibes/lib/glfw/src/nsgl_context.m */ = {isa = PBXBuildFile; fileRef = 32909E5273DE47278BE2860B /* /Users/justus/dev/vibes/lib/glfw/src/nsgl_context.m */; };
+		C1CE024F6DDC4B7B88492BE2 /* /Users/justus/dev/vibes/lib/glfw/src/null_joystick.c */ = {isa = PBXBuildFile; fileRef = 170729B595194547B5E06BF0 /* /Users/justus/dev/vibes/lib/glfw/src/null_joystick.c */; };
+		C2684C09F059455CAA4692B0 /* /Users/justus/dev/vibes/lib/glfw/src/null_window.c */ = {isa = PBXBuildFile; fileRef = C0A2829486A542DF8B81B41B /* /Users/justus/dev/vibes/lib/glfw/src/null_window.c */; };
+		C445E4AB599142F4BA4534C2 /* /Users/justus/dev/vibes/lib/glfw/src/posix_thread.c */ = {isa = PBXBuildFile; fileRef = 45972A21B4C04BAE9EC56EE2 /* /Users/justus/dev/vibes/lib/glfw/src/posix_thread.c */; };
+		C7BD61052D284069BA73ECB1 /* /Users/justus/dev/vibes/lib/glfw/src/mappings.h */ = {isa = PBXBuildFile; fileRef = 2661121F3FB34799B317A751 /* /Users/justus/dev/vibes/lib/glfw/src/mappings.h */; };
+		D0ED265589FA4D129073A469 /* /Users/justus/dev/vibes/lib/glfw/src/input.c */ = {isa = PBXBuildFile; fileRef = 5153D161E86E4226A976013F /* /Users/justus/dev/vibes/lib/glfw/src/input.c */; };
+		D82A74BC11364140A6C6773B /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_time.h */ = {isa = PBXBuildFile; fileRef = 8B7ABA925FFC42C692E912FB /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_time.h */; };
+		D906C0BE873C4B2D8200F0A4 /* /Users/justus/dev/vibes/lib/glfw/include/GLFW/glfw3.h */ = {isa = PBXBuildFile; fileRef = E2EBC3A59EDF41B9BACFC5CC /* /Users/justus/dev/vibes/lib/glfw/include/GLFW/glfw3.h */; };
+		E19986D3B35E452FB6E23047 /* /Users/justus/dev/vibes/lib/glfw/src/egl_context.c */ = {isa = PBXBuildFile; fileRef = DFBF96D6FD074FFA9EBF056A /* /Users/justus/dev/vibes/lib/glfw/src/egl_context.c */; };
+		E1C514308B6A442485EA4E81 /* /Users/justus/dev/vibes/lib/glfw/src/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = E6E2F70A8F2B47E6A2D2864B /* /Users/justus/dev/vibes/lib/glfw/src/CMakeLists.txt */; };
+		E9C43948FD564D5D8221FB00 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_joystick.m */ = {isa = PBXBuildFile; fileRef = D38AC797745A4BC2A230FDF4 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_joystick.m */; };
+		F4F413D94BAB40C5B37D8E8F /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_init.m */ = {isa = PBXBuildFile; fileRef = 9544C886BFC84F7F9D31138E /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_init.m */; };
+		F79932504DD541CE8A2B9C5E /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_monitor.m */ = {isa = PBXBuildFile; fileRef = 32968C995AAD4719829CCA8C /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_monitor.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildStyle section */
+		22B47F288F404A94884C6970 /* MinSizeRel */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = MinSizeRel;
+		};
+		3CF421E3ACC84B499117D9BC /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		3F3737B1CC314A009AA269ED /* RelWithDebInfo */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = RelWithDebInfo;
+		};
+		B040CCA0E1524EC18F907557 /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Release;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXContainerItemProxy section */
+		02A8FBDD33C0445992AF1E42 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7857A2C072E94D138AE37AD7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DB00779C56514209B610C837;
+			remoteInfo = ZERO_CHECK;
+		};
+		03C179CB188F423DAC174B8B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7857A2C072E94D138AE37AD7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DB00779C56514209B610C837;
+			remoteInfo = ZERO_CHECK;
+		};
+		788A648C2FA64BD282521A64 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7857A2C072E94D138AE37AD7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 85B491A5BA9946359FE548BA;
+			remoteInfo = glfw;
+		};
+		A09B9126AD804FECB5AD10A8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7857A2C072E94D138AE37AD7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 073C3DC5E4C84A61B9A89BD8;
+			remoteInfo = ALL_BUILD;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		02B5734FA4A4435CAE690D14 /* /Users/justus/dev/vibes/lib/glfw/src/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		147C1A695C8C45269A820391 /* /Users/justus/dev/vibes/lib/glfw/src/mappings.h.in */ = {isa = PBXFileReference; explicitFileType = sourcecode; fileEncoding = 4; name = mappings.h.in; path = src/mappings.h.in; sourceTree = SOURCE_ROOT; };
+		170729B595194547B5E06BF0 /* /Users/justus/dev/vibes/lib/glfw/src/null_joystick.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = null_joystick.c; path = src/null_joystick.c; sourceTree = SOURCE_ROOT; };
+		210F06AB237C47A48D5C5384 /* /Users/justus/dev/vibes/lib/glfw/src/internal.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = internal.h; path = src/internal.h; sourceTree = SOURCE_ROOT; };
+		2661121F3FB34799B317A751 /* /Users/justus/dev/vibes/lib/glfw/src/mappings.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mappings.h; path = src/mappings.h; sourceTree = SOURCE_ROOT; };
+		2A87308210154401A2A80DD6 /* /Users/justus/dev/vibes/lib/glfw/src/platform.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = platform.h; path = src/platform.h; sourceTree = SOURCE_ROOT; };
+		32909E5273DE47278BE2860B /* /Users/justus/dev/vibes/lib/glfw/src/nsgl_context.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = nsgl_context.m; path = src/nsgl_context.m; sourceTree = SOURCE_ROOT; };
+		32968C995AAD4719829CCA8C /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_monitor.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_monitor.m; path = src/cocoa_monitor.m; sourceTree = SOURCE_ROOT; };
+		338391EC7825405688A5881B /* /Users/justus/dev/vibes/lib/glfw/src/vulkan.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = vulkan.c; path = src/vulkan.c; sourceTree = SOURCE_ROOT; };
+		355ED887920D406A827CA07A /* /Users/justus/dev/vibes/lib/glfw/src/monitor.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = monitor.c; path = src/monitor.c; sourceTree = SOURCE_ROOT; };
+		36464B0BFB8542DC9C7853AD /* /Users/justus/dev/vibes/lib/glfw/include/GLFW/glfw3native.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = glfw3native.h; path = include/GLFW/glfw3native.h; sourceTree = SOURCE_ROOT; };
+		45972A21B4C04BAE9EC56EE2 /* /Users/justus/dev/vibes/lib/glfw/src/posix_thread.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = posix_thread.c; path = src/posix_thread.c; sourceTree = SOURCE_ROOT; };
+		4A4BE37341D94B65A0DF3E73 /* /Users/justus/dev/vibes/lib/glfw/src/null_monitor.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = null_monitor.c; path = src/null_monitor.c; sourceTree = SOURCE_ROOT; };
+		5153D161E86E4226A976013F /* /Users/justus/dev/vibes/lib/glfw/src/input.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = input.c; path = src/input.c; sourceTree = SOURCE_ROOT; };
+		56CDDAB13F5B42788897D3A5 /* /Users/justus/dev/vibes/lib/glfw/src/init.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = init.c; path = src/init.c; sourceTree = SOURCE_ROOT; };
+		6ACDE4CEC6364A668095B9A5 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_time.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = cocoa_time.c; path = src/cocoa_time.c; sourceTree = SOURCE_ROOT; };
+		75A0E6B891DE4310A992F3CB /* /Users/justus/dev/vibes/lib/glfw/src/posix_thread.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = posix_thread.h; path = src/posix_thread.h; sourceTree = SOURCE_ROOT; };
+		78468415771245D1878D5DD3 /* /Users/justus/dev/vibes/lib/glfw/src/window.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = window.c; path = src/window.c; sourceTree = SOURCE_ROOT; };
+		7DD45AD8140743EEA3BE3CCC /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_joystick.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cocoa_joystick.h; path = src/cocoa_joystick.h; sourceTree = SOURCE_ROOT; };
+		861D9C1238484436A2795848 /* /Users/justus/dev/vibes/lib/glfw/CMake/GenerateMappings.cmake */ = {isa = PBXFileReference; explicitFileType = sourcecode; fileEncoding = 4; name = GenerateMappings.cmake; path = CMake/GenerateMappings.cmake; sourceTree = SOURCE_ROOT; };
+		8B7ABA925FFC42C692E912FB /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_time.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cocoa_time.h; path = src/cocoa_time.h; sourceTree = SOURCE_ROOT; };
+		9544C886BFC84F7F9D31138E /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_init.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_init.m; path = src/cocoa_init.m; sourceTree = SOURCE_ROOT; };
+		A829A8EE6CAA4D319AA92F4F /* /Users/justus/dev/vibes/lib/glfw/src/context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = context.c; path = src/context.c; sourceTree = SOURCE_ROOT; };
+		AB07A4FFF581439B858C04C8 /* /Users/justus/dev/vibes/lib/glfw/src/posix_module.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = posix_module.c; path = src/posix_module.c; sourceTree = SOURCE_ROOT; };
+		AC138DD1ADDE4AC790EE5D66 /* /Users/justus/dev/vibes/lib/glfw/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		C0254538180044DD87237BD8 /* /Users/justus/dev/vibes/lib/glfw/src/platform.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = platform.c; path = src/platform.c; sourceTree = SOURCE_ROOT; };
+		C069A7A11FFD48ABB1C8212F /* glfw */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libglfw3.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0A2829486A542DF8B81B41B /* /Users/justus/dev/vibes/lib/glfw/src/null_window.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = null_window.c; path = src/null_window.c; sourceTree = SOURCE_ROOT; };
+		C17499E1CDCB40BCB181D3E3 /* /Users/justus/dev/vibes/lib/glfw/src/null_init.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = null_init.c; path = src/null_init.c; sourceTree = SOURCE_ROOT; };
+		C58E3C8D58AD4CA59D31DCC6 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_window.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_window.m; path = src/cocoa_window.m; sourceTree = SOURCE_ROOT; };
+		D38AC797745A4BC2A230FDF4 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_joystick.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_joystick.m; path = src/cocoa_joystick.m; sourceTree = SOURCE_ROOT; };
+		D3CB343F13A34D2FB13D1484 /* /Users/justus/dev/vibes/lib/glfw/src/null_platform.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = null_platform.h; path = src/null_platform.h; sourceTree = SOURCE_ROOT; };
+		D95F46F95B9D4453AC8E1D2A /* /Users/justus/dev/vibes/lib/glfw/src/osmesa_context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = osmesa_context.c; path = src/osmesa_context.c; sourceTree = SOURCE_ROOT; };
+		DBA04D9512AF468FBDE1EC0E /* /Users/justus/dev/vibes/lib/glfw/src/null_joystick.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = null_joystick.h; path = src/null_joystick.h; sourceTree = SOURCE_ROOT; };
+		DFBF96D6FD074FFA9EBF056A /* /Users/justus/dev/vibes/lib/glfw/src/egl_context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = egl_context.c; path = src/egl_context.c; sourceTree = SOURCE_ROOT; };
+		E2EBC3A59EDF41B9BACFC5CC /* /Users/justus/dev/vibes/lib/glfw/include/GLFW/glfw3.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = glfw3.h; path = include/GLFW/glfw3.h; sourceTree = SOURCE_ROOT; };
+		E6E2F70A8F2B47E6A2D2864B /* /Users/justus/dev/vibes/lib/glfw/src/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		E82D16F80ED5493DAB892EA0 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_platform.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cocoa_platform.h; path = src/cocoa_platform.h; sourceTree = SOURCE_ROOT; };
+		F0D02CB84B994AFDAFB0C125 /* /Users/justus/dev/vibes/lib/glfw/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2034B1775F7B452BAA07BD4A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0512BC0D73F0421796306957 /* Header Files */ = {
+			isa = PBXGroup;
+			children = (
+				147C1A695C8C45269A820391 /* /Users/justus/dev/vibes/lib/glfw/src/mappings.h.in */,
+			);
+			name = "Header Files";
+			sourceTree = "<group>";
+		};
+		20A6BC983C0B452CBED8E991 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				9544C886BFC84F7F9D31138E /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_init.m */,
+				D38AC797745A4BC2A230FDF4 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_joystick.m */,
+				32968C995AAD4719829CCA8C /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_monitor.m */,
+				6ACDE4CEC6364A668095B9A5 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_time.c */,
+				C58E3C8D58AD4CA59D31DCC6 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_window.m */,
+				A829A8EE6CAA4D319AA92F4F /* /Users/justus/dev/vibes/lib/glfw/src/context.c */,
+				DFBF96D6FD074FFA9EBF056A /* /Users/justus/dev/vibes/lib/glfw/src/egl_context.c */,
+				56CDDAB13F5B42788897D3A5 /* /Users/justus/dev/vibes/lib/glfw/src/init.c */,
+				5153D161E86E4226A976013F /* /Users/justus/dev/vibes/lib/glfw/src/input.c */,
+				355ED887920D406A827CA07A /* /Users/justus/dev/vibes/lib/glfw/src/monitor.c */,
+				32909E5273DE47278BE2860B /* /Users/justus/dev/vibes/lib/glfw/src/nsgl_context.m */,
+				C17499E1CDCB40BCB181D3E3 /* /Users/justus/dev/vibes/lib/glfw/src/null_init.c */,
+				170729B595194547B5E06BF0 /* /Users/justus/dev/vibes/lib/glfw/src/null_joystick.c */,
+				4A4BE37341D94B65A0DF3E73 /* /Users/justus/dev/vibes/lib/glfw/src/null_monitor.c */,
+				C0A2829486A542DF8B81B41B /* /Users/justus/dev/vibes/lib/glfw/src/null_window.c */,
+				D95F46F95B9D4453AC8E1D2A /* /Users/justus/dev/vibes/lib/glfw/src/osmesa_context.c */,
+				C0254538180044DD87237BD8 /* /Users/justus/dev/vibes/lib/glfw/src/platform.c */,
+				AB07A4FFF581439B858C04C8 /* /Users/justus/dev/vibes/lib/glfw/src/posix_module.c */,
+				45972A21B4C04BAE9EC56EE2 /* /Users/justus/dev/vibes/lib/glfw/src/posix_thread.c */,
+				338391EC7825405688A5881B /* /Users/justus/dev/vibes/lib/glfw/src/vulkan.c */,
+				78468415771245D1878D5DD3 /* /Users/justus/dev/vibes/lib/glfw/src/window.c */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		2A9C8D4CEC694B7792E39F72 /* update_mappings */ = {
+			isa = PBXGroup;
+			children = (
+				0512BC0D73F0421796306957 /* Header Files */,
+				86618985D27C4ED4A5300F7C /* CMake Rules */,
+				861D9C1238484436A2795848 /* /Users/justus/dev/vibes/lib/glfw/CMake/GenerateMappings.cmake */,
+				02B5734FA4A4435CAE690D14 /* /Users/justus/dev/vibes/lib/glfw/src/CMakeLists.txt */,
+			);
+			name = update_mappings;
+			sourceTree = "<group>";
+		};
+		2EAB56BB79CF4912BD5E9863 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C069A7A11FFD48ABB1C8212F /* glfw */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2FD9D1FE3276489AAA36E32A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3B22EF7CD67641CCBAF8CAF1 /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		7B2F8D240CE1425CA4000CDB /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		86618985D27C4ED4A5300F7C /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		92A6A4A39A524AFAB4CBB8B2 = {
+			isa = PBXGroup;
+			children = (
+				EA38050B1BB14555880DCB98 /* GLFW3 */,
+				F3A846FA314340AAAC9E25DA /* ALL_BUILD */,
+				2EAB56BB79CF4912BD5E9863 /* Products */,
+				2FD9D1FE3276489AAA36E32A /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		A1E5C3AFD67245539F21FB26 /* glfw */ = {
+			isa = PBXGroup;
+			children = (
+				FDC5E2FBA61F4DF2A2C4C196 /* Header Files */,
+				20A6BC983C0B452CBED8E991 /* Source Files */,
+				E6E2F70A8F2B47E6A2D2864B /* /Users/justus/dev/vibes/lib/glfw/src/CMakeLists.txt */,
+			);
+			name = glfw;
+			sourceTree = "<group>";
+		};
+		C9C04F1A01DF42B2818F9EB1 /* uninstall */ = {
+			isa = PBXGroup;
+			children = (
+				3B22EF7CD67641CCBAF8CAF1 /* CMake Rules */,
+				AC138DD1ADDE4AC790EE5D66 /* /Users/justus/dev/vibes/lib/glfw/CMakeLists.txt */,
+			);
+			name = uninstall;
+			sourceTree = "<group>";
+		};
+		EA38050B1BB14555880DCB98 /* GLFW3 */ = {
+			isa = PBXGroup;
+			children = (
+				C9C04F1A01DF42B2818F9EB1 /* uninstall */,
+				A1E5C3AFD67245539F21FB26 /* glfw */,
+				2A9C8D4CEC694B7792E39F72 /* update_mappings */,
+			);
+			name = GLFW3;
+			sourceTree = "<group>";
+		};
+		F3A846FA314340AAAC9E25DA /* ALL_BUILD */ = {
+			isa = PBXGroup;
+			children = (
+				7B2F8D240CE1425CA4000CDB /* CMake Rules */,
+				F0D02CB84B994AFDAFB0C125 /* /Users/justus/dev/vibes/lib/glfw/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		FDC5E2FBA61F4DF2A2C4C196 /* Header Files */ = {
+			isa = PBXGroup;
+			children = (
+				E2EBC3A59EDF41B9BACFC5CC /* /Users/justus/dev/vibes/lib/glfw/include/GLFW/glfw3.h */,
+				36464B0BFB8542DC9C7853AD /* /Users/justus/dev/vibes/lib/glfw/include/GLFW/glfw3native.h */,
+				7DD45AD8140743EEA3BE3CCC /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_joystick.h */,
+				E82D16F80ED5493DAB892EA0 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_platform.h */,
+				8B7ABA925FFC42C692E912FB /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_time.h */,
+				210F06AB237C47A48D5C5384 /* /Users/justus/dev/vibes/lib/glfw/src/internal.h */,
+				2661121F3FB34799B317A751 /* /Users/justus/dev/vibes/lib/glfw/src/mappings.h */,
+				DBA04D9512AF468FBDE1EC0E /* /Users/justus/dev/vibes/lib/glfw/src/null_joystick.h */,
+				D3CB343F13A34D2FB13D1484 /* /Users/justus/dev/vibes/lib/glfw/src/null_platform.h */,
+				2A87308210154401A2A80DD6 /* /Users/justus/dev/vibes/lib/glfw/src/platform.h */,
+				75A0E6B891DE4310A992F3CB /* /Users/justus/dev/vibes/lib/glfw/src/posix_thread.h */,
+			);
+			name = "Header Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		85B491A5BA9946359FE548BA /* glfw */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D8D48CFFFD4543FBB8354FAB /* Build configuration list for PBXNativeTarget "glfw" */;
+			buildPhases = (
+				852759B1EEF842E1A2B6F690 /* Sources */,
+				2034B1775F7B452BAA07BD4A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = glfw;
+			productName = glfw;
+			productReference = C069A7A11FFD48ABB1C8212F /* glfw */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7857A2C072E94D138AE37AD7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1420;
+			};
+			buildConfigurationList = D8FD7C025C0D488BAA2B206A /* Build configuration list for PBXProject "GLFW" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				3CF421E3ACC84B499117D9BC /* Debug */,
+				B040CCA0E1524EC18F907557 /* Release */,
+				22B47F288F404A94884C6970 /* MinSizeRel */,
+				3F3737B1CC314A009AA269ED /* RelWithDebInfo */,
+			);
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 0;
+			mainGroup = 92A6A4A39A524AFAB4CBB8B2;
+			projectDirPath = /Users/justus/dev/vibes/lib/glfw;
+			projectRoot = "";
+			targets = (
+				073C3DC5E4C84A61B9A89BD8 /* ALL_BUILD */,
+				DB00779C56514209B610C837 /* ZERO_CHECK */,
+				85B491A5BA9946359FE548BA /* glfw */,
+				0A05D648DDB945E884391EC9 /* install */,
+				BD01D9F675CC47D19BDE2E8B /* uninstall */,
+				3C4601A1623341FC9830E733 /* update_mappings */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		23EE0695A3BB46E23367A0AD /* Generate CMakeFiles/ALL_BUILD */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ALL_BUILD";
+			outputPaths = (
+/Users/justus/dev/vibes/build/lib/glfw/CMakeFiles/ALL_BUILD			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  echo Build\\ all\\ projects
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		2F566A795345D3265ECF8D83 /* Generate src/CMakeFiles/update_mappings */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate src/CMakeFiles/update_mappings";
+			outputPaths = (
+/Users/justus/dev/vibes/build/lib/glfw/src/CMakeFiles/update_mappings			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/justus/dev/vibes/lib/glfw/src
+  /Applications/CMake.app/Contents/bin/cmake -P /Users/justus/dev/vibes/lib/glfw/CMake/GenerateMappings.cmake mappings.h.in mappings.h
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/justus/dev/vibes/lib/glfw/src
+  /Applications/CMake.app/Contents/bin/cmake -P /Users/justus/dev/vibes/lib/glfw/CMake/GenerateMappings.cmake mappings.h.in mappings.h
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/justus/dev/vibes/lib/glfw/src
+  /Applications/CMake.app/Contents/bin/cmake -P /Users/justus/dev/vibes/lib/glfw/CMake/GenerateMappings.cmake mappings.h.in mappings.h
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/justus/dev/vibes/lib/glfw/src
+  /Applications/CMake.app/Contents/bin/cmake -P /Users/justus/dev/vibes/lib/glfw/CMake/GenerateMappings.cmake mappings.h.in mappings.h
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		3C0110FC8322DE7E50886E21 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		3C8B9B9628600475EB03CBF8 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		481427541D451D69BC8FEBB7 /* Generate CMakeFiles/uninstall */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/uninstall";
+			outputPaths = (
+/Users/justus/dev/vibes/build/lib/glfw/CMakeFiles/uninstall			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  /Applications/CMake.app/Contents/bin/cmake -P /Users/justus/dev/vibes/build/lib/glfw/cmake_uninstall.cmake
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  /Applications/CMake.app/Contents/bin/cmake -P /Users/justus/dev/vibes/build/lib/glfw/cmake_uninstall.cmake
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  /Applications/CMake.app/Contents/bin/cmake -P /Users/justus/dev/vibes/build/lib/glfw/cmake_uninstall.cmake
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  /Applications/CMake.app/Contents/bin/cmake -P /Users/justus/dev/vibes/build/lib/glfw/cmake_uninstall.cmake
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		7FF3F7E2219A84467EAE0CB5 /* Generate CMakeFiles/ZERO_CHECK */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ZERO_CHECK";
+			outputPaths = (
+/Users/justus/dev/vibes/build/lib/glfw/CMakeFiles/ZERO_CHECK			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  make -f /Users/justus/dev/vibes/build/lib/glfw/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  make -f /Users/justus/dev/vibes/build/lib/glfw/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  make -f /Users/justus/dev/vibes/build/lib/glfw/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  make -f /Users/justus/dev/vibes/build/lib/glfw/CMakeScripts/ReRunCMake.make
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		87AF4882E018677E2624B544 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake PostBuild Rules";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  /Applications/CMake.app/Contents/bin/cmake -DBUILD_TYPE=$CONFIGURATION$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  /Applications/CMake.app/Contents/bin/cmake -DBUILD_TYPE=$CONFIGURATION$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  /Applications/CMake.app/Contents/bin/cmake -DBUILD_TYPE=$CONFIGURATION$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/justus/dev/vibes/build/lib/glfw
+  /Applications/CMake.app/Contents/bin/cmake -DBUILD_TYPE=$CONFIGURATION$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		9B50530E35CC49C82C2FACCF = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		EF220574C043FA76D2683574 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		852759B1EEF842E1A2B6F690 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4F413D94BAB40C5B37D8E8F /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_init.m */,
+				E9C43948FD564D5D8221FB00 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_joystick.m */,
+				F79932504DD541CE8A2B9C5E /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_monitor.m */,
+				3C6ABD075902494EB8F353B9 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_time.c */,
+				89A619B1A0BD49D5A74039F9 /* /Users/justus/dev/vibes/lib/glfw/src/cocoa_window.m */,
+				94F9F9333547431DA61C7073 /* /Users/justus/dev/vibes/lib/glfw/src/context.c */,
+				E19986D3B35E452FB6E23047 /* /Users/justus/dev/vibes/lib/glfw/src/egl_context.c */,
+				9F10DC608FB84CDC8B346AF9 /* /Users/justus/dev/vibes/lib/glfw/src/init.c */,
+				D0ED265589FA4D129073A469 /* /Users/justus/dev/vibes/lib/glfw/src/input.c */,
+				2B38506A03814B1EA6504777 /* /Users/justus/dev/vibes/lib/glfw/src/monitor.c */,
+				C17E4D38AFFC464EA7299B17 /* /Users/justus/dev/vibes/lib/glfw/src/nsgl_context.m */,
+				9D71D097BD4043AFB34492E9 /* /Users/justus/dev/vibes/lib/glfw/src/null_init.c */,
+				C1CE024F6DDC4B7B88492BE2 /* /Users/justus/dev/vibes/lib/glfw/src/null_joystick.c */,
+				4D3C6BFAF16E4FE69BC63664 /* /Users/justus/dev/vibes/lib/glfw/src/null_monitor.c */,
+				C2684C09F059455CAA4692B0 /* /Users/justus/dev/vibes/lib/glfw/src/null_window.c */,
+				4DA9C47517FB423CA408BA5C /* /Users/justus/dev/vibes/lib/glfw/src/osmesa_context.c */,
+				24D05D00C5734252A8991D11 /* /Users/justus/dev/vibes/lib/glfw/src/platform.c */,
+				B512751FC9244797BA968A08 /* /Users/justus/dev/vibes/lib/glfw/src/posix_module.c */,
+				C445E4AB599142F4BA4534C2 /* /Users/justus/dev/vibes/lib/glfw/src/posix_thread.c */,
+				AAB1470E12D54551B0A990EB /* /Users/justus/dev/vibes/lib/glfw/src/vulkan.c */,
+				80841944D61B42ECBA9A21C6 /* /Users/justus/dev/vibes/lib/glfw/src/window.c */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		07003487059A418A846694ED /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 85B491A5BA9946359FE548BA /* glfw */;
+			targetProxy = 788A648C2FA64BD282521A64 /* PBXContainerItemProxy */;
+		};
+		363045FA0E1D45B6BE5CF016 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 073C3DC5E4C84A61B9A89BD8 /* ALL_BUILD */;
+			targetProxy = A09B9126AD804FECB5AD10A8 /* PBXContainerItemProxy */;
+		};
+		B4B18D8025DB4F57852473AC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DB00779C56514209B610C837 /* ZERO_CHECK */;
+			targetProxy = 03C179CB188F423DAC174B8B /* PBXContainerItemProxy */;
+		};
+		D322492FD502454DA7CA6EC9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DB00779C56514209B610C837 /* ZERO_CHECK */;
+			targetProxy = 02A8FBDD33C0445992AF1E42 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		012702BE566A4CF58EE7E5B0 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = uninstall;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		0443B0AC4BFE4F1EBA1B70B6 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = update_mappings;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		0768D4A7D24F4487BD1C820E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk;
+				SYMROOT = /Users/justus/dev/vibes/build/build;
+			};
+			name = Release;
+		};
+		09AA97EDB1774CE79DEB9DC7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		185132791CBE49BD847BA5F8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		21A9FEF4D9E344C3B0BC3A68 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = uninstall;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		2D12090592784A21ADDD965B /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk;
+				SYMROOT = /Users/justus/dev/vibes/build/build;
+			};
+			name = RelWithDebInfo;
+		};
+		44E6C2D806614B479BC1E614 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = /Users/justus/dev/vibes/build/lib/glfw/src/Debug;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_COCOA,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/justus/dev/vibes/lib/glfw/include,/Users/justus/dev/vibes/lib/glfw/src,/Users/justus/dev/vibes/build/lib/glfw/src,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = ("   -fPIC -Wall '-std=c99' ","$(inherited)");
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glfw3;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/justus/dev/vibes/build/build/glfw.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		458381CFAA9F422F8571BE7F /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = uninstall;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		46860FCD90E740AD85C7842A /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		46D997F0FE9742458268F1E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		4997CBD226AA4C7E8CA3BC31 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		4E8FE458659F43268830C528 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = update_mappings;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		650A75BE16944C27BF7E2CFA /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = update_mappings;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		700FC40F613D469E88DAEA1C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = update_mappings;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		71D48204D6674378AA443052 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		77729EE7D9E4447F9141173B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		81920A2C2DCA4704AB53324A /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		8945A7BE6A074FA6AE511439 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		A8C31E5BAE0E4E8A8DDB33B7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		B5AE7977B4154DBB96429F47 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = /Users/justus/dev/vibes/build/lib/glfw/src/RelWithDebInfo;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_COCOA,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/justus/dev/vibes/lib/glfw/include,/Users/justus/dev/vibes/lib/glfw/src,/Users/justus/dev/vibes/build/lib/glfw/src,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = ("       -DNDEBUG -fPIC -Wall '-std=c99' ","$(inherited)");
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glfw3;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/justus/dev/vibes/build/build/glfw.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		D12E85D1D3A046429544702F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = /Users/justus/dev/vibes/build/lib/glfw/src/Release;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_COCOA,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/justus/dev/vibes/lib/glfw/include,/Users/justus/dev/vibes/lib/glfw/src,/Users/justus/dev/vibes/build/lib/glfw/src,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = ("    -DNDEBUG -fPIC -Wall '-std=c99' ","$(inherited)");
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glfw3;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/justus/dev/vibes/build/build/glfw.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		D5ADD43C82B044C3ACBD480C /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = /Users/justus/dev/vibes/build/lib/glfw/src/MinSizeRel;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",_GLFW_COCOA,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/justus/dev/vibes/lib/glfw/include,/Users/justus/dev/vibes/lib/glfw/src,/Users/justus/dev/vibes/build/lib/glfw/src,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = ("    -DNDEBUG -fPIC -Wall '-std=c99' ","$(inherited)");
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = glfw3;
+				SECTORDER_FLAGS = "";
+				TARGET_TEMP_DIR = "/Users/justus/dev/vibes/build/build/glfw.build/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		DACB0C1F28BB4249B45F844B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = uninstall;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		DE22E403FA3B4AAABEE25235 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		E3F8DD2EFCB64C1DAD1B44B0 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk;
+				SYMROOT = /Users/justus/dev/vibes/build/build;
+			};
+			name = MinSizeRel;
+		};
+		E67B0CDFD3A94A009033F750 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		F9A2EF9F32554ECF93D06EF2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk;
+				SYMROOT = /Users/justus/dev/vibes/build/build;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1F26F3AD743C4D2D8FB09261 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				185132791CBE49BD847BA5F8 /* Debug */,
+				09AA97EDB1774CE79DEB9DC7 /* Release */,
+				DE22E403FA3B4AAABEE25235 /* MinSizeRel */,
+				8945A7BE6A074FA6AE511439 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		6C1FD3F846234734A35CA5E2 /* Build configuration list for PBXAggregateTarget "update_mappings" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				700FC40F613D469E88DAEA1C /* Debug */,
+				4E8FE458659F43268830C528 /* Release */,
+				0443B0AC4BFE4F1EBA1B70B6 /* MinSizeRel */,
+				650A75BE16944C27BF7E2CFA /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		94D0191B372349EF8CC7E0A1 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4997CBD226AA4C7E8CA3BC31 /* Debug */,
+				77729EE7D9E4447F9141173B /* Release */,
+				81920A2C2DCA4704AB53324A /* MinSizeRel */,
+				71D48204D6674378AA443052 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B2F080490E1846C5829CB9DA /* Build configuration list for PBXAggregateTarget "uninstall" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21A9FEF4D9E344C3B0BC3A68 /* Debug */,
+				DACB0C1F28BB4249B45F844B /* Release */,
+				012702BE566A4CF58EE7E5B0 /* MinSizeRel */,
+				458381CFAA9F422F8571BE7F /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D64413977E4345C6A645BE0C /* Build configuration list for PBXAggregateTarget "install" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A8C31E5BAE0E4E8A8DDB33B7 /* Debug */,
+				46D997F0FE9742458268F1E9 /* Release */,
+				E67B0CDFD3A94A009033F750 /* MinSizeRel */,
+				46860FCD90E740AD85C7842A /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D8D48CFFFD4543FBB8354FAB /* Build configuration list for PBXNativeTarget "glfw" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				44E6C2D806614B479BC1E614 /* Debug */,
+				D12E85D1D3A046429544702F /* Release */,
+				D5ADD43C82B044C3ACBD480C /* MinSizeRel */,
+				B5AE7977B4154DBB96429F47 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D8FD7C025C0D488BAA2B206A /* Build configuration list for PBXProject "GLFW" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9A2EF9F32554ECF93D06EF2 /* Debug */,
+				0768D4A7D24F4487BD1C820E /* Release */,
+				E3F8DD2EFCB64C1DAD1B44B0 /* MinSizeRel */,
+				2D12090592784A21ADDD965B /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7857A2C072E94D138AE37AD7 /* Project object */;
+}

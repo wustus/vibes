@@ -1,0 +1,9 @@
+Target dependency graph (4 targets)
+ZERO_CHECK in vibes, no dependencies
+glfw in vibes, depends on:
+ZERO_CHECK in vibes (explicit)
+glad in vibes, no dependencies
+vibes in vibes, depends on:
+glfw in vibes (explicit)
+glad in vibes (explicit)
+ZERO_CHECK in vibes (explicit)
