@@ -89,8 +89,13 @@ void glfw_error_callback(int error, const char* description) {
 }
 
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char* argv[]) {
     
+    if (argc < 2) {
+        throw std::runtime_error("Please add the Number of Devices.");
+    }
+    
+    int NUMBER_OF_DEVICES = std::stoi(argv[1]);
     
     // find devices
     Network network = Network();
@@ -98,7 +103,6 @@ int main(int argc, const char * argv[]) {
     std::cout << "Setting Local Address." << std::endl;
     network.set_local_addr();
     std::cout << "\tLocal Address:" << network.get_network_config()->address << std::endl;
-    std::cout << &network.get_network_config()->address << std::endl;
     network.discover_devices(3);
     
     // determine master

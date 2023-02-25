@@ -26,7 +26,6 @@ void Network::set_local_addr() {
             #ifdef __APPLE__
                 if (std::strcmp(ifaddr_iter->ifa_name, "en1") == 0) {
                     memcpy((void*) net_config.address, ip_addr, sizeof(ip_addr));
-                    std::cout << &net_config.address << std::endl;
                     return;
                 }
             #endif
@@ -137,8 +136,6 @@ void Network::receive_ack_message(int sckt, std::vector<char*>& pending_devices,
         
         char* device = new char[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
-        
-        std::cout << &net_config.address << std::endl;
         
         if (std::string(device) == std::string(net_config.address)) {
             delete[] device;
