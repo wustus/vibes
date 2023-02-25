@@ -103,7 +103,7 @@ int main(int argc, const char* argv[]) {
     std::cout << "Setting Local Address." << std::endl;
     network.set_local_addr();
     std::cout << "\tLocal Address:" << network.get_network_config()->address << std::endl;
-    network.discover_devices(3);
+    network.discover_devices(NUMBER_OF_DEVICES);
     
     // determine master
     SynchronizationHandler sync_handler = SynchronizationHandler(network);
