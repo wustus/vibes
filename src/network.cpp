@@ -176,11 +176,12 @@ void Network::send_message(int sckt, char* addr, const char* msg, int port) {
 
 void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer, bool* receiving) {
     
-    char* buffer;
     char* device = new char[INET_ADDRSTRLEN];
     struct sockaddr_in src_addr;
     
     while (receiving) {
+        
+        char* buffer = new char[1024];
         
         memset(&src_addr, 0, sizeof(src_addr));
         socklen_t src_addr_len = sizeof(src_addr);
@@ -189,6 +190,7 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
             if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Error while receiving message: " << std::strerror(errno) << std::endl;
             }
+            delete[] buffer;
             continue;
         }
         
