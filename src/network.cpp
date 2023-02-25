@@ -26,6 +26,7 @@ void Network::set_local_addr() {
             #ifdef __APPLE__
                 if (std::strcmp(ifaddr_iter->ifa_name, "en1") == 0) {
                     memcpy((void*) net_config.address, ip_addr, sizeof(ip_addr));
+                    std::cout << &net_config.address << std::endl;
                     return;
                 }
             #endif
@@ -137,7 +138,9 @@ void Network::receive_ack_message(int sckt, std::vector<char*>& pending_devices,
         char* device = new char[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
         
-        if (std::strcmp(device, net_config.address) == 0) {
+        std::cout << &net_config.address << std::endl;
+        
+        if (std::string(device) == std::string(net_config.address)) {
             delete[] device;
             continue;
         }
@@ -206,8 +209,6 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
 }
 
 void Network::discover_devices(int n_devices) {
-    
-    memset(&net_config, 0, sizeof(net_config));
     
     int response;
 	
@@ -326,7 +327,7 @@ void Network::discover_devices(int n_devices) {
     
     while (acknowledged_devices.size() != n_devices-1) {
         for (auto x : discovered_devices) {
-            if (std::find(acknowledged_devices.begin(), acknowledged_devices.end(), x) == acknowledged_devices.end()) {
+            if (std::find_if(acknowledged_devices.begin(), acknowledged_devices.end(), [x](const char* c) { return std::string(x) == std::string(c); }) == acknowledged_devices.end()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds((std::rand() % 1000) + 100));
                 send_ack_message(sckt_ack, inet_addr(x), "ACK");
             }
