@@ -41,7 +41,7 @@ void SynchronizationHandler::determine_master() {
     
     if (bind(sckt, (struct sockaddr*) &bind_addr, sizeof(bind_addr)) < 0) {
         std::cerr << "Error while binding address: " << std::strerror(errno) << std::endl;
-        return(1);
+        exit(1);
     }
     
     int NUMBER_OF_DEVICES = sizeof(net_config.devices) / sizeof(char*);
