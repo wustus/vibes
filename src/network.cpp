@@ -31,7 +31,7 @@ void set_local_addr() {
             
             #ifdef __unix
                 if (std::strcmp(ifaddr_iter->ifa_name, "wlan0") == 0) {
-                    std::memcpy(LOCAL_ADDR ip_addr, INET_ADDRSTRLEN);
+                    std::memcpy((void*) LOCAL_ADDR, ip_addr, INET_ADDRSTRLEN);
                     return;
                 }
             #endif
@@ -346,7 +346,5 @@ void discover_devices(int n_devices) {
         std::cout << "\t" << x << std::endl;
         
     }
-    
-    return &net_config;
 }
 
