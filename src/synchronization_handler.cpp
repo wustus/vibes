@@ -36,7 +36,7 @@ void SynchronizationHandler::determine_master() {
     memset(&bind_addr, 0, sizeof(bind_addr));
     
     bind_addr.sin_family = AF_INET;
-    bind_addr.sin_port = htons(123);
+    bind_addr.sin_port = htons(1283);
     bind_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     
     if (bind(sckt, (struct sockaddr*) &bind_addr, sizeof(bind_addr)) < 0) {
@@ -78,13 +78,13 @@ void SynchronizationHandler::determine_master() {
         
         if (!pending_challenge && !challenged) {
             char* device_addr = network.get_network_config()->devices[device_index];
-            network.send_message(sckt, device_addr, "CHLG", 123);
+            network.send_message(sckt, device_addr, "CHLG", 1283);
             pending_challenge = true;
             chlg_device = device_addr;
             std::cout << "Challenging " << chlg_device << std::endl;
         } else if (pending_challenge) {
             for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
-                if (std::string(devc_buffer[i]) == std::string(chlg_device)) {
+                if (devc_buffer[i] != nullptr && std::string(devc_buffer[i]) == std::string(chlg_device)) {
                     if (std::string(msg_buffer[i]) == std::string("ACC")) {
                         std::cout << "Challenger found " << chlg_device << std::endl;
                         challenger_found = true;
@@ -99,7 +99,7 @@ void SynchronizationHandler::determine_master() {
                 }
             }
         } else if (challenged) {
-            network.send_message(sckt, chlg_device, "ACC", 123);
+            network.send_message(sckt, chlg_device, "ACC", 1283);
             challenger_found = true;
             std::cout << "Accepting Challenge by " << chlg_device << std::endl;
             for (int i=0; i!=NUMBER_OF_DEVICES; i++) {

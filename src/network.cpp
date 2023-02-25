@@ -176,29 +176,33 @@ void Network::send_message(int sckt, char* addr, const char* msg, int port) {
 
 void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer, bool* receiving) {
     
-    char* device = new char[INET_ADDRSTRLEN];
-    struct sockaddr_in src_addr;
-    
     while (receiving) {
         
-        char* buffer = new char[1024];
+        char buffer[1024];
+        memset(&buffer, 0, sizeof(buffer));
         
-        memset(&src_addr, 0, sizeof(src_addr));
+        struct sockaddr_in src_addr;
+        std::memset(&src_addr, 0, sizeof(src_addr));
         socklen_t src_addr_len = sizeof(src_addr);
         
-        if (recvfrom(sckt, &buffer, sizeof(buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
+        ssize_t response = recvfrom(sckt, &buffer, sizeof(buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len);
+        
+        if (response < 0) {
             if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Error while receiving message: " << std::strerror(errno) << std::endl;
             }
-            delete[] buffer;
             continue;
         }
         
+        std::cout << buffer << std::endl;
+        
+        char* device = new char[INET_ADDRSTRLEN];
+        std::memset(&device, 0, sizeof(device));
+        inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
+        
         for (int i=0; i!=sizeof(net_config.devices) / sizeof(char*); i++) {
             if (msg_buffer[i] == nullptr) {
-                memcpy(&msg_buffer[i], buffer, std::strlen(buffer));
-                
-                inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
+                memcpy(msg_buffer[i], buffer, std::strlen(buffer));
                 addr_buffer[i] = device;
             }
         }
