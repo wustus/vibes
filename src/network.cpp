@@ -1,9 +1,10 @@
 
 #include "network.h"
 
-void set_local_addr() {
+Network::Network() {}
+
+void Network::set_local_addr() {
     
-    auto& LOCAL_ADDR = net_config.address;
     struct ifaddrs *ifaddr, *ifaddr_iter;
     void* addr;
     char ip_addr[INET_ADDRSTRLEN];
@@ -24,14 +25,14 @@ void set_local_addr() {
             
             #ifdef __APPLE__
                 if (std::strcmp(ifaddr_iter->ifa_name, "en1") == 0) {
-                    std::memcpy((void*) LOCAL_ADDR, ip_addr, INET_ADDRSTRLEN);
+                    memcpy((void*) net_config.address, ip_addr, sizeof(ip_addr));
                     return;
                 }
             #endif
             
             #ifdef __unix
                 if (std::strcmp(ifaddr_iter->ifa_name, "wlan0") == 0) {
-                    std::memcpy((void*) LOCAL_ADDR, ip_addr, INET_ADDRSTRLEN);
+                    memcpy((void*) net_config.address, ip_addr, sizeof(ip_addr));
                     return;
                 }
             #endif
@@ -39,7 +40,7 @@ void set_local_addr() {
     }
 }
 
-void send_ssdp_message(int sckt, const char* msg) {
+void Network::send_ssdp_message(int sckt, const char* msg) {
     
     struct sockaddr_in dest_addr;
     std::memset(&dest_addr, 0, sizeof(dest_addr));
@@ -53,7 +54,7 @@ void send_ssdp_message(int sckt, const char* msg) {
     }
 }
 
-void send_ack_message(int sckt, in_addr_t addr, const char* msg) {
+void Network::send_ack_message(int sckt, in_addr_t addr, const char* msg) {
     
     struct sockaddr_in dest_addr;
     std::memset(&dest_addr, 0, sizeof(dest_addr));
@@ -67,7 +68,7 @@ void send_ack_message(int sckt, in_addr_t addr, const char* msg) {
     }
 }
 
-void receive_ssdp_message(int sckt, std::vector<char*>& devices, bool& discovering) {
+void Network::receive_ssdp_message(int sckt, std::vector<char*>& devices, bool& discovering) {
     
     while (discovering) {
         
@@ -113,7 +114,7 @@ void receive_ssdp_message(int sckt, std::vector<char*>& devices, bool& discoveri
     }
 }
 
-void receive_ack_message(int sckt, std::vector<char*>& pending_devices, std::vector<char*>& devices, bool& acknowledging) {
+void Network::receive_ack_message(int sckt, std::vector<char*>& pending_devices, std::vector<char*>& devices, bool& acknowledging) {
     
     while (acknowledging) {
         
@@ -159,7 +160,7 @@ void receive_ack_message(int sckt, std::vector<char*>& pending_devices, std::vec
     }
 }
 
-void send_message(int sckt, char* addr, const char* msg, int port) {
+void Network::send_message(int sckt, char* addr, const char* msg, int port) {
     
     struct sockaddr_in dest_addr;
     memset(&dest_addr, 0, sizeof(dest_addr));
@@ -173,7 +174,7 @@ void send_message(int sckt, char* addr, const char* msg, int port) {
     }
 }
 
-void receive_message(int sckt, char**& msg_buffer, char**& addr_buffer, bool* receiving) {
+void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer, bool* receiving) {
     
     char* buffer;
     char* device = new char[INET_ADDRSTRLEN];
@@ -202,7 +203,7 @@ void receive_message(int sckt, char**& msg_buffer, char**& addr_buffer, bool* re
     }
 }
 
-void discover_devices(int n_devices) {
+void Network::discover_devices(int n_devices) {
     
     memset(&net_config, 0, sizeof(net_config));
     
@@ -290,7 +291,7 @@ void discover_devices(int n_devices) {
     std::cout << "Discovering Devices..." << std::endl;
     
     bool discovering = true;
-    std::thread receive_thread_ssdp(receive_ssdp_message, sckt_ssdp, std::ref(discovered_devices), std::ref(discovering));
+    std::thread receive_thread_ssdp(&Network::receive_ssdp_message, this, sckt_ssdp, std::ref(discovered_devices), std::ref(discovering));
     
     const char* message =   "M-SEARCH * HTTP/1.1\r\n"
                             "HOST: 239.255.255.250:1900\r\n"
@@ -319,7 +320,7 @@ void discover_devices(int n_devices) {
     // acknowledgement phase
     bool acknowledging = true;
     
-    std::thread receive_thread_ack(&receive_ack_message, sckt_ack, std::ref(pending_acknowledgements), std::ref(acknowledged_devices), std::ref(acknowledging));
+    std::thread receive_thread_ack(&Network::receive_ack_message, this, sckt_ack, std::ref(pending_acknowledgements), std::ref(acknowledged_devices), std::ref(acknowledging));
     
     while (acknowledged_devices.size() != n_devices-1) {
         for (auto x : discovered_devices) {
@@ -334,7 +335,6 @@ void discover_devices(int n_devices) {
     
     receive_thread_ack.join();
     
-    
     close(sckt_ack);
     
     net_config.devices = new char*[acknowledged_devices.size()];
@@ -342,9 +342,13 @@ void discover_devices(int n_devices) {
     std::cout << "Found " << acknowledged_devices.size() << " devices:" << std::endl;
     for (int i=0; i!=acknowledged_devices.size(); i++) {
         auto x = acknowledged_devices[i];
-        net_config.devices[i] = x;
-        std::cout << "\t" << x << std::endl;
+        net_config.devices[i] = new char[INET_ADDRSTRLEN];
+        memcpy(net_config.devices[i], x, INET_ADDRSTRLEN);
+        std::cout << "\t" << net_config.devices[i] << std::endl;
         
     }
 }
 
+Network::NetworkConfig* Network::get_network_config() {
+    return &net_config;
+}

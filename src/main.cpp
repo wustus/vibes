@@ -1,6 +1,5 @@
 
 #include <math.h>
-#include "network.h"
 #include "synchronization_handler.hpp"
 
 #include "shader.h"
@@ -94,14 +93,15 @@ int main(int argc, const char * argv[]) {
     
     
     // find devices
-    //NetworkConfig network_config;
+    Network network = Network();
     
     std::cout << "Setting Local Address." << std::endl;
-    set_local_addr();
-    discover_devices(3);
+    network.set_local_addr();
+    std::cout << "Local Address:\t" << network.get_network_config()->address << std::endl;
+    network.discover_devices(3);
     
     // determine master
-    SynchronizationHandler sync_handler = SynchronizationHandler();
+    SynchronizationHandler sync_handler = SynchronizationHandler(network);
     
     sync_handler.determine_master();
     

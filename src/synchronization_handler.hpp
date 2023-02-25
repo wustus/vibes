@@ -10,21 +10,21 @@
 
 #include "network.h"
 
-struct tic_tac_toe {
-    char field[9];
-    bool is_move;
-    bool is_over = false;
-    bool is_won;
-};
-
 class SynchronizationHandler {
-public:
-    SynchronizationHandler();
-    void determine_master();
-    void sync();
 private:
+    Network network;
     bool is_master;
     uint64_t start_time;
+    struct tic_tac_toe {
+        char field[9];
+        bool is_move;
+        bool is_over = false;
+        bool is_won;
+    };
+public:
+    SynchronizationHandler(Network& network);
+    void determine_master();
+    void sync();
 };
 
 #endif /* SynchronizationHandler_hpp */

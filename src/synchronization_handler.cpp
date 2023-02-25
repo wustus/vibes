@@ -7,7 +7,7 @@
 
 #include "synchronization_handler.hpp"
 
-SynchronizationHandler::SynchronizationHandler() {
+SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {
     
 }
 
@@ -44,14 +44,14 @@ void SynchronizationHandler::determine_master() {
         exit(1);
     }
     
-    int NUMBER_OF_DEVICES = sizeof(net_config.devices) / sizeof(char*);
+    int NUMBER_OF_DEVICES = sizeof(network.get_network_config()->devices) / sizeof(char*);
     
     char** msg_buffer = new char*[NUMBER_OF_DEVICES];
     char** devc_buffer = new char*[NUMBER_OF_DEVICES];
     
     bool receiving = true;
     
-    std::thread recv_thread(receive_message, sckt, std::ref(msg_buffer), std::ref(devc_buffer), &receiving);
+    std::thread recv_thread([this, sckt, &msg_buffer, &devc_buffer, &receiving]() { network.receive_message(sckt, msg_buffer, devc_buffer, &receiving); });
     
     bool pending_challenge = false;
     bool challenged = false;
@@ -61,7 +61,7 @@ void SynchronizationHandler::determine_master() {
     int device_index = 0;
     char* chlg_device;
     
-    std::cout << "Finding Challenger for " << net_config.address << std::endl;
+    std::cout << "Finding Challenger for " << network.get_network_config()->address << std::endl;
     
     // find challenger
     while (!challenger_found && !wait_for_challenge) {
@@ -77,8 +77,8 @@ void SynchronizationHandler::determine_master() {
         }
         
         if (!pending_challenge && !challenged) {
-            char* device_addr = net_config.devices[device_index];
-            send_message(sckt, device_addr, "CHLG", 123);
+            char* device_addr = network.get_network_config()->devices[device_index];
+            network.send_message(sckt, device_addr, "CHLG", 123);
             pending_challenge = true;
             chlg_device = device_addr;
             std::cout << "Challenging " << chlg_device << std::endl;
@@ -99,19 +99,19 @@ void SynchronizationHandler::determine_master() {
                 }
             }
         } else if (challenged) {
-            send_message(sckt, chlg_device, "ACC", 123);
+            network.send_message(sckt, chlg_device, "ACC", 123);
             challenger_found = true;
             std::cout << "Accepting Challenge by " << chlg_device << std::endl;
             for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
                 if (std::string(msg_buffer[i]) == std::string("CHLG") && std::string(devc_buffer[i]) != std::string(chlg_device)) {
-                    send_message(sckt, devc_buffer[i], "DEC", 123);
+                    network.send_message(sckt, devc_buffer[i], "DEC", 123);
                     std::cout << "Declining Challenge " << chlg_device << std::endl;
                 }
             }
         }
     }
     
-    std::cout << "Done Searching." << net_config.address << std::endl;
+    std::cout << "Done Searching." << network.get_network_config()->address << std::endl;
     std::cout << (challenger_found ? "Starting Game." : "Waiting...") << std::endl;
     
     // accept first one, decline rest
