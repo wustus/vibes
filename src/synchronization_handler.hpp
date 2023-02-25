@@ -19,12 +19,10 @@ struct tic_tac_toe {
 
 class SynchronizationHandler {
 public:
-    SynchronizationHandler(std::vector<char*>);
-    
+    SynchronizationHandler();
     void determine_master();
     void sync();
 private:
-    std::vector<char*> devices;
     bool is_master;
     uint64_t start_time;
 };

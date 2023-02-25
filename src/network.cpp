@@ -25,7 +25,6 @@ void set_local_addr() {
             #ifdef __APPLE__
                 if (std::strcmp(ifaddr_iter->ifa_name, "en1") == 0) {
                     std::memcpy((void*) LOCAL_ADDR, ip_addr, INET_ADDRSTRLEN);
-                    std::cout << "Local Address: " << LOCAL_ADDR << std::endl;
                     return;
                 }
             #endif
@@ -174,15 +173,14 @@ void send_message(int sckt, char* addr, const char* msg, int port) {
     }
 }
 
-char* receive_message(int sckt) {
+void receive_message(int sckt, char**& msg_buffer, char**& addr_buffer, bool* receiving) {
     
-    char* buffer = new char[1024];
+    char* buffer;
+    char* device = new char[INET_ADDRSTRLEN];
     struct sockaddr_in src_addr;
-    bool received = false;
     
-    while (!received) {
+    while (receiving) {
         
-        memset(&buffer, 0, sizeof(buffer));
         memset(&src_addr, 0, sizeof(src_addr));
         socklen_t src_addr_len = sizeof(src_addr);
         
@@ -193,7 +191,14 @@ char* receive_message(int sckt) {
             }
         }
         
-        return buffer;
+        for (int i=0; i!=sizeof(net_config.devices) / sizeof(char*); i++) {
+            if (msg_buffer[i] == nullptr) {
+                memcpy(&msg_buffer[i], buffer, std::strlen(buffer));
+                
+                inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
+                addr_buffer[i] = device;
+            }
+        }
     }
 }
 
