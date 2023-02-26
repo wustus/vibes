@@ -11,6 +11,12 @@ SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {
     
 }
 
+char* get_time() {
+    auto now = std::chrono::system_clock::now();
+    std::time_t time = std::chrono::system_clock::to_time_t(now);
+    return std::ctime(&time);
+}
+
 void SynchronizationHandler::determine_master() {
     
     int CHLG_PORT = network.get_chlg_port();
@@ -33,18 +39,18 @@ void SynchronizationHandler::determine_master() {
     int device_index = 0;
     char* chlg_device;
     
-    std::cout << "Finding Challenger for " << network.get_network_config()->address << std::endl;
+    std::cout << "Finding Challenger for " << network.get_network_config()->address << " at time " << get_time() << "..." << std::endl;
     
     // find challenger
     while (!challenger_found && !wait_for_challenge) {
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 1500));
         
         if (msg_buffer[0] != nullptr) {
             if (std::strcmp(msg_buffer[0], "CHLG") == 0) {
                 challenged = true;
                 chlg_device = devc_buffer[0];
-                std::cout << "Challenged by " << chlg_device << std::endl;
+                std::cout << "Challenged by " << chlg_device << " at time " << get_time() << "..." << std::endl;
             }
         }
         
@@ -53,12 +59,12 @@ void SynchronizationHandler::determine_master() {
             network.send_message(sckt, device_addr, "CHLG", CHLG_PORT);
             pending_challenge = true;
             chlg_device = device_addr;
-            std::cout << "Challenging " << chlg_device << std::endl;
+            std::cout << "Challenging " << chlg_device << " at time " << get_time() << "..." <<  std::endl;
         } else if (pending_challenge) {
             for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
                 if (devc_buffer[i] != nullptr && std::string(devc_buffer[i]) == std::string(chlg_device)) {
                     if (std::string(msg_buffer[i]) == std::string("ACC")) {
-                        std::cout << "Challenger found " << chlg_device << std::endl;
+                        std::cout << "Challenger found " << chlg_device << " at time " << get_time() << "..." <<  std::endl;
                         challenger_found = true;
                     } else if (std::string(msg_buffer[i]) == std::string("DEC")) {
                         if (device_index == NUMBER_OF_DEVICES-1) {
