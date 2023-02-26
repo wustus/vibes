@@ -50,7 +50,7 @@ void SynchronizationHandler::determine_master() {
         
         if (!pending_challenge && !challenged) {
             char* device_addr = network.get_network_config()->devices[device_index];
-            std::cout << "Challenging " << chlg_device << std::endl;
+            std::cout << "Challenging " << device_addr << std::endl;
             network.send_message(sckt, device_addr, "CHLG", CHLG_PORT);
             pending_challenge = true;
             chlg_device = device_addr;
