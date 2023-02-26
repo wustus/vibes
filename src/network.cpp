@@ -272,7 +272,7 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
         std::cout << "memset" << std::endl;
         
         for (int i=0; i!=sizeof(net_config.devices) / sizeof(char*); i++) {
-            if (msg_buffer[i] == nullptr) {
+            if (msg_buffer[i] == NULL) {
                 memcpy(&msg_buffer[i], buffer, std::strlen(buffer));
                 std::cout << "memcpy" << std::endl;
                 addr_buffer[i] = device;
