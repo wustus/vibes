@@ -247,6 +247,8 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
     
     while (*receiving) {
         
+        std::cout << "Receiving..." << std::endl;
+        
         char buffer[1024];
         memset(&buffer, 0, sizeof(buffer));
         
@@ -343,16 +345,32 @@ void Network::discover_devices(int n_devices) {
     }
 }
 
+int Network::get_ssdp_port() {
+    return SSDP_PORT;
+}
+
 int Network::get_ssdp_sckt() {
     return ssdp_sckt;
+}
+
+int Network::get_ack_port() {
+    return ACK_PORT;
 }
 
 int Network::get_ack_sckt() {
     return ack_sckt;
 }
 
+int Network::get_chlg_port() {
+    return CHLG_PORT;
+}
+
 int Network::get_chlg_sckt() {
     return chlg_sckt;
+}
+
+int Network::get_ntp_port() {
+    return NTP_PORT;
 }
 
 int Network::get_ntp_sckt() {

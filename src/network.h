@@ -55,9 +55,13 @@ public:
     void send_message(int sckt, char* addr, const char* msg, int port);
     void receive_message(int sckt, char**& buffer, char**& addr, bool* receiving);
     void discover_devices(int n_devices);
+    int get_ssdp_port();
     int get_ssdp_sckt();
+    int get_ack_port();
     int get_ack_sckt();
+    int get_chlg_port();
     int get_chlg_sckt();
+    int get_ntp_port();
     int get_ntp_sckt();
     NetworkConfig* get_network_config();
 };

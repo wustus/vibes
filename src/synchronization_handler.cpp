@@ -13,6 +13,7 @@ SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {
 
 void SynchronizationHandler::determine_master() {
     
+    int CHLG_PORT = network.get_chlg_port();
     int sckt = network.get_chlg_sckt();
     
     int NUMBER_OF_DEVICES = sizeof(network.get_network_config()->devices) / sizeof(char*);
@@ -49,7 +50,7 @@ void SynchronizationHandler::determine_master() {
         
         if (!pending_challenge && !challenged) {
             char* device_addr = network.get_network_config()->devices[device_index];
-            network.send_message(sckt, device_addr, "CHLG", 1283);
+            network.send_message(sckt, device_addr, "CHLG", CHLG_PORT);
             pending_challenge = true;
             chlg_device = device_addr;
             std::cout << "Challenging " << chlg_device << std::endl;
@@ -64,18 +65,20 @@ void SynchronizationHandler::determine_master() {
                             std::cout << "No Challenger found, waiting for challenge..." << std::endl;
                             wait_for_challenge = true;
                         } else {
+                            std::cout << "Challenge declined by " << chlg_device << "..." << std::endl;
+                            pending_challenge = false;
                             device_index++;
                         }
                     }
                 }
             }
         } else if (challenged) {
-            network.send_message(sckt, chlg_device, "ACC", 1283);
+            network.send_message(sckt, chlg_device, "ACC", CHLG_PORT);
             challenger_found = true;
             std::cout << "Accepting Challenge by " << chlg_device << std::endl;
             for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
                 if (std::string(msg_buffer[i]) == std::string("CHLG") && std::string(devc_buffer[i]) != std::string(chlg_device)) {
-                    network.send_message(sckt, devc_buffer[i], "DEC", 123);
+                    network.send_message(sckt, devc_buffer[i], "DEC", CHLG_PORT);
                     std::cout << "Declining Challenge " << chlg_device << std::endl;
                 }
             }
