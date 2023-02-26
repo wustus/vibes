@@ -249,7 +249,7 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
     
     while (*receiving) {
         
-        char buffer[1024];
+        char buffer[8];
         memset(&buffer, 0, sizeof(buffer));
         
         struct sockaddr_in src_addr;
@@ -269,14 +269,14 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
         std::memset(device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
         
-        std::cout << "memset" << std::endl;
         for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
-            std::cout << msg_buffer[i];
             if (msg_buffer[i] == nullptr) {
-                memcpy(&msg_buffer[i], buffer, std::strlen(buffer));
-                std::cout << "memcpy" << std::endl;
+                // allocate memory for message
+                msg_buffer[i] = new char[sizeof(buffer)];
+                memcpy(msg_buffer[i], buffer, sizeof(buffer));
+                
+                // point to device memory
                 addr_buffer[i] = device;
-                std::cout << "set addr buffer" << std::endl;
                 return;
             }
         }
