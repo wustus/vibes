@@ -273,6 +273,7 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
             if (msg_buffer[i] == nullptr) {
                 // allocate memory for message
                 msg_buffer[i] = new char[src_addr_len];
+                std::cout << i << std::endl;
                 std::memcpy(msg_buffer[i], &buffer, src_addr_len);
                 std::cout << msg_buffer[i] << std::endl;
                 std::cout << &msg_buffer[i] << std::endl;
