@@ -272,8 +272,8 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
         for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
             if (msg_buffer[i] == nullptr) {
                 // allocate memory for message
-                msg_buffer[i] = new char[sizeof(buffer)];
-                memcpy(msg_buffer[i], buffer, sizeof(buffer));
+                msg_buffer[i] = new char[src_addr_len];
+                memcpy(msg_buffer[i], buffer, src_addr_len);
                 std::cout << msg_buffer[i] << std::endl;
                 std::cout << &msg_buffer[i] << std::endl;
                 
