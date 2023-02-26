@@ -245,7 +245,7 @@ void Network::send_message(int sckt, char* addr, const char* msg, int port) {
 
 void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer, bool* receiving) {
     
-    while (receiving) {
+    while (*receiving) {
         
         char buffer[1024];
         memset(&buffer, 0, sizeof(buffer));
@@ -254,11 +254,11 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
         std::memset(&src_addr, 0, sizeof(src_addr));
         socklen_t src_addr_len = sizeof(src_addr);
         
-        ssize_t response = recvfrom(sckt, &buffer, sizeof(buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len);
-        
-        if (response < 0) {
-            if (errno != 0x23 && errno != 0xB) {
+        if (recvfrom(sckt, &buffer, sizeof(buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
+            if (errno != 0x23) {
                 std::cerr << "Error while receiving message: " << std::strerror(errno) << std::endl;
+            } else if (errno == 0xB) {
+                std::cout << "Timeout..." << std::endl;
             }
             continue;
         }
