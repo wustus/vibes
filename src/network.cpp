@@ -257,10 +257,8 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
         socklen_t src_addr_len = sizeof(src_addr);
         
         if (recvfrom(sckt, &buffer, sizeof(buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
-            if (errno != 0x23) {
+            if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Error while receiving message: " << std::strerror(errno) << std::endl;
-            } else if (errno == 0xB) {
-                std::cout << "Timeout..." << std::endl;
             }
             continue;
         }
@@ -271,10 +269,15 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
         std::memset(&device, 0, sizeof(device));
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
         
+        std::cout << "memset" << std::endl;
+        
         for (int i=0; i!=sizeof(net_config.devices) / sizeof(char*); i++) {
             if (msg_buffer[i] == nullptr) {
                 memcpy(&msg_buffer[i], buffer, std::strlen(buffer));
+                std::cout << "memcpy" << std::endl;
                 addr_buffer[i] = device;
+                std::cout << "set addr buffer" << std::endl;
+                return;
             }
         }
     }
