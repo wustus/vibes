@@ -38,7 +38,7 @@ void SynchronizationHandler::determine_master() {
     // find challenger
     while (!challenger_found && !wait_for_challenge) {
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 1000));
         
         if (msg_buffer[0] != nullptr) {
             if (std::strcmp(msg_buffer[0], "CHLG") == 0) {
