@@ -263,6 +263,8 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
             continue;
         }
         
+        std::cout << buffer << std::endl;
+        
         char* device = new char[INET_ADDRSTRLEN];
         std::memset(device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
