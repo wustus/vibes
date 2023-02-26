@@ -34,10 +34,19 @@ private:
     const char* SSDP_ADDR = "239.255.255.250";
     const int SSDP_PORT = 1900;
     const int ACK_PORT = 1901;
+    const int CHLG_PORT = 8883;
+    const int NTP_PORT = 123;
+    
+    int ssdp_sckt;
+    int ack_sckt;
+    int chlg_sckt;
+    int ntp_sckt;
 
     NetworkConfig net_config;
 public:
     Network();
+    ~Network();
+    int create_socket(int);
     void set_local_addr();
     void send_ssdp_message(int sckt, const char* msg);
     void send_ack_message(int sckt, in_addr_t addr, const char* msg);
@@ -46,6 +55,10 @@ public:
     void send_message(int sckt, char* addr, const char* msg, int port);
     void receive_message(int sckt, char**& buffer, char**& addr, bool* receiving);
     void discover_devices(int n_devices);
+    int get_ssdp_sckt();
+    int get_ack_sckt();
+    int get_chlg_sckt();
+    int get_ntp_sckt();
     NetworkConfig* get_network_config();
 };
 

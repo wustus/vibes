@@ -1,7 +1,76 @@
 
 #include "network.h"
 
-Network::Network() {}
+Network::Network() {
+    
+    // initialize sockets
+    int response;
+    
+    ssdp_sckt = create_socket(SSDP_PORT);
+    ack_sckt = create_socket(ACK_PORT);
+    chlg_sckt = create_socket(CHLG_PORT);
+    ntp_sckt = create_socket(NTP_PORT);
+    
+    // join ssdp multicast group
+    struct ip_mreq mreq;
+    std::memset(&mreq, 0, sizeof(mreq));
+    
+    mreq.imr_multiaddr.s_addr = inet_addr(SSDP_ADDR);
+    mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+    
+    response = setsockopt(ssdp_sckt, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
+    
+    if (response < 0) {
+        std::cerr << "Error setting Multicast socket option: " << std::strerror(errno) << std::endl;
+        exit(1);
+    }
+}
+
+Network::~Network() {
+    close(ssdp_sckt);
+    close(ack_sckt);
+    close(chlg_sckt);
+    close(ntp_sckt);
+}
+
+int Network::create_socket(int port) {
+    
+    int sckt = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    
+    int opt = 1;
+    
+    // reuse address
+    if (setsockopt(sckt, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        std::cerr << "Error while setting socket option for port" << port << ": " << std::strerror(errno) << std::endl;
+        exit(1);
+    }
+    
+    // receive timeout
+    struct timeval timeout;
+    std::memset(&timeout, 0, sizeof(timeout));
+    timeout.tv_sec = 3;
+    timeout.tv_usec = 0;
+    
+    if (setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
+        std::cerr << "Error while setting timeout for port " << port << ": " << std::strerror(errno) << std::endl;
+        exit(1);
+    }
+    
+    // bind port
+    struct sockaddr_in bind_addr;
+    memset(&bind_addr, 0, sizeof(bind_addr));
+    
+    bind_addr.sin_family = AF_INET;
+    bind_addr.sin_port = htons(port);
+    bind_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    
+    if (bind(sckt, (struct sockaddr*) &bind_addr, sizeof(bind_addr)) < 0) {
+        std::cerr << "Error while binding address to port " << port << ": " << std::strerror(errno) << std::endl;
+        exit(1);
+    }
+    
+    return sckt;
+}
 
 void Network::set_local_addr() {
     
@@ -202,7 +271,7 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
         
         for (int i=0; i!=sizeof(net_config.devices) / sizeof(char*); i++) {
             if (msg_buffer[i] == nullptr) {
-                memcpy(msg_buffer[i], buffer, std::strlen(buffer));
+                memcpy(&msg_buffer[i], buffer, std::strlen(buffer));
                 addr_buffer[i] = device;
             }
         }
@@ -211,91 +280,12 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
 
 void Network::discover_devices(int n_devices) {
     
-    int response;
-	
-    int sckt_ssdp = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    int sckt_ack = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    
-    if (sckt_ssdp < 0) {
-        std::cerr << "Error creating socket: " << std::strerror(errno) << std::endl;
-        exit(1);
-    }
-    
-    int opt = 1;
-    response = setsockopt(sckt_ssdp, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    
-    if (response < 0) {
-        std::cerr << "Error setting reuse socket option: " << std::strerror(response) << std::endl;
-        exit(1);
-    }
-    
-    response = setsockopt(sckt_ack, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    
-    if (response < 0) {
-        std::cerr << "Error setting socket option: " << std::strerror(response) << std::endl;
-        exit(1);
-    }
-    
-    struct timeval timeout;
-    std::memset(&timeout, 0, sizeof(timeout));
-    timeout.tv_sec = 3;
-    timeout.tv_usec = 0;
-    
-    response = setsockopt(sckt_ssdp, SOL_SOCKET, SO_RCVTIMEO, &(timeout), sizeof(timeout));
-    
-    if (response < 0) {
-        std::cerr << "Error setting timeout socket option: " << std::strerror(response) << std::endl;
-        exit(1);
-    }
-    
-    response = setsockopt(sckt_ack, SOL_SOCKET, SO_RCVTIMEO, &(timeout), sizeof(timeout));
-    
-    if (response < 0) {
-        std::cerr << "Error setting timeout socket option: " << std::strerror(response) << std::endl;
-        exit(1);
-    }
-    
-    struct sockaddr_in bind_addr_ssdp, bind_addr_ack;
-    std::memset(&bind_addr_ssdp, 0, sizeof(bind_addr_ssdp));
-    std::memset(&bind_addr_ack, 0, sizeof(bind_addr_ack));
-    
-    bind_addr_ssdp.sin_family = AF_INET;
-    bind_addr_ssdp.sin_port = htons(SSDP_PORT);
-    bind_addr_ssdp.sin_addr.s_addr = htonl(INADDR_ANY);
-    
-    bind_addr_ack.sin_family = AF_INET;
-    bind_addr_ack.sin_port = htons(ACK_PORT);
-    bind_addr_ack.sin_addr.s_addr = htonl(INADDR_ANY);
-    
-    if (bind(sckt_ssdp, (struct sockaddr*) &bind_addr_ssdp, sizeof(bind_addr_ssdp)) < 0) {
-        std::cerr << "Error binding SSDP port to socket: " << std::strerror(errno) << std::endl;
-        exit(1);
-    }
-    
-    if (bind(sckt_ack, (struct sockaddr*) &bind_addr_ack, sizeof(bind_addr_ack)) < 0) {
-        std::cerr << "Error binding ACK port to socket: " << std::strerror(errno) << std::endl;
-        exit(1);
-    }
-    
-    struct ip_mreq mreq;
-    std::memset(&mreq, 0, sizeof(mreq));
-    
-    mreq.imr_multiaddr.s_addr = inet_addr(SSDP_ADDR);
-    mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-    
-    response = setsockopt(sckt_ssdp, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
-    
-    if (response < 0) {
-        std::cerr << "Error setting socket option: " << std::strerror(errno) << std::endl;
-        exit(1);
-    }
-    
     std::vector<char*> discovered_devices;
     
     std::cout << "Discovering Devices..." << std::endl;
     
     bool discovering = true;
-    std::thread receive_thread_ssdp(&Network::receive_ssdp_message, this, sckt_ssdp, std::ref(discovered_devices), std::ref(discovering));
+    std::thread receive_thread_ssdp(&Network::receive_ssdp_message, this, ssdp_sckt, std::ref(discovered_devices), std::ref(discovering));
     
     const char* message =   "M-SEARCH * HTTP/1.1\r\n"
                             "HOST: 239.255.255.250:1900\r\n"
@@ -306,14 +296,14 @@ void Network::discover_devices(int n_devices) {
     
     // discovery phase
     for (int _=0; _!=10; _++) {
-        send_ssdp_message(sckt_ssdp, message);
+        send_ssdp_message(ssdp_sckt, message);
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     
     discovering = false;
     
     receive_thread_ssdp.join();
-    close(sckt_ssdp);
+    close(ssdp_sckt);
     
     std::cout << "Discovered " << discovered_devices.size() << " devices." << std::endl;
     std::cout << "Acknowledging Devices..." << std::endl;
@@ -324,13 +314,13 @@ void Network::discover_devices(int n_devices) {
     // acknowledgement phase
     bool acknowledging = true;
     
-    std::thread receive_thread_ack(&Network::receive_ack_message, this, sckt_ack, std::ref(pending_acknowledgements), std::ref(acknowledged_devices), std::ref(acknowledging));
+    std::thread receive_thread_ack(&Network::receive_ack_message, this, ack_sckt, std::ref(pending_acknowledgements), std::ref(acknowledged_devices), std::ref(acknowledging));
     
     while (acknowledged_devices.size() != n_devices-1) {
         for (auto x : discovered_devices) {
             if (std::find_if(acknowledged_devices.begin(), acknowledged_devices.end(), [x](const char* c) { return std::string(x) == std::string(c); }) == acknowledged_devices.end()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds((std::rand() % 1000) + 100));
-                send_ack_message(sckt_ack, inet_addr(x), "ACK");
+                send_ack_message(ack_sckt, inet_addr(x), "ACK");
             }
         }
     }
@@ -339,7 +329,7 @@ void Network::discover_devices(int n_devices) {
     
     receive_thread_ack.join();
     
-    close(sckt_ack);
+    close(ack_sckt);
     
     net_config.devices = new char*[acknowledged_devices.size()];
     
@@ -351,6 +341,22 @@ void Network::discover_devices(int n_devices) {
         std::cout << "\t" << net_config.devices[i] << std::endl;
         
     }
+}
+
+int Network::get_ssdp_sckt() {
+    return ssdp_sckt;
+}
+
+int Network::get_ack_sckt() {
+    return ack_sckt;
+}
+
+int Network::get_chlg_sckt() {
+    return chlg_sckt;
+}
+
+int Network::get_ntp_sckt() {
+    return ntp_sckt;
 }
 
 Network::NetworkConfig* Network::get_network_config() {
