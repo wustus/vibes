@@ -37,9 +37,10 @@ void SynchronizationHandler::determine_master() {
     // find challenger
     while (!challenger_found && !wait_for_challenge) {
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 2000));
         
         if (msg_buffer[0] != nullptr) {
+            std::cout << msg_buffer[0];
             if (std::strcmp(msg_buffer[0], "CHLG") == 0) {
                 challenged = true;
                 chlg_device = devc_buffer[0];
@@ -49,10 +50,10 @@ void SynchronizationHandler::determine_master() {
         
         if (!pending_challenge && !challenged) {
             char* device_addr = network.get_network_config()->devices[device_index];
+            std::cout << "Challenging " << chlg_device << std::endl;
             network.send_message(sckt, device_addr, "CHLG", CHLG_PORT);
             pending_challenge = true;
             chlg_device = device_addr;
-            std::cout << "Challenging " << chlg_device << std::endl;
         } else if (pending_challenge) {
             for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
                 if (devc_buffer[i] != nullptr && std::string(devc_buffer[i]) == std::string(chlg_device)) {
