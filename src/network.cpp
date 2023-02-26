@@ -262,7 +262,7 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
             }
             continue;
         }
-        
+
         std::cout << buffer << std::endl;
         
         char* device = new char[INET_ADDRSTRLEN];
@@ -274,6 +274,8 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
                 // allocate memory for message
                 msg_buffer[i] = new char[sizeof(buffer)];
                 memcpy(msg_buffer[i], buffer, sizeof(buffer));
+                std::cout << msg_buffer[i] << std::endl;
+                std::cout << &msg_buffer[i] << std::endl;
                 
                 // point to device memory
                 addr_buffer[i] = device;

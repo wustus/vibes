@@ -40,7 +40,9 @@ void SynchronizationHandler::determine_master() {
         std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 2000));
         
         if (msg_buffer[0] != nullptr) {
-            std::cout << std::string(msg_buffer[0]) << std::endl;
+            std::cout << msg_buffer[0] << std::endl;
+            std::cout << &msg_buffer[0] << std::endl;
+            
             if (std::string(msg_buffer[0]) == std::string("CHLG")) {
                 challenged = true;
                 chlg_device = devc_buffer[0];
