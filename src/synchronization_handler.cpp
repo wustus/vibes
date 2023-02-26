@@ -40,9 +40,6 @@ void SynchronizationHandler::determine_master() {
         std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 2000));
         
         if (msg_buffer[0] != nullptr) {
-            std::cout << *msg_buffer[0] << std::endl;
-            std::cout << &msg_buffer[0] << std::endl;
-            
             if (std::string(msg_buffer[0]) == std::string("CHLG")) {
                 challenged = true;
                 chlg_device = devc_buffer[0];
@@ -79,12 +76,16 @@ void SynchronizationHandler::determine_master() {
             challenger_found = true;
             std::cout << "Accepting Challenge by " << chlg_device << std::endl;
             for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
-                std::cout << i << std::endl;
-                std::cout << std::string(msg_buffer[i]) << std::endl;
-                std::cout << std::string(devc_buffer[i]) << std::endl;
-                if (std::string(msg_buffer[i]) == std::string("CHLG") && std::string(devc_buffer[i]) != std::string(chlg_device)) {
-                    network.send_message(sckt, devc_buffer[i], "DEC", CHLG_PORT);
-                    std::cout << "Declining Challenge " << chlg_device << std::endl;
+                if (msg_buffer[i] != nullptr && devc_buffer[i] != nullptr) {
+                    std::cout << i << std::endl;
+                    std::cout << std::string(msg_buffer[i]) << std::endl;
+                    std::cout << std::string(devc_buffer[i]) << std::endl;
+                    if (std::string(msg_buffer[i]) == std::string("CHLG") && std::string(devc_buffer[i]) != std::string(chlg_device)) {
+                        network.send_message(sckt, devc_buffer[i], "DEC", CHLG_PORT);
+                        std::cout << "Declining Challenge " << chlg_device << std::endl;
+                    }
+                } else {
+                    break;
                 }
             }
         }
