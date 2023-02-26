@@ -18,8 +18,8 @@ void SynchronizationHandler::determine_master() {
     
     int NUMBER_OF_DEVICES = network.get_number_of_devices();
     
-    char** msg_buffer = new char*[NUMBER_OF_DEVICES];
-    char** devc_buffer = new char*[NUMBER_OF_DEVICES];
+    char** msg_buffer = new char*[NUMBER_OF_DEVICES]();
+    char** devc_buffer = new char*[NUMBER_OF_DEVICES]();
     
     bool receiving = true;
     
