@@ -41,10 +41,12 @@ private:
     int ack_sckt;
     int chlg_sckt;
     int ntp_sckt;
+    
+    int NUMBER_OF_DEVICES;
 
     NetworkConfig net_config;
 public:
-    Network();
+    Network(int);
     ~Network();
     int create_socket(int);
     void set_local_addr();
@@ -54,7 +56,7 @@ public:
     void receive_ack_message(int sckt, std::vector<char*>& pending_devices, std::vector<char*>& devices, bool& acknowledging);
     void send_message(int sckt, char* addr, const char* msg, int port);
     void receive_message(int sckt, char**& buffer, char**& addr, bool* receiving);
-    void discover_devices(int n_devices);
+    void discover_devices();
     int get_ssdp_port();
     int get_ssdp_sckt();
     int get_ack_port();
@@ -63,6 +65,7 @@ public:
     int get_chlg_sckt();
     int get_ntp_port();
     int get_ntp_sckt();
+    int get_number_of_devices();
     NetworkConfig* get_network_config();
 };
 

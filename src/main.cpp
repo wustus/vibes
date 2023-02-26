@@ -98,12 +98,12 @@ int main(int argc, const char* argv[]) {
     int NUMBER_OF_DEVICES = std::stoi(argv[1]);
     
     // find devices
-    Network network = Network();
+    Network network = Network(NUMBER_OF_DEVICES);
     
     std::cout << "Setting Local Address." << std::endl;
     network.set_local_addr();
     std::cout << "\tLocal Address:" << network.get_network_config()->address << std::endl;
-    network.discover_devices(NUMBER_OF_DEVICES);
+    network.discover_devices();
     
     // determine master
     SynchronizationHandler sync_handler = SynchronizationHandler(network);

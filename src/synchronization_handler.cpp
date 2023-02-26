@@ -16,7 +16,7 @@ void SynchronizationHandler::determine_master() {
     int CHLG_PORT = network.get_chlg_port();
     int sckt = network.get_chlg_sckt();
     
-    int NUMBER_OF_DEVICES = sizeof(network.get_network_config()->devices) / sizeof(char*);
+    int NUMBER_OF_DEVICES = network.get_number_of_devices();
     
     char** msg_buffer = new char*[NUMBER_OF_DEVICES];
     char** devc_buffer = new char*[NUMBER_OF_DEVICES];

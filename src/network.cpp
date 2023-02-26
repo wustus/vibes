@@ -1,7 +1,9 @@
 
 #include "network.h"
 
-Network::Network() {
+Network::Network(int NUMBER_OF_DEVICES) {
+    
+    Network::NUMBER_OF_DEVICES = NUMBER_OF_DEVICES;
     
     // initialize sockets
     int response;
@@ -268,8 +270,7 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
         
         std::cout << "memset" << std::endl;
-        std::cout << sizeof(net_config.devices) / sizeof(char*) << std::endl;
-        for (int i=0; i!=sizeof(net_config.devices) / sizeof(char*); i++) {
+        for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
             std::cout << msg_buffer[i];
             if (msg_buffer[i] == nullptr) {
                 memcpy(&msg_buffer[i], buffer, std::strlen(buffer));
@@ -282,7 +283,7 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
     }
 }
 
-void Network::discover_devices(int n_devices) {
+void Network::discover_devices() {
     
     std::vector<char*> discovered_devices;
     
@@ -320,7 +321,7 @@ void Network::discover_devices(int n_devices) {
     
     std::thread receive_thread_ack(&Network::receive_ack_message, this, ack_sckt, std::ref(pending_acknowledgements), std::ref(acknowledged_devices), std::ref(acknowledging));
     
-    while (acknowledged_devices.size() != n_devices-1) {
+    while (acknowledged_devices.size() != NUMBER_OF_DEVICES-1) {
         for (auto x : discovered_devices) {
             if (std::find_if(acknowledged_devices.begin(), acknowledged_devices.end(), [x](const char* c) { return std::string(x) == std::string(c); }) == acknowledged_devices.end()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds((std::rand() % 1000) + 100));
@@ -377,6 +378,10 @@ int Network::get_ntp_port() {
 
 int Network::get_ntp_sckt() {
     return ntp_sckt;
+}
+
+int Network::get_number_of_devices() {
+    return NUMBER_OF_DEVICES;
 }
 
 Network::NetworkConfig* Network::get_network_config() {
