@@ -55,7 +55,8 @@ public:
     void receive_ssdp_message(int sckt, std::vector<char*>& devices, bool& discovering);
     void receive_ack_message(int sckt, std::vector<char*>& pending_devices, std::vector<char*>& devices, bool& acknowledging);
     void send_message(int sckt, char* addr, const char* msg, int port);
-    void receive_message(int sckt, char**& buffer, char**& addr, bool* receiving);
+    void receive_message(int sckt, char**& buffer, char**& addr, bool& receiving);
+    void receive_message(int sckt, char*& buffer, bool& receiving);
     void discover_devices();
     int get_ssdp_port();
     int get_ssdp_sckt();

@@ -13,16 +13,77 @@
 class SynchronizationHandler {
 private:
     Network network;
-    bool is_master;
-    uint64_t start_time;
+    
     struct tic_tac_toe {
         char field[9];
+        char player;
+        char opponent;
         bool is_move;
-        bool is_over = false;
+        bool is_over;
+        bool is_draw;
         bool is_won;
+        
+        bool is_game_over() {
+            for (int i=0; i!=9; i+=3) {
+                if (field[i] == field[i+1] && field[i+1] == field[i+2]) {
+                    is_won = field[i] == player;
+                    return true;
+                }
+            }
+            
+            for (int i=0; i!=3; i++) {
+                if (field[i] == field[i+3] && field[i+3] == field[i+6]) {
+                    is_won = field[i] == player;
+                    return true;
+                }
+            }
+            
+            if (field[0] == field[4] && field[4] == field[8]) {
+                is_won = field[0] == player;
+                return true;
+            }
+            
+            if (field[0] == field[4] && field[4] == field[8]) {
+                is_won = field[0] == player;
+                return true;
+            }
+            
+            if (field[2] == field[4] && field[4] == field[6]) {
+                is_won = field[2] == player;
+                return true;
+            }
+            
+            for (int i=0; i!=9; i++) {
+                if (field[i] == ' ') {
+                    return false;
+                }
+            }
+            
+            is_draw = true;
+            return true;
+        }
+        
+        void make_move(short m) {
+            if (field[m] == ' ') {
+                field[m] = is_move ? player : opponent;
+            } else {
+                return;;
+            }
+            
+            is_move = !is_move;
+        }
     };
+    
+    tic_tac_toe ttt;
+    
+    bool is_master;
+    uint64_t start_time;
+    
+    
 public:
     SynchronizationHandler(Network& network);
+    void reset_game();
+    void play(char*);
     void determine_master();
     void sync();
 };

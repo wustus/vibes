@@ -7,8 +7,57 @@
 
 #include "synchronization_handler.hpp"
 
-SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {
+SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {}
+
+void SynchronizationHandler::play(char* challenger) {
     
+    int sckt = network.get_chlg_sckt();
+    int port = network.get_chlg_port();
+    char* buffer = new char[8]();
+    bool receiving = true;
+    
+    std::thread recv_thread([this, sckt, &buffer, &receiving]() { network.receive_message(sckt, buffer, receiving); });
+    
+    if (std::strcmp(network.get_network_config()->address, challenger) < 0) {
+        ttt.player = 'X';
+        ttt.opponent = 'O';
+        ttt.is_move = true;
+    } else {
+        ttt.player = 'O';
+        ttt.opponent = 'X';
+        ttt.is_move = false;
+    }
+    
+    while (!ttt.is_game_over()) {
+        if (ttt.is_move) {
+            short move;
+            while (ttt.is_move) {
+                move = rand() % 9;
+                ttt.make_move(move);
+            }
+            
+            network.send_message(sckt, challenger, std::to_string(move).c_str(), port);
+        } else {
+            while (!ttt.is_move) {
+                if (buffer == nullptr) {
+                    continue;
+                }
+                short move = std::atoi(buffer);
+                ttt.make_move(move);
+            }
+        }
+    }
+    
+    receiving = false;
+    recv_thread.join();
+    delete[] buffer;
+}
+
+void SynchronizationHandler::reset_game() {
+    memset(&ttt, 0, sizeof(ttt));
+    for (int i=0; i!=9; i++) {
+        ttt.field[i] = ' ';
+    }
 }
 
 void SynchronizationHandler::determine_master() {
@@ -23,7 +72,7 @@ void SynchronizationHandler::determine_master() {
     
     bool receiving = true;
     
-    std::thread recv_thread([this, sckt, &msg_buffer, &devc_buffer, &receiving]() { network.receive_message(sckt, msg_buffer, devc_buffer, &receiving); });
+    std::thread recv_thread([this, sckt, &msg_buffer, &devc_buffer, &receiving]() { network.receive_message(sckt, msg_buffer, devc_buffer, receiving); });
     
     bool pending_challenge = false;
     bool challenged = false;
@@ -77,9 +126,6 @@ void SynchronizationHandler::determine_master() {
             std::cout << "Accepting Challenge by " << chlg_device << std::endl;
             for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
                 if (msg_buffer[i] != nullptr && devc_buffer[i] != nullptr) {
-                    std::cout << i << std::endl;
-                    std::cout << std::string(msg_buffer[i]) << std::endl;
-                    std::cout << std::string(devc_buffer[i]) << std::endl;
                     if (std::string(msg_buffer[i]) == std::string("CHLG") && std::string(devc_buffer[i]) != std::string(chlg_device)) {
                         network.send_message(sckt, devc_buffer[i], "DEC", CHLG_PORT);
                         std::cout << "Declining Challenge " << chlg_device << std::endl;
@@ -92,10 +138,23 @@ void SynchronizationHandler::determine_master() {
     }
     
     std::cout << "Device " << network.get_network_config()->address << " done searching." << std::endl;
-    std::cout << (challenger_found ? "Starting Game." : "Waiting...") << std::endl;
+    if (challenger_found) {
+        std::cout << "Starting Game." << std::endl;
+        std::cout << "Opponent: " << chlg_device << std::endl;
+        receiving = false;
+        recv_thread.join();
+        reset_game();
+        play(chlg_device);
+    } else if (wait_for_challenge) {
+        std::cout << "Waiting for challenger..." << std::endl;
+    }
     
-
-    // accept first one, decline rest
+    if (ttt.is_won || wait_for_challenge) {
+        
+    } else {
+        is_master = false;
+        // sleep
+    }
     
     
 }

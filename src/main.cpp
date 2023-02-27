@@ -102,7 +102,7 @@ int main(int argc, const char* argv[]) {
     
     std::cout << "Setting Local Address." << std::endl;
     network.set_local_addr();
-    std::cout << "\tLocal Address:" << network.get_network_config()->address << std::endl;
+    std::cout << "\tLocal Address: " << network.get_network_config()->address << std::endl;
     network.discover_devices();
     
     // determine master
