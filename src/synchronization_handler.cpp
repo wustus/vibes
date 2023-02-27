@@ -11,6 +11,8 @@ SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {}
 
 void SynchronizationHandler::play(char* challenger) {
     
+    std::cout << "Starting Game." << std::endl;
+    
     int sckt = network.get_chlg_sckt();
     int port = network.get_chlg_port();
     char* buffer = new char[8]();
@@ -44,12 +46,14 @@ void SynchronizationHandler::play(char* challenger) {
                 }
                 short move = std::atoi(buffer);
                 ttt.make_move(move);
+                buffer = nullptr;
             }
         }
     }
     
     receiving = false;
     recv_thread.join();
+    std::cout << (ttt.is_won ? "Won." : "Lost.") << std::endl;
     delete[] buffer;
 }
 
@@ -139,7 +143,6 @@ void SynchronizationHandler::determine_master() {
     
     std::cout << "Device " << network.get_network_config()->address << " done searching." << std::endl;
     if (challenger_found) {
-        std::cout << "Starting Game." << std::endl;
         std::cout << "Opponent: " << chlg_device << std::endl;
         receiving = false;
         recv_thread.join();
