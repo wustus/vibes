@@ -25,30 +25,30 @@ private:
         
         bool is_game_over() {
             for (int i=0; i!=9; i+=3) {
-                if (field[i] == field[i+1] && field[i+1] == field[i+2]) {
+                if (field[0] != ' ' && field[i] == field[i+1] && field[i+1] == field[i+2]) {
                     is_won = field[i] == player;
                     return true;
                 }
             }
             
             for (int i=0; i!=3; i++) {
-                if (field[i] == field[i+3] && field[i+3] == field[i+6]) {
+                if (field[0] != ' ' && field[i] == field[i+3] && field[i+3] == field[i+6]) {
                     is_won = field[i] == player;
                     return true;
                 }
             }
             
-            if (field[0] == field[4] && field[4] == field[8]) {
+            if (field[0] != ' ' && field[0] == field[4] && field[4] == field[8]) {
                 is_won = field[0] == player;
                 return true;
             }
             
-            if (field[0] == field[4] && field[4] == field[8]) {
+            if (field[0] != ' ' && field[0] == field[4] && field[4] == field[8]) {
                 is_won = field[0] == player;
                 return true;
             }
             
-            if (field[2] == field[4] && field[4] == field[6]) {
+            if (field[0] != ' ' && field[2] == field[4] && field[4] == field[6]) {
                 is_won = field[2] == player;
                 return true;
             }
