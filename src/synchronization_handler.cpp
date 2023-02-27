@@ -44,8 +44,8 @@ void SynchronizationHandler::play(char* challenger) {
         } else {
             std::cout << "not my move" << std::endl;
             while (!ttt.is_move) {
-                std::cout << "waiting" << std::endl;
                 if (buffer == nullptr) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(300));
                     continue;
                 }
                 std::cout << buffer << std::endl;
