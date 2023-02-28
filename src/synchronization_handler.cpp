@@ -145,7 +145,7 @@ void SynchronizationHandler::determine_master() {
             }
         }
     }
-    
+    /*
     std::cout << "Device " << network.get_network_config()->address << " done searching." << std::endl;
     if (challenger_found) {
         std::cout << "Opponent: " << chlg_device << std::endl;
@@ -163,6 +163,6 @@ void SynchronizationHandler::determine_master() {
         is_master = false;
         // sleep
     }
-    
+    */
     
 }
