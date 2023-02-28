@@ -356,7 +356,7 @@ void Network::discover_devices() {
     
     receive_thread_ack.join();
     
-    close(ack_sckt);
+    //close(ack_sckt);
     
     net_config.devices = new char*[acknowledged_devices.size()];
     

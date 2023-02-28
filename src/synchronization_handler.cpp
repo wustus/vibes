@@ -71,8 +71,8 @@ void SynchronizationHandler::reset_game() {
 
 void SynchronizationHandler::determine_master() {
     
-    int CHLG_PORT = network.get_chlg_port();
-    int sckt = network.get_chlg_sckt();
+    int CHLG_PORT = network.get_ack_port();
+    int sckt = network.get_ack_sckt();
     
     int NUMBER_OF_DEVICES = network.get_number_of_devices();
     
@@ -95,7 +95,7 @@ void SynchronizationHandler::determine_master() {
     // find challenger
     while (!challenger_found && !wait_for_challenge) {
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 4000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 10000));
         
         if (msg_buffer[0] != nullptr) {
             if (std::string(msg_buffer[0]) == std::string("CHLG")) {
