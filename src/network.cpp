@@ -10,8 +10,8 @@ Network::Network(int NUMBER_OF_DEVICES) {
     
     ssdp_sckt = create_socket(SSDP_PORT);
     ack_sckt = create_socket(ACK_PORT);
-    chlg_sckt = create_socket(CHLG_PORT);
-    ntp_sckt = create_socket(NTP_PORT);
+    //chlg_sckt = create_socket(CHLG_PORT);
+    //ntp_sckt = create_socket(NTP_PORT);
     
     // join ssdp multicast group
     struct ip_mreq mreq;
