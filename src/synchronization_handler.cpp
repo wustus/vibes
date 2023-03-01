@@ -111,7 +111,7 @@ void SynchronizationHandler::determine_master() {
             network.send_message(sckt, device_addr, "CHLG", CHLG_PORT);
             pending_challenge = true;
             chlg_device = device_addr;
-        } else if (pending_challenge) {
+        } else if (pending_challenge && !challenged) {
             for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
                 if (devc_buffer[i] != nullptr && std::string(devc_buffer[i]) == std::string(chlg_device)) {
                     if (std::string(msg_buffer[i]) == std::string("ACC")) {
