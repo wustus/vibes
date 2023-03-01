@@ -71,8 +71,8 @@ void SynchronizationHandler::reset_game() {
 
 void SynchronizationHandler::determine_master() {
     
-    int CHLG_PORT = network.get_ack_port();
-    int sckt = network.get_ack_sckt();
+    int CHLG_PORT = network.get_chlg_port();
+    int sckt = network.get_chlg_sckt();
     
     int NUMBER_OF_DEVICES = network.get_number_of_devices();
     

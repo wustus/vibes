@@ -10,8 +10,8 @@ Network::Network(int NUMBER_OF_DEVICES) {
     
     ssdp_sckt = create_socket(SSDP_PORT);
     ack_sckt = create_socket(ACK_PORT);
-    //chlg_sckt = create_socket(CHLG_PORT);
-    //ntp_sckt = create_socket(NTP_PORT);
+    chlg_sckt = create_socket(CHLG_PORT);
+    ntp_sckt = create_socket(NTP_PORT);
     
     // join ssdp multicast group
     struct ip_mreq mreq;
@@ -257,7 +257,6 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
         socklen_t src_addr_len = sizeof(src_addr);
         
         if (recvfrom(sckt, &buffer, sizeof(buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
-            std::cout << "error while receiving" << std::endl;
             if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Error while receiving message: " << std::strerror(errno) << std::endl;
             }
