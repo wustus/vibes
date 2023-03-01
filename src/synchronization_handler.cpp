@@ -43,7 +43,7 @@ void SynchronizationHandler::play(char* challenger) {
             network.send_message(sckt, challenger, std::to_string(move).c_str(), port);
         } else {
             while (!ttt.is_move) {
-                if (buffer && std::strlen(buffer) > 0) {
+                if (buffer && std::strlen(buffer) == 0) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(300));
                     continue;
                 }
