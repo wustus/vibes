@@ -275,7 +275,7 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
                 std::memcpy(msg_buffer[i], &buffer, src_addr_len);
                 // point to device memory
                 addr_buffer[i] = device;
-                return;
+                break;
             }
         }
     }
