@@ -19,7 +19,7 @@ void SynchronizationHandler::play(char* challenger) {
     
     std::thread recv_thread([this, sckt, &buffer, &receiving]() { network.receive_message(sckt, buffer, receiving); });
     
-    while (std::strcmp(buffer, "START") != 0) {
+    while (!buffer && std::strcmp(buffer, "START") != 0) {
         network.send_message(sckt, challenger, "START", port);
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
