@@ -31,25 +31,24 @@ void SynchronizationHandler::play(char* challenger) {
     }
     
     while (!ttt.is_game_over()) {
-        std::cout << "game not over" << std::endl;
         if (ttt.is_move) {
-            std::cout << "my move" << std::endl;
             short move;
             while (ttt.is_move) {
                 move = rand() % 9;
                 ttt.make_move(move);
             }
             
+            std::cout << "my move, played " << move << std::endl;
+            
             network.send_message(sckt, challenger, std::to_string(move).c_str(), port);
         } else {
-            std::cout << "not my move" << std::endl;
             while (!ttt.is_move) {
                 if (buffer == nullptr) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(300));
                     continue;
                 }
-                std::cout << buffer << std::endl;
                 short move = std::atoi(buffer);
+                std::cout << "not my move, played " << move << std::endl;
                 ttt.make_move(move);
                 buffer = nullptr;
             }
