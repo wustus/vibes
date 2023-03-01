@@ -93,9 +93,8 @@ void Network::set_local_addr() {
         if (ifaddr_iter->ifa_addr->sa_family == AF_INET) {
             addr = &((struct sockaddr_in*) ifaddr_iter->ifa_addr)->sin_addr;
             inet_ntop(AF_INET, addr, ip_addr, INET_ADDRSTRLEN);
-            
             #ifdef __APPLE__
-                if (std::strcmp(ifaddr_iter->ifa_name, "en1") == 0) {
+                if (std::strcmp(ifaddr_iter->ifa_name, "en1") == 0 || std::strcmp(ifaddr_iter->ifa_name, "en0") == 0) {
                     memcpy((void*) net_config.address, ip_addr, sizeof(ip_addr));
                     return;
                 }
