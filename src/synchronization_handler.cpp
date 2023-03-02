@@ -13,20 +13,18 @@ void SynchronizationHandler::play(char* challenger) {
     
     int sckt = network.get_chlg_sckt();
     int port = network.get_chlg_port();
-    char* buffer = new char[8];
-    std::memset(buffer, 0xFF, 8);
+    char* buffer = nullptr;
     bool receiving = true;
     
     std::thread recv_thread([this, sckt, &buffer, &receiving]() { network.receive_message(sckt, buffer, receiving); });
     
     network.send_message(sckt, challenger, "START", port);
     
-    while (static_cast<unsigned char>(*buffer) == 0xFF && std::strcmp(buffer, "START") != 0) {
+    while (buffer && std::strcmp(buffer, "START") != 0) {
         network.send_message(sckt, challenger, "START", port);
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
         
-    std::memset(buffer, 0, 8);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     
     std::cout << "Starting Game." << std::endl;
@@ -54,14 +52,14 @@ void SynchronizationHandler::play(char* challenger) {
             network.send_message(sckt, challenger, std::to_string(move).c_str(), port);
         } else {
             while (!ttt.is_move) {
-                if (static_cast<unsigned char>(*buffer) == 0xFF) {
+                if (!buffer) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(300));
                     continue;
                 }
                 short move = std::atoi(buffer);
                 std::cout << "not my move, played " << move << std::endl;
                 ttt.make_move(move);
-                std::memset(buffer, 0xFF, 8);
+                buffer = nullptr;
             }
         }
     }
