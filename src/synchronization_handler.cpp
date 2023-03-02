@@ -47,7 +47,7 @@ void SynchronizationHandler::play(char* challenger) {
                     buffer = nullptr;
                     break;
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(300));
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             
             
@@ -70,7 +70,7 @@ void SynchronizationHandler::play(char* challenger) {
             
             while (!ttt.is_move) {
                 if (!buffer) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     continue;
                 }
                 short move = std::atoi(buffer);

@@ -50,7 +50,7 @@ int Network::create_socket(int port) {
     // receive timeout
     struct timeval timeout;
     std::memset(&timeout, 0, sizeof(timeout));
-    timeout.tv_sec = 3;
+    timeout.tv_sec = 1;
     timeout.tv_usec = 0;
     
     if (setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
