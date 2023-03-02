@@ -26,6 +26,7 @@ void SynchronizationHandler::play(char* challenger) {
     }
         
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    buffer = nullptr;
     
     std::cout << "Starting Game." << std::endl;
     

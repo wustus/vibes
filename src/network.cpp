@@ -239,8 +239,6 @@ void Network::send_message(int sckt, char* addr, const char* msg, int port) {
     dest_addr.sin_addr.s_addr = inet_addr(addr);
     dest_addr.sin_port = htons(port);
     
-    std::cout << "send message " << msg << std::endl;
-    
     if (sendto(sckt, (void*)(intptr_t) msg, std::strlen(msg), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
     }
@@ -263,9 +261,7 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
             }
             continue;
         }
-        
-        std::cout << buffer << std::endl;
-
+ 
         char* device = new char[INET_ADDRSTRLEN];
         std::memset(device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
@@ -303,8 +299,6 @@ void Network::receive_message(int sckt, char*& buffer, bool& receiving) {
      
         buffer = new char[8];
         std::memcpy(buffer, &recv_buffer, sizeof(recv_buffer));
-        
-        std::cout << "receive message " << buffer << std::endl;
     }
 }
 

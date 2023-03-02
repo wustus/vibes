@@ -63,11 +63,20 @@ private:
             return true;
         }
         
+        void print_field() {
+            for (int i=0; i!=9; i++) {
+                if (i%3 == 0) {
+                    std::cout << std::endl;
+                }
+                std::cout << " " << field[i] << " ";
+            }
+        }
+        
         void make_move(short m) {
             if (field[m] == ' ') {
                 field[m] = is_move ? player : opponent;
             } else {
-                return;;
+                return;
             }
             
             is_move = !is_move;
