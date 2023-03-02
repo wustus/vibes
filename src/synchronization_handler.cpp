@@ -27,7 +27,6 @@ void SynchronizationHandler::play(char* challenger) {
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
     
-    buffer = new char[8];
     std::memset(buffer, 0, 8);
     
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -64,7 +63,6 @@ void SynchronizationHandler::play(char* challenger) {
                 short move = std::atoi(buffer);
                 std::cout << "not my move, played " << move << std::endl;
                 ttt.make_move(move);
-                buffer = new char[8];
                 std::memset(buffer, 0, 8);
             }
         }
