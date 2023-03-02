@@ -50,14 +50,11 @@ void SynchronizationHandler::play(char* challenger) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             
-            
             short move;
             while (ttt.is_move) {
                 move = rand() % 9;
                 ttt.make_move(move);
             }
-            
-            std::cout << "my move, played " << move << std::endl;
             
             network.send_message(sckt, challenger, std::to_string(move).c_str(), port);
         } else {
@@ -74,7 +71,6 @@ void SynchronizationHandler::play(char* challenger) {
                     continue;
                 }
                 short move = std::atoi(buffer);
-                std::cout << "not my move, played " << move << std::endl;
                 ttt.make_move(move);
                 buffer = nullptr;
             }
@@ -88,6 +84,7 @@ void SynchronizationHandler::play(char* challenger) {
         std::cout << "Won." << std::endl;
     } else if (ttt.is_draw) {
         std::cout << "Draw." << std::endl;
+        play(challenger);
     } else {
         std::cout << "Lost." << std::endl;
     }
