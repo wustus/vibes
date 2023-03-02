@@ -25,8 +25,7 @@ void SynchronizationHandler::play(char* challenger) {
         network.send_message(sckt, challenger, "INIT", port);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-        
-    buffer = nullptr;
+    
     std::cout << "Starting Game." << std::endl;
     
     if (std::strcmp(network.get_network_config()->address, challenger) < 0) {
@@ -66,6 +65,7 @@ void SynchronizationHandler::play(char* challenger) {
             if (!ready) {
                 network.send_message(sckt, challenger, "READY", port);
                 ready = true;
+                buffer = nullptr;
             }
             
             while (!ttt.is_move) {
