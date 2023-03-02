@@ -17,11 +17,13 @@ void SynchronizationHandler::play(char* challenger) {
     bool receiving = true;
     bool ready = false;
     
-    std::thread recv_thread([this, sckt, &buffer, &receiving]() { network.receive_message(sckt, buffer, receiving); });
+    network.connect_to_addr(sckt, challenger, port);
     
-    network.send_message(sckt, challenger, "INIT", port);
+    std::thread recv_thread([this, sckt, &buffer, &receiving]() { network.receive_tcp_message(sckt, buffer, receiving); });
     
-    while (buffer == nullptr) {
+    network.send_tcp_message(sckt, "INIT");
+    
+     while (buffer == nullptr) {
         network.send_message(sckt, challenger, "INIT", port);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }

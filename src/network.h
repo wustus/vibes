@@ -48,7 +48,8 @@ private:
 public:
     Network(int);
     ~Network();
-    int create_socket(int);
+    int create_udp_socket(int);
+    int create_tcp_socket(int);
     void set_local_addr();
     void send_ssdp_message(int sckt, const char* msg);
     void send_ack_message(int sckt, in_addr_t addr, const char* msg);
@@ -56,7 +57,9 @@ public:
     void receive_ack_message(int sckt, std::vector<char*>& pending_devices, std::vector<char*>& devices, bool& acknowledging);
     void send_message(int sckt, char* addr, const char* msg, int port);
     void receive_message(int sckt, char**& buffer, char**& addr, bool& receiving);
-    void receive_message(int sckt, char*& buffer, bool& receiving);
+    void connect_to_addr(int sckt, char* addr, int port);
+    void send_tcp_message(int sckt, const char* msg);
+    void receive_tcp_message(int sckt, char*& buffer, bool& receiving);
     void discover_devices();
     int get_ssdp_port();
     int get_ssdp_sckt();

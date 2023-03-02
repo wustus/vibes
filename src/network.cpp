@@ -8,10 +8,10 @@ Network::Network(int NUMBER_OF_DEVICES) {
     // initialize sockets
     int response;
     
-    ssdp_sckt = create_socket(SSDP_PORT);
-    ack_sckt = create_socket(ACK_PORT);
-    chlg_sckt = create_socket(CHLG_PORT);
-    ntp_sckt = create_socket(NTP_PORT);
+    ssdp_sckt = create_udp_socket(SSDP_PORT);
+    ack_sckt = create_udp_socket(ACK_PORT);
+    chlg_sckt = create_tcp_socket(CHLG_PORT);
+    ntp_sckt = create_tcp_socket(NTP_PORT);
     
     // join ssdp multicast group
     struct ip_mreq mreq;
@@ -35,7 +35,7 @@ Network::~Network() {
     close(ntp_sckt);
 }
 
-int Network::create_socket(int port) {
+int Network::create_udp_socket(int port) {
     
     int sckt = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     
@@ -68,6 +68,32 @@ int Network::create_socket(int port) {
     
     if (bind(sckt, (struct sockaddr*) &bind_addr, sizeof(bind_addr)) < 0) {
         std::cerr << "Error while binding address to port " << port << ": " << std::strerror(errno) << std::endl;
+        exit(1);
+    }
+    
+    return sckt;
+}
+
+int Network::create_tcp_socket(int port) {
+    
+    int sckt = socket(AF_INET, SOCK_STREAM, 0);
+    
+    int opt = 1;
+    
+    // reuse address
+    if (setsockopt(sckt, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        std::cerr << "Error while setting socket option for port" << port << ": " << std::strerror(errno) << std::endl;
+        exit(1);
+    }
+    
+    // receive timeout
+    struct timeval timeout;
+    std::memset(&timeout, 0, sizeof(timeout));
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+    
+    if (setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
+        std::cerr << "Error while setting timeout for port " << port << ": " << std::strerror(errno) << std::endl;
         exit(1);
     }
     
@@ -279,25 +305,38 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
     }
 }
 
-void Network::receive_message(int sckt, char*& buffer, bool& receiving) {
+void Network::connect_to_addr(int sckt, char* addr, int port) {
+    
+    sockaddr_in peer_addr;
+    std::memset(&peer_addr, 0, sizeof(peer_addr));
+    
+    peer_addr.sin_family = AF_INET;
+    peer_addr.sin_port = port;
+    peer_addr.sin_addr.s_addr = inet_addr(addr);
+    
+    while (connect(sckt, (struct sockaddr*) &peer_addr, sizeof(peer_addr)) < 0) {
+        std::cout << "Couldn't connect to address " << addr << std::endl;
+    }
+}
+
+void Network::send_tcp_message(int sckt, const char* msg) {
+    
+    if (send(sckt, msg, std::strlen(msg), 0) < 0) {
+        std::cerr << "Couldn't send TCP message." << std::endl;
+    }
+}
+
+void Network::receive_tcp_message(int sckt, char*& buffer, bool& receiving) {
     
     while (receiving) {
-        
         char recv_buffer[8];
-        memset(&recv_buffer, 0, sizeof(recv_buffer));
+        std::memset(&recv_buffer, 0, sizeof(recv_buffer));
         
-        struct sockaddr_in src_addr;
-        std::memset(&src_addr, 0, sizeof(src_addr));
-        socklen_t src_addr_len = sizeof(src_addr);
-        
-        if (recvfrom(sckt, &recv_buffer, sizeof(recv_buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
-            if (errno != 0x23 && errno != 0xB) {
-                std::cerr << "Error while receiving message: " << std::strerror(errno) << std::endl;
-            }
+        if (recv(sckt, &recv_buffer, sizeof(recv_buffer), 0) < 0) {
+            std::cerr << "Error receiving TCP message" << std::endl;
             continue;
         }
-     
-        buffer = new char[8];
+        
         std::memcpy(buffer, &recv_buffer, sizeof(recv_buffer));
     }
 }
