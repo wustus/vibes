@@ -21,7 +21,7 @@ void SynchronizationHandler::play(char* challenger) {
     
     network.send_message(sckt, challenger, "START", port);
     
-    while (*buffer == '0') {
+    while (*buffer == 0 && std::strcmp(buffer, "START") != 0) {
         network.send_message(sckt, challenger, "START", port);
         std::cout << "sent start" << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
@@ -56,7 +56,7 @@ void SynchronizationHandler::play(char* challenger) {
             network.send_message(sckt, challenger, std::to_string(move).c_str(), port);
         } else {
             while (!ttt.is_move) {
-                if (*buffer == '0') {
+                if (*buffer == 0) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(300));
                     continue;
                 }

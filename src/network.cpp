@@ -299,7 +299,7 @@ void Network::receive_message(int sckt, char*& buffer, bool& receiving) {
             continue;
         }
         
-        std::memcpy(&buffer, &recv_buffer, sizeof(recv_buffer));
+        std::memcpy(buffer, &recv_buffer, sizeof(recv_buffer));
     }
 }
 
