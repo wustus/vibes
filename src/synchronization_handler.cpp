@@ -67,7 +67,14 @@ void SynchronizationHandler::play(char* challenger) {
     
     receiving = false;
     recv_thread.join();
-    std::cout << (ttt.is_won ? "Won." : "Lost.") << std::endl;
+    
+    if (ttt.is_won) {
+        std::cout << "Won." << std::endl;
+    } else if (ttt.is_draw) {
+        std::cout << "Draw." << std::endl;
+    } else {
+        std::cout << "Lost." << std::endl;
+    }
     delete[] buffer;
 }
 
