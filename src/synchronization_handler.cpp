@@ -11,7 +11,6 @@ SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {}
 
 void SynchronizationHandler::play(char* challenger) {
     
-    
     int sckt = network.get_chlg_sckt();
     int port = network.get_chlg_port();
     char* buffer = new char[8]();
@@ -19,13 +18,16 @@ void SynchronizationHandler::play(char* challenger) {
     
     std::thread recv_thread([this, sckt, &buffer, &receiving]() { network.receive_message(sckt, buffer, receiving); });
     
-    while (!buffer && std::strcmp(buffer, "START") != 0) {
+    network.send_message(sckt, challenger, "START", port);
+    
+    while (*buffer == '\0') {
         network.send_message(sckt, challenger, "START", port);
+        std::cout << "sent start" << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
     
     buffer = new char[8]();
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
     
     std::cout << "Starting Game." << std::endl;
     
