@@ -15,19 +15,18 @@ void SynchronizationHandler::play(char* challenger) {
     int port = network.get_chlg_port();
     char* buffer = nullptr;
     bool receiving = true;
+    bool ready = false;
     
     std::thread recv_thread([this, sckt, &buffer, &receiving]() { network.receive_message(sckt, buffer, receiving); });
     
-    network.send_message(sckt, challenger, "START", port);
+    network.send_message(sckt, challenger, "INIT", port);
     
-    while (buffer && std::strcmp(buffer, "START") != 0) {
-        network.send_message(sckt, challenger, "START", port);
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    while (buffer == nullptr) {
+        network.send_message(sckt, challenger, "INIT", port);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
         
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     buffer = nullptr;
-    
     std::cout << "Starting Game." << std::endl;
     
     if (std::strcmp(network.get_network_config()->address, challenger) < 0) {
@@ -42,6 +41,17 @@ void SynchronizationHandler::play(char* challenger) {
     
     while (!ttt.is_game_over()) {
         if (ttt.is_move) {
+            
+            while (!ready) {
+                if (buffer && std::strcmp(buffer, "READY") == 0) {
+                    ready = true;
+                    buffer = nullptr;
+                    break;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(300));
+            }
+            
+            
             short move;
             while (ttt.is_move) {
                 move = rand() % 9;
@@ -52,6 +62,12 @@ void SynchronizationHandler::play(char* challenger) {
             
             network.send_message(sckt, challenger, std::to_string(move).c_str(), port);
         } else {
+            
+            if (!ready) {
+                network.send_message(sckt, challenger, "READY", port);
+                ready = true;
+            }
+            
             while (!ttt.is_move) {
                 if (!buffer) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(300));
