@@ -23,13 +23,11 @@ void SynchronizationHandler::play(char* challenger) {
     
     while (*buffer == 0 && std::strcmp(buffer, "START") != 0) {
         network.send_message(sckt, challenger, "START", port);
-        std::cout << "sent start" << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
-    
+        
     std::memset(buffer, 0, 8);
-    
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     
     std::cout << "Starting Game." << std::endl;
     
