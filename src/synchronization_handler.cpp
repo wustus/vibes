@@ -11,8 +11,8 @@ SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {}
 
 void SynchronizationHandler::play(char* challenger) {
     
-    int sckt = network.get_chlg_sckt();
-    int port = network.get_chlg_port();
+    int sckt = network.get_game_sckt();
+    int port = network.get_game_port();
     char* buffer = nullptr;
     bool receiving = true;
     bool ready = false;

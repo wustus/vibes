@@ -10,7 +10,8 @@ Network::Network(int NUMBER_OF_DEVICES) {
     
     ssdp_sckt = create_udp_socket(SSDP_PORT);
     ack_sckt = create_udp_socket(ACK_PORT);
-    chlg_sckt = create_tcp_socket(CHLG_PORT);
+    chlg_sckt = create_udp_socket(CHLG_PORT);
+    game_sckt = create_tcp_socket(GAME_PORT);
     ntp_sckt = create_tcp_socket(NTP_PORT);
     
     // join ssdp multicast group
@@ -32,6 +33,7 @@ Network::~Network() {
     close(ssdp_sckt);
     close(ack_sckt);
     close(chlg_sckt);
+    close(game_sckt);
     close(ntp_sckt);
 }
 
@@ -382,7 +384,7 @@ void Network::discover_devices() {
     while (acknowledged_devices.size() != NUMBER_OF_DEVICES-1) {
         for (auto x : discovered_devices) {
             if (std::find_if(acknowledged_devices.begin(), acknowledged_devices.end(), [x](const char* c) { return std::string(x) == std::string(c); }) == acknowledged_devices.end()) {
-                std::this_thread::sleep_for(std::chrono::milliseconds((std::rand() % 1000) + 100));
+                std::this_thread::sleep_for(std::chrono::milliseconds((std::rand() % 300) + 150));
                 send_ack_message(ack_sckt, inet_addr(x), "ACK");
             }
         }
