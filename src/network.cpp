@@ -311,7 +311,7 @@ void Network::connect_to_addr(int sckt, char* addr, int port) {
     std::memset(&peer_addr, 0, sizeof(peer_addr));
     
     peer_addr.sin_family = AF_INET;
-    peer_addr.sin_port = port;
+    peer_addr.sin_port = htons(port);
     peer_addr.sin_addr.s_addr = inet_addr(addr);
     
     while (connect(sckt, (struct sockaddr*) &peer_addr, sizeof(peer_addr)) < 0) {
