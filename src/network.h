@@ -16,6 +16,7 @@
 #include <random>
 #include <algorithm>
 #include <thread>
+#include <mutex>
 
 #include <sys/socket.h>
 #include <netinet/ip.h>
@@ -48,6 +49,8 @@ private:
     
     char** RECEIVING_BUFFER = new char*[BUFFER_SIZE]();
     int current_index = 0;
+    
+    std::mutex buffer_mutex;
 
     NetworkConfig net_config;
 public:

@@ -115,11 +115,11 @@ void Network::append_to_buffer(char* addr, char* message) {
     
     char* buffer_msg = new char[std::strlen(addr) + 2 + std::strlen(message)];
     
-    std::cout << "append to buffer" << std::endl;
-    
     std::strncat(buffer_msg, addr, strlen(addr));
     std::strncat(buffer_msg, "::", 2);
     std::strncat(buffer_msg, message, strlen(message));
+    
+    buffer_mutex.lock();
     
     if (current_index < BUFFER_SIZE) {
         RECEIVING_BUFFER[current_index] = new char[std::strlen(buffer_msg)];
@@ -131,12 +131,10 @@ void Network::append_to_buffer(char* addr, char* message) {
         std::memcpy(RECEIVING_BUFFER[current_index-1], buffer_msg, std::strlen(buffer_msg));
     }
     
-    std::cout << "finsihed appending" << std::endl;
+    buffer_mutex.unlock();
 }
 
 bool Network::listen_for_ack(const char* addr) {
-    
-    std::cout << "listen for ack" << std::endl;
     
     char* recv_buffer[8];
     std::memset(recv_buffer, 0, sizeof(recv_buffer));
@@ -144,8 +142,6 @@ bool Network::listen_for_ack(const char* addr) {
     sockaddr_in src_addr;
     std::memset(&src_addr, 0, sizeof(src_addr));
     socklen_t src_addr_len = sizeof(src_addr);
-    
-    std::cout << "finsihed listening" << std::endl;
     
     if (recvfrom(ack_sckt, recv_buffer, sizeof(recv_buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
         return false;
@@ -162,8 +158,6 @@ bool Network::listen_for_ack(const char* addr) {
 
 void Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=3) {
     
-    std::cout << "send message" << std::endl;
-    
     struct sockaddr_in dest_addr;
     memset(&dest_addr, 0, sizeof(dest_addr));
     
@@ -175,8 +169,6 @@ void Network::send_message(int sckt, const char* addr, int port, const char* msg
         std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
     }
 
-    std::cout << "finished sending" << std::endl;
-    
     if (std::strcmp(msg, "ACK") == 0) {
         return;
     }
