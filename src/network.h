@@ -60,6 +60,7 @@ public:
     void send_message(int sckt, char* addr, const char* msg, int port);
     void receive_message(int sckt, char**& buffer, char**& addr, bool& receiving);
     void connect_to_addr(int sckt, char* addr, int port);
+    int accept_connection(int sckt);
     void send_tcp_message(int sckt, const char* msg);
     void receive_tcp_message(int sckt, char*& buffer, bool& receiving);
     void discover_devices();

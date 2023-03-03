@@ -289,6 +289,8 @@ void Network::receive_message(int sckt, char**& msg_buffer, char**& addr_buffer,
             }
             continue;
         }
+        
+        std::cout << buffer << std::endl;
  
         char* device = new char[INET_ADDRSTRLEN];
         std::memset(device, 0, INET_ADDRSTRLEN);
@@ -320,6 +322,28 @@ void Network::connect_to_addr(int sckt, char* addr, int port) {
         std::cout << "Couldn't connect to address " << addr << ": " << strerror(errno) << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
+}
+
+int Network::accept_connection(int sckt) {
+    
+    bool accepted = false;
+    
+    while (!accepted) {
+        
+        sockaddr_in peer_addr;
+        std::memset(&peer_addr, 0, sizeof(peer_addr));
+        socklen_t peer_addr_len = sizeof(peer_addr);
+        
+        int peer_sckt = accept(sckt, (struct sockaddr*) &peer_addr, &peer_addr_len);
+        if (peer_sckt < 0) {
+            std::cerr << "Error accepting connection: " << strerror(errno) << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
+            continue;
+        }
+        
+        return peer_sckt;
+    }
+    
 }
 
 void Network::send_tcp_message(int sckt, const char* msg) {

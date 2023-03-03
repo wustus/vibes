@@ -12,13 +12,20 @@ SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {}
 void SynchronizationHandler::play(char* challenger) {
     
     int sckt = network.get_game_sckt();
+    int peer_sckt = -1;
     int port = network.get_game_port();
     char* buffer = nullptr;
     bool receiving = true;
     bool ready = false;
     
+    std::thread accept_thread([this, sckt, &peer_sckt]() { peer_sckt = network.accept_connection(sckt); });
+    
     network.connect_to_addr(sckt, challenger, port);
     
+    while (peer_sckt == -1) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+        
     std::thread recv_thread([this, sckt, &buffer, &receiving]() { network.receive_tcp_message(sckt, buffer, receiving); });
     
     network.send_tcp_message(sckt, "INIT");
@@ -126,7 +133,7 @@ void SynchronizationHandler::determine_master() {
     // find challenger
     while (!challenger_found && !wait_for_challenge) {
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 500));
         
         if (msg_buffer[0] != nullptr) {
             if (std::string(msg_buffer[0]) == std::string("CHLG")) {
