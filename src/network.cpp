@@ -113,7 +113,7 @@ void Network::set_local_addr() {
 
 void Network::append_to_buffer(char* addr, char* message) {
     
-    char* buffer_msg = new char[std::strlen(addr) + 2 + std::strlen(message)];
+    char buffer_msg[std::strlen(addr) + 2 + std::strlen(message)];
     std::strncat(buffer_msg, addr, strlen(addr));
     std::strncat(buffer_msg, "::", 2);
     std::strncat(buffer_msg, message, strlen(message));
@@ -127,8 +127,6 @@ void Network::append_to_buffer(char* addr, char* message) {
         RECEIVING_BUFFER[current_index-1] = new char[std::strlen(buffer_msg)];
         std::memcpy(RECEIVING_BUFFER[current_index-1], buffer_msg, std::strlen(buffer_msg));
     }
-    
-    delete[] buffer_msg;
 }
 
 bool Network::listen_for_ack(const char* addr) {
