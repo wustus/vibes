@@ -217,7 +217,7 @@ void Network::discover_devices() {
                             "\r\n";
     
     // discovery phase
-    for (int _=0; _!=10; _++) {
+    for (int _=0; _!=20; _++) {
         sending_threads.emplace_back([this, message]() { send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message); });
         for (int i=0; i!=current_index; i++) {
             if (RECEIVING_BUFFER[i]) {
