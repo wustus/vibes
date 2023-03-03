@@ -135,8 +135,8 @@ void Network::append_to_buffer(char* addr, char* message) {
         std::memcpy(RECEIVING_BUFFER[current_index-1], buffer_msg, std::strlen(buffer_msg));
     }
     
-    delte[] temp_addr;
-    delte[] temp_msg;
+    delete[] temp_addr;
+    delete[] temp_msg;
 }
 
 bool Network::listen_for_ack(const char* addr) {
