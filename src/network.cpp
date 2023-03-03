@@ -330,6 +330,12 @@ int Network::accept_connection(int sckt) {
     
     while (!accepted) {
         
+        if (listen(sckt, 1) < 0) {
+            std::cerr << "Error: Failed to listen for incoming connections: " << strerror(errno) << std::endl;
+            continue;
+        }
+
+        
         sockaddr_in peer_addr;
         std::memset(&peer_addr, 0, sizeof(peer_addr));
         socklen_t peer_addr_len = sizeof(peer_addr);
@@ -344,7 +350,7 @@ int Network::accept_connection(int sckt) {
         return peer_sckt;
     }
     
-    
+    return -1;
 }
 
 void Network::send_tcp_message(int sckt, const char* msg) {
