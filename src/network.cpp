@@ -432,6 +432,15 @@ int Network::get_chlg_sckt() {
     return chlg_sckt;
 }
 
+int Network::get_game_port() {
+    return GAME_PORT;
+}
+
+int Network::get_game_sckt() {
+    return game_sckt;
+}
+
+
 int Network::get_ntp_port() {
     return NTP_PORT;
 }
