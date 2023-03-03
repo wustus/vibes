@@ -58,8 +58,8 @@ public:
     
     void set_local_addr();
     void discover_devices();
-    bool listen_for_ack(char* addr);
-    void send_message(int sckt, char* addr, int por, const char* msg, short timeout);
+    bool listen_for_ack(const char* addr);
+    void send_message(int sckt, const char* addr, int port, const char* msg, short timeout);
     void receive_messages(int sckt, bool& receiving);
     
     /*

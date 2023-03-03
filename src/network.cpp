@@ -110,7 +110,7 @@ void Network::set_local_addr() {
     }
 }
 
-bool Network::listen_for_ack(char *addr) {
+bool Network::listen_for_ack(const char* addr) {
     
     char* recv_buffer[8];
     std::memset(recv_buffer, 0, sizeof(recv_buffer));
@@ -130,7 +130,7 @@ bool Network::listen_for_ack(char *addr) {
     return false;
 }
 
-void Network::send_message(int sckt, char* addr, int port, const char* msg, short timeout=3) {
+void Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=3) {
     
     struct sockaddr_in dest_addr;
     memset(&dest_addr, 0, sizeof(dest_addr));
@@ -201,6 +201,7 @@ void Network::receive_messages(int sckt, bool& receiving) {
 void Network::discover_devices() {
     
     std::vector<char*> discovered_devices;
+    std::vector<std::thread> sending_threads;
     char* local_addr = net_config.address;
     
     std::cout << "Discovering Devices..." << std::endl;
@@ -217,7 +218,7 @@ void Network::discover_devices() {
     
     // discovery phase
     for (int _=0; _!=10; _++) {
-        send_message(ssdp_sckt, (char*) SSDP_ADDR, SSDP_PORT, message);
+        sending_threads.push_back(std::thread([this, message]() { send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message); }));
         for (int i=0; i!=current_index; i++) {
             if (RECEIVING_BUFFER[i]) {
                 
@@ -235,6 +236,10 @@ void Network::discover_devices() {
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    }
+    
+    for (int i=0; i!=sending_threads.size(); i++) {
+        sending_threads[i].join();
     }
     
     discovering = false;
