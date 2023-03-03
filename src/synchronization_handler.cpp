@@ -7,8 +7,8 @@
 
 #include "synchronization_handler.hpp"
 
-SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {}
 /*
+SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {}
 void SynchronizationHandler::play(char* challenger) {
     
     int sckt = network.get_chlg_sckt();
