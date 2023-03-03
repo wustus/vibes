@@ -116,7 +116,7 @@ void Network::append_to_buffer(char* addr, char* message) {
     char* buffer_msg = new char[std::strlen(addr) + 2 + std::strlen(message)];
     
     char* temp_addr = new char[std::strlen(addr)];
-    char* temp_msg = new char[std::strlen(addr)];
+    char* temp_msg = new char[std::strlen(message)];
     
     std::memcpy(temp_addr, addr, std::strlen(addr));
     std::memcpy(temp_msg, message, std::strlen(message));
