@@ -111,6 +111,24 @@ void Network::set_local_addr() {
     }
 }
 
+void Network::append_to_buffer(char* addr, char* message) {
+    
+    char* buffer_msg = new char[std::strlen(addr) + 2 + std::strlen(message)];
+    std::strcat(buffer_msg, addr);
+    std::strcat(buffer_msg, "::");
+    std::strcat(buffer_msg, message);
+    
+    if (current_index < BUFFER_SIZE) {
+        RECEIVING_BUFFER[current_index] = new char[std::strlen(buffer_msg)];
+        std::memcpy(RECEIVING_BUFFER[current_index], buffer_msg, std::strlen(buffer_msg));
+        current_index++;
+    } else {
+        RECEIVING_BUFFER++;
+        RECEIVING_BUFFER[current_index-1] = new char[std::strlen(buffer_msg)];
+        std::memcpy(RECEIVING_BUFFER[current_index-1], buffer_msg, std::strlen(buffer_msg));
+    }
+}
+
 bool Network::listen_for_ack(const char* addr) {
     
     char* recv_buffer[8];
@@ -123,6 +141,8 @@ bool Network::listen_for_ack(const char* addr) {
     if (recvfrom(ack_sckt, recv_buffer, sizeof(recv_buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
         return false;
     }
+    
+    append_to_buffer((char*) addr, (char*) recv_buffer);
     
     if (std::strcmp((const char*) recv_buffer, "ACK") == 0) {
         return true;
@@ -184,22 +204,7 @@ void Network::receive_messages(int sckt, bool& receiving) {
             send_message(ack_sckt, device, ACK_PORT, "ACK");
         }
         
-        std::cout << device << std::endl;
-        
-        char* buffer_msg = new char[src_addr_len + 2 + std::strlen(recv_buffer)];
-        std::strcat(buffer_msg, device);
-        std::strcat(buffer_msg, "::");
-        std::strcat(buffer_msg, recv_buffer);
-        
-        if (current_index < BUFFER_SIZE) {
-            RECEIVING_BUFFER[current_index] = new char[std::strlen(buffer_msg)];
-            std::memcpy(RECEIVING_BUFFER[current_index], buffer_msg, std::strlen(buffer_msg));
-            current_index++;
-        } else {
-            RECEIVING_BUFFER++;
-            RECEIVING_BUFFER[current_index-1] = new char[std::strlen(buffer_msg)];
-            std::memcpy(RECEIVING_BUFFER[current_index-1], buffer_msg, std::strlen(buffer_msg));
-        }
+        append_to_buffer(device, (char*) recv_buffer);
     }
 }
 
@@ -222,16 +227,15 @@ void Network::discover_devices() {
                             "\r\n";
     
     // discovery phase
-    for (int _=0; _!=20; _++) {
+    for (int _=0; _!=10; _++) {
         sending_threads.emplace_back([this, message]() { send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message); });
         for (int i=0; i!=current_index; i++) {
             if (RECEIVING_BUFFER[i]) {
-                
                 std::string buffer = std::string(RECEIVING_BUFFER[i]);
-                int delimiter_index = static_cast<int>(buffer.find_last_of(":"));
+                int delimiter_index = static_cast<int>(buffer.find_first_of("::"));
                 
                 std::string addr = buffer.substr(0, delimiter_index);
-                std::string msg = buffer.substr(delimiter_index+1, buffer.size());
+                std::string msg = buffer.substr(delimiter_index+2, buffer.size());
                 
                 if (msg == "ACK" && std::find_if(discovered_devices.begin(), discovered_devices.end(), [local_addr, addr](char* c) {
                     return std::string(local_addr) != std::string(addr) && std::string(addr) == std::string(c);
@@ -240,7 +244,7 @@ void Network::discover_devices() {
                 }
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
     
     for (int i=0; i!=sending_threads.size(); i++) {

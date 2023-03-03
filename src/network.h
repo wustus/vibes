@@ -58,6 +58,7 @@ public:
     
     void set_local_addr();
     void discover_devices();
+    void append_to_buffer(char* addr, char* message);
     bool listen_for_ack(const char* addr);
     void send_message(int sckt, const char* addr, int port, const char* msg, short timeout);
     void receive_messages(int sckt, bool& receiving);
