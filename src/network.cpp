@@ -113,10 +113,17 @@ void Network::set_local_addr() {
 
 void Network::append_to_buffer(char* addr, char* message) {
     
-    char buffer_msg[std::strlen(addr) + 2 + std::strlen(message)];
-    std::strncat(buffer_msg, addr, strlen(addr));
+    char* buffer_msg = new char[std::strlen(addr) + 2 + std::strlen(message)];
+    
+    char* temp_addr = new char[std::strlen(addr)];
+    char* temp_msg = new char[std::strlen(addr)];
+    
+    std::memcpy(temp_addr, addr, std::strlen(addr));
+    std::memcpy(temp_msg, message, std::strlen(message));
+    
+    std::strncat(buffer_msg, temp_addr, strlen(temp_addr));
     std::strncat(buffer_msg, "::", 2);
-    std::strncat(buffer_msg, message, strlen(message));
+    std::strncat(buffer_msg, temp_msg, strlen(temp_msg));
     
     if (current_index < BUFFER_SIZE) {
         RECEIVING_BUFFER[current_index] = new char[std::strlen(buffer_msg)];
@@ -127,6 +134,9 @@ void Network::append_to_buffer(char* addr, char* message) {
         RECEIVING_BUFFER[current_index-1] = new char[std::strlen(buffer_msg)];
         std::memcpy(RECEIVING_BUFFER[current_index-1], buffer_msg, std::strlen(buffer_msg));
     }
+    
+    delte[] temp_addr;
+    delte[] temp_msg;
 }
 
 bool Network::listen_for_ack(const char* addr) {
