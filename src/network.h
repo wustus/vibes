@@ -31,47 +31,62 @@ private:
         char** devices;
     };
     
+    const char* ROUTER_ADDR = "192.168.2.1";
     const char* SSDP_ADDR = "239.255.255.250";
     const int SSDP_PORT = 1900;
     const int ACK_PORT = 1901;
     const int CHLG_PORT = 6967;
-    const int GAME_PORT = 6968;
     const int NTP_PORT = 123;
     
     int ssdp_sckt;
     int ack_sckt;
     int chlg_sckt;
-    int game_sckt;
     int ntp_sckt;
     
     int NUMBER_OF_DEVICES;
+    const int BUFFER_SIZE = 128;
+    
+    char** RECEIVING_BUFFER = new char*[BUFFER_SIZE]();
+    int current_index = 0;
 
     NetworkConfig net_config;
 public:
     Network(int);
     ~Network();
+    
     int create_udp_socket(int);
-    int create_tcp_socket(int);
+    
     void set_local_addr();
-    void send_ssdp_message(int sckt, const char* msg);
-    void send_ack_message(int sckt, in_addr_t addr, const char* msg);
-    void receive_ssdp_message(int sckt, std::vector<char*>& devices, bool& discovering);
-    void receive_ack_message(int sckt, std::vector<char*>& pending_devices, std::vector<char*>& devices, bool& acknowledging);
-    void send_message(int sckt, char* addr, const char* msg, int port);
-    void receive_message(int sckt, char**& buffer, char**& addr, bool& receiving);
-    void connect_to_addr(int sckt, char* addr, int port);
-    int accept_connection(int sckt);
-    void send_tcp_message(int sckt, const char* msg);
-    void receive_tcp_message(int sckt, char*& buffer, bool& receiving);
     void discover_devices();
+    bool listen_for_ack(char* addr);
+    void send_message(int sckt, char* addr, int por, const char* msg, short timeout);
+    void receive_messages(int sckt, bool& receiving);
+    
+    /*
+     dont write to buffers from methods
+      -> write methods that run synchronously and expect a result
+     
+     internal methods should be
+        send_message(sckt, port, msg);
+            -> create thread which listens on buffer to detect positive ack, if not detected, message is sent again
+        receive_message(sckt, &buffer); // buffer is char** of size 1024 and works as a sliding window
+            -> send ack
+        bool listen_for_ack(devc) // listens for device::ACK
+     
+     external methods
+        set_local_addr();
+        discover_devices();
+        char* find_challenger();
+        send_move();
+     
+    */
+    
     int get_ssdp_port();
     int get_ssdp_sckt();
     int get_ack_port();
     int get_ack_sckt();
     int get_chlg_port();
     int get_chlg_sckt();
-    int get_game_port();
-    int get_game_sckt();
     int get_ntp_port();
     int get_ntp_sckt();
     int get_number_of_devices();
