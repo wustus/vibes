@@ -317,7 +317,8 @@ void Network::connect_to_addr(int sckt, char* addr, int port) {
     peer_addr.sin_addr.s_addr = inet_addr(addr);
     
     while (connect(sckt, (struct sockaddr*) &peer_addr, sizeof(peer_addr)) < 0) {
-        std::cout << "Couldn't connect to address " << addr << std::endl;
+        std::cout << "Couldn't connect to address " << addr << ": " << strerror(errno) << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
 }
 
