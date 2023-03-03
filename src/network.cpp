@@ -47,10 +47,11 @@ int Network::create_udp_socket(int port) {
         exit(1);
     }
     
+    
     // receive timeout
     struct timeval timeout;
     std::memset(&timeout, 0, sizeof(timeout));
-    timeout.tv_sec = 1;
+    timeout.tv_sec = 3;
     timeout.tv_usec = 0;
     
     if (setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
@@ -141,6 +142,10 @@ void Network::send_message(int sckt, const char* addr, int port, const char* msg
     
     if (sendto(sckt, (void*)(intptr_t) msg, std::strlen(msg), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
+    }
+    
+    if (std::strcmp(msg, "ACK") == 0) {
+        return;
     }
     
     if (!listen_for_ack(addr)) {
