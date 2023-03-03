@@ -168,10 +168,8 @@ void SynchronizationHandler::determine_master() {
                 }
             }
         } else if (challenged) {
-            for (int i=0; i!=3; i++) {
-                network.send_message(sckt, chlg_device, "ACC", CHLG_PORT);
-                std::this_thread::sleep_for(std::chrono::milliseconds(150));
-            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
+            network.send_message(sckt, chlg_device, "ACC", CHLG_PORT);
             challenger_found = true;
             std::cout << "Accepting Challenge by " << chlg_device << std::endl;
             for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
