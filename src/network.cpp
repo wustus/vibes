@@ -131,6 +131,7 @@ void Network::append_to_buffer(char* addr, char* message) {
         std::memcpy(RECEIVING_BUFFER[current_index-1], buffer_msg, std::strlen(buffer_msg));
     }
     
+    delete[] buffer_msg;
     buffer_mutex.unlock();
 }
 
