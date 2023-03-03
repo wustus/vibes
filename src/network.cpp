@@ -115,9 +115,9 @@ void Network::append_to_buffer(char* addr, char* message) {
     
     char* buffer_msg = new char[std::strlen(addr) + 2 + std::strlen(message)];
     
-    std::strncat(buffer_msg, addr, strlen(addr));
-    std::strncat(buffer_msg, "::", 2);
-    std::strncat(buffer_msg, message, strlen(message));
+    std::memcpy(buffer_msg, addr, strlen(addr));
+    std::memcpy(buffer_msg + std::strlen(addr), "::", 2);
+    std::memcpy(buffer_msg + std::strlen(addr) + 2, message, strlen(message));
     
     buffer_mutex.lock();
     
