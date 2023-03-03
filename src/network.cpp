@@ -332,6 +332,7 @@ int Network::accept_connection(int sckt) {
         
         if (listen(sckt, 1) < 0) {
             std::cerr << "Error: Failed to listen for incoming connections: " << strerror(errno) << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
             continue;
         }
 
@@ -346,6 +347,8 @@ int Network::accept_connection(int sckt) {
             std::this_thread::sleep_for(std::chrono::milliseconds(300));
             continue;
         }
+        
+        std::cout << "Accepted connection." << std::endl;
         
         return peer_sckt;
     }
@@ -392,7 +395,7 @@ void Network::discover_devices() {
                             "\r\n";
     
     // discovery phase
-    for (int _=0; _!=10; _++) {
+    for (int _=0; _!=5; _++) {
         send_ssdp_message(ssdp_sckt, message);
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
