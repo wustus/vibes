@@ -157,7 +157,7 @@ void Network::receive_messages(int sckt, bool& receiving) {
     
     while (receiving) {
         
-        char recv_buffer[128];
+        char recv_buffer[256];
         memset(&recv_buffer, 0, sizeof(recv_buffer));
         
         struct sockaddr_in src_addr;
@@ -178,6 +178,8 @@ void Network::receive_messages(int sckt, bool& receiving) {
         if (std::strcmp(recv_buffer, "ACK") != 0) {
             send_message(sckt, device, ACK_PORT, "ACK");
         }
+        
+        std::cout << device << std::endl;
         
         char* buffer_msg = new char[src_addr_len + 2 + std::strlen(recv_buffer)];
         std::strcat(buffer_msg, device);
@@ -214,7 +216,7 @@ void Network::discover_devices() {
                             "\r\n";
     
     // discovery phase
-    for (int _=0; _!=5; _++) {
+    for (int _=0; _!=10; _++) {
         send_message(ssdp_sckt, (char*) SSDP_ADDR, SSDP_PORT, message);
         for (int i=0; i!=current_index; i++) {
             if (RECEIVING_BUFFER[i]) {
@@ -232,7 +234,7 @@ void Network::discover_devices() {
                 }
             }
         }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
     
     discovering = false;
