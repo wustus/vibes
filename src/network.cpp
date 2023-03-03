@@ -174,9 +174,9 @@ void Network::receive_messages(int sckt, bool& receiving) {
         char device[INET_ADDRSTRLEN];
         std::memset(&device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
-        
+
         if (std::strcmp(recv_buffer, "ACK") != 0) {
-            send_message(sckt, device, ACK_PORT, "ACK");
+            send_message(ack_sckt, device, ACK_PORT, "ACK");
         }
         
         std::cout << device << std::endl;
@@ -218,7 +218,7 @@ void Network::discover_devices() {
     
     // discovery phase
     for (int _=0; _!=10; _++) {
-        sending_threads.push_back(std::thread([this, message]() { send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message); }));
+        sending_threads.emplace_back([this, message]() { send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message); });
         for (int i=0; i!=current_index; i++) {
             if (RECEIVING_BUFFER[i]) {
                 
