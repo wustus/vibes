@@ -365,7 +365,7 @@ bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
 
 char* Network::find_challenger(char** game_status) {
     
-    bool receiving = false;
+    bool receiving = true;
     bool found_challenger = false;
     bool waiting_for_challenge = false;
     
