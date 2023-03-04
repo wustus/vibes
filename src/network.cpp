@@ -211,7 +211,7 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
     }
 
     if (std::strcmp(msg, "ACK") == 0) {
-        return;
+        return true;
     }
     
     if (!listen_for_ack(addr)) {
