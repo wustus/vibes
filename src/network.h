@@ -32,6 +32,13 @@ private:
         char** devices;
     };
     
+    struct Game {
+        std::thread game_thread;
+        char* opponent_addr;
+        bool is_game_live;
+        short played_moves[9];
+    };
+    
     const char* ROUTER_ADDR = "192.168.2.1";
     const char* SSDP_ADDR = "239.255.255.250";
     const int SSDP_PORT = 1900;
@@ -71,6 +78,10 @@ public:
     void set_local_addr();
     void discover_devices();
     char* find_challenger(char** game_status);
+    void start_game(char* addr);
+    short receive_move();
+    void make_move(short m);
+    void end_game();
     
     /*
      dont write to buffers from methods
@@ -105,6 +116,7 @@ public:
     char** get_receiving_buffer();
     int get_current_index();
     NetworkConfig* get_network_config();
+    Game game;
 };
 
 

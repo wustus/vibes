@@ -459,6 +459,91 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
     }
 }
 
+
+void Network::start_game(char* addr) {
+    
+    std::memset(&game, 0, sizeof(game));
+    
+    std::memcpy(game.opponent_addr, addr, INET_ADDRSTRLEN);
+    
+    for (int i=0; i!=0; i++) {
+        game.played_moves[i] = -1;
+    }
+    
+    game.is_game_live = true;
+    
+    game.game_thread = std::thread(&Network::receive_messages, this, chlg_sckt, game.is_game_live);
+}
+
+short Network::receive_move() {
+    
+    bool received = false;
+    short move;
+    
+    while (!received) {
+        for (int i=0; i!=BUFFER_SIZE; i++) {
+            if (*RECEIVING_BUFFER[i] == '\0') {
+                break;
+            }
+            
+            char* addr;
+            char* msg;
+            
+            split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
+            
+            if (std::strcmp(addr, game.opponent_addr) == 0) {
+                if (std::strcmp("MOVE", msg) == 0) {
+                    char* tmp = new char[std::strlen(msg)];
+                    short move;
+                    std::memcpy(tmp, msg+5, sizeof(short));
+                    std::memcpy(&move, tmp, sizeof(short));
+                    
+                    std::cout << "MOVE RECEIVED: " << move << std::endl;;
+                    
+                    delete[] tmp;
+                }
+            }
+            
+            delete[] msg;
+            delete[] addr;
+        }
+    }
+    
+    return move;
+}
+
+void Network::make_move(short m) {
+    
+    char* msg = new char[6 + sizeof(short)];
+    
+    std::memcpy(msg, "MOVE ", 5);
+    std::memcpy(msg+5, &m, sizeof(m));
+    
+    while (!send_message(chlg_sckt, game.opponent_addr, CHLG_PORT, msg)) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    }
+    
+    std::cout << "MOVE PLAYED: " << m << std::endl;;
+    
+    for (int i=0; i!=8; i++) {
+        if (game.played_moves[i] == -1) {
+            continue;
+        }
+        
+        game.played_moves[i] = m;
+        break;
+    }
+    
+    delete[] msg;
+}
+
+void Network::end_game() {
+    
+    game.is_game_live = false;
+    std::memset(&game, 0, sizeof(game));
+}
+
+
 int Network::get_ssdp_port() {
     return SSDP_PORT;
 }

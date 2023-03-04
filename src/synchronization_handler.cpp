@@ -12,13 +12,9 @@ SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {}
 
 void SynchronizationHandler::play(char* challenger) {
     
-    int sckt = network.get_chlg_sckt();
-    int port = network.get_chlg_port();
-    char* buffer = nullptr;
-    bool receiving = true;
-    bool ready = false;
-    
     std::cout << "Starting Game." << std::endl;
+    
+    network.start_game(challenger);
     
     if (std::strcmp(network.get_network_config()->address, challenger) < 0) {
         ttt.player = 'X';
@@ -32,45 +28,20 @@ void SynchronizationHandler::play(char* challenger) {
     
     while (!ttt.is_game_over()) {
         if (ttt.is_move) {
-            
-            while (!ready) {
-                if (buffer && std::strcmp(buffer, "READY") == 0) {
-                    ready = true;
-                    buffer = nullptr;
-                    break;
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-            
             short move;
             while (ttt.is_move) {
                 move = rand() % 9;
                 ttt.make_move(move);
             }
             
-            //network.send_message(sckt, challenger, std::to_string(move).c_str(), port);
+            network.make_move(move);
+            
         } else {
-            
-            if (!ready) {
-              //  network.send_message(sckt, challenger, "READY", port);
-                ready = true;
-                buffer = nullptr;
-            }
-            
-            while (!ttt.is_move) {
-                if (!buffer) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    continue;
-                }
-                short move = std::atoi(buffer);
-                ttt.make_move(move);
-                buffer = nullptr;
-            }
+            short move = network.receive_move();
         }
     }
     
-    receiving = false;
-    
+    network.end_game();
     
     if (ttt.is_won) {
         std::cout << "Won." << std::endl;
@@ -80,7 +51,6 @@ void SynchronizationHandler::play(char* challenger) {
     } else {
         std::cout << "Lost." << std::endl;
     }
-    delete[] buffer;
 }
 
 void SynchronizationHandler::reset_game() {
@@ -95,8 +65,11 @@ void SynchronizationHandler::determine_master() {
     char** game_status;
     
     char* challenger = network.find_challenger(game_status);
-    
     std::cout << "Found Challenger: " << challenger << std::endl;
     
+    play(challenger);
+    
+    
+    delete[] challenger;
 }
 
