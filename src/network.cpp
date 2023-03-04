@@ -279,7 +279,6 @@ void Network::discover_devices() {
                     return std::string(addr) == std::string(c);
                 }) == discovered_devices.end()) {
                     discovered_devices.push_back(addr);
-                    std::cout << "Address added: " << addr << std::endl;
                 } else {
                     sending_threads.emplace_back([this, addr]() { send_message(ssdp_sckt, addr, ACK_PORT, "BUDDY"); });
                 }
@@ -408,6 +407,8 @@ char* Network::find_challenger(char** game_status) {
     
     recv_thread.join();
     handler_thread.join();
+    
+    std::cout << challenger << std::endl;
     
     return challenger;
 }

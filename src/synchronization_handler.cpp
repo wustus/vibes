@@ -96,7 +96,7 @@ void SynchronizationHandler::determine_master() {
     
     char* challenger = network.find_challenger(game_status);
     
-    std::cout << "Found Challenger: " << std::endl;
+    std::cout << "Found Challenger: " << challenger << std::endl;
     
 }
 
