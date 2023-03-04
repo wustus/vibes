@@ -499,7 +499,7 @@ short Network::receive_move() {
                     std::memcpy(tmp, msg+5, sizeof(short));
                     std::memcpy(&move, tmp, sizeof(short));
                     
-                    std::cout << "MOVE RECEIVED: " << move << std::endl;;
+                    received = true;
                     
                     delete[] tmp;
                 }
