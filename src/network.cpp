@@ -255,6 +255,9 @@ void Network::discover_devices() {
                     continue;
                 }
                 
+                std::cout << addr << std::endl;
+                std::cout << msg << std::endl;
+                
                 if (msg == "ACK" && std::find_if(discovered_devices.begin(), discovered_devices.end(), [local_addr, addr](char* c) {
                     return std::string(local_addr) != std::string(addr) && std::string(addr) == std::string(c);
                 }) == discovered_devices.end()) {
@@ -280,7 +283,7 @@ void Network::discover_devices() {
     std::cout << "BUFFER CONTENT" << std::endl;
     std::cout << "--------------" << std::endl;
     for (int i=0; i!=BUFFER_SIZE; i++) {
-        if (RECEIVING_BUFFER[i]) {
+        if (*RECEIVING_BUFFER[i] != '\0') {
             std::cout << "Message " << i << std::endl;
             std::cout << RECEIVING_BUFFER[i] << std::endl << std::endl;
         }
