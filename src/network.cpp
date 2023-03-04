@@ -490,6 +490,8 @@ short Network::receive_move() {
             char* addr;
             char* msg;
             
+            std::cout << RECEIVING_BUFFER[i] << std::endl;
+            
             split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
             
             if (std::strcmp(addr, game.opponent_addr) == 0) {

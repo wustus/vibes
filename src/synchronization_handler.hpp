@@ -70,6 +70,8 @@ private:
                 }
                 std::cout << " " << field[i] << " ";
             }
+            
+            std::cout << std::endl;
         }
         
         void make_move(short m) {
