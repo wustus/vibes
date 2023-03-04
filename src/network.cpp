@@ -240,7 +240,7 @@ void Network::discover_devices() {
                             "\r\n";
     
     // discovery phase
-    for (int _=0; _!=5; _++) {
+    while (discovered_devices.size() != NUMBER_OF_DEVICES-1) {
         sending_threads.emplace_back([this, message]() { send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message); });
         for (int i=0; i!=current_index; i++) {
             if (RECEIVING_BUFFER[i]) {
@@ -254,7 +254,7 @@ void Network::discover_devices() {
                     continue;
                 }
                 
-                if (msg == "ACK" && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
+                if ((msg == "ACK" || msg == "BUDDY") && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
                     return std::string(addr) == std::string(c);
                 }) == discovered_devices.end()) {
                     char* temp = new char[INET_ADDRSTRLEN];
