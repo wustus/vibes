@@ -66,7 +66,6 @@ private:
     void game_status_listener(char**& game_status, bool& listening);
 public:
     Network(int);
-    Network(Network& other);
     ~Network();
     
     void set_local_addr();

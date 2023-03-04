@@ -12,7 +12,7 @@
 
 class SynchronizationHandler {
 private:
-    Network network;
+    Network& network;
     
     struct tic_tac_toe {
         char field[9];

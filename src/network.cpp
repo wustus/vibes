@@ -40,18 +40,6 @@ Network::Network(int NUMBER_OF_DEVICES) {
     }
 }
 
-Network::Network(Network& other) {
-    
-    other.ssdp_sckt = get_ssdp_sckt();
-    other.ack_sckt = get_ack_sckt();
-    other.chlg_sckt = get_chlg_sckt();
-    other.ntp_sckt = get_ntp_sckt();
-    other.NUMBER_OF_DEVICES = get_number_of_devices();
-    other.RECEIVING_BUFFER = get_receiving_buffer();
-    other.current_index = get_current_index();
-    other.net_config = *get_network_config();
-}
-
 Network::~Network() {
     close(ssdp_sckt);
     close(ack_sckt);
