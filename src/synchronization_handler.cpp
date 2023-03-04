@@ -38,6 +38,7 @@ void SynchronizationHandler::play(char* challenger) {
             
         } else {
             short move = network.receive_move();
+            std::cout << "MOVE RECEIVED " << move << std::endl;
             ttt.make_move(move);
         }
     }

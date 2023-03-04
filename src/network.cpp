@@ -503,7 +503,6 @@ short Network::receive_move() {
                             break;
                         }
                         
-                        std::cout << "MOVE RECEIVED " << move << std::endl;
                         new_move = true;
                     }
                     
