@@ -257,9 +257,11 @@ void Network::discover_devices() {
                 
                 std::cout << addr << std::endl;
                 std::cout << msg << std::endl;
+                std::cout << (msg == "ACK") << std::endl;
                 
-                if (msg == "ACK" && std::find_if(discovered_devices.begin(), discovered_devices.end(), [local_addr, addr](char* c) {
-                    return std::string(local_addr) != std::string(addr) && std::string(addr) == std::string(c);
+                if (msg == "ACK" && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
+                    std::cout << addr << std::endl;
+                    return std::string(addr) == std::string(c);
                 }) == discovered_devices.end()) {
                     discovered_devices.push_back((char*) addr.c_str());
                 } else {
