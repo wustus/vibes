@@ -314,7 +314,7 @@ bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
         
         for (int i=0; i!=BUFFER_SIZE; i++) {
             
-            if (*RECEIVING_BUFFER[i] != '\0') {
+            if (*RECEIVING_BUFFER[i] == '\0') {
                 break;
             }
             
@@ -322,6 +322,8 @@ bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
             char* msg;
             
             split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
+            
+            std::cout << RECEIVING_BUFFER[i] << std::endl;
             
             // pending challenge
             if (challenger != nullptr) {
