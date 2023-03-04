@@ -13,8 +13,8 @@ SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {}
 void SynchronizationHandler::play(char* challenger) {
     
     std::cout << "Starting Game." << std::endl;
-    
     network.start_game(challenger);
+    reset_game();
     
     if (std::strcmp(network.get_network_config()->address, challenger) < 0) {
         ttt.player = 'X';

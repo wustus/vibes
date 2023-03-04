@@ -410,8 +410,6 @@ char* Network::find_challenger(char** game_status) {
     recv_thread.join();
     handler_thread.join();
     
-    std::cout << challenger << std::endl;
-    
     return challenger;
 }
 
