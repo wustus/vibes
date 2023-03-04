@@ -472,7 +472,7 @@ void Network::start_game(char* addr) {
     
     game.is_game_live = true;
     
-    game.game_thread = std::thread(&Network::receive_messages, this, chlg_sckt, game.is_game_live);
+    game.game_thread = std::thread(&Network::receive_messages, this, chlg_sckt, std::ref(game.is_game_live));
 }
 
 short Network::receive_move() {
