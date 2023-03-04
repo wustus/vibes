@@ -159,8 +159,6 @@ void Network::append_to_buffer(char* addr, char* message) {
     
     std::strncpy(RECEIVING_BUFFER[current_index], buffer_msg, MESSAGE_SIZE-1);
     current_index = (current_index + 1) % BUFFER_SIZE;
-    
-    
 }
 
 bool Network::listen_for_ack(const char* addr) {
@@ -266,7 +264,7 @@ void Network::discover_devices() {
     while (discovered_devices.size() != NUMBER_OF_DEVICES-1) {
         sending_threads.emplace_back([this, message]() { send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message); });
         for (int i=0; i!=current_index; i++) {
-            if (RECEIVING_BUFFER[i]) {
+            if (*RECEIVING_BUFFER[i] != '\0') {
                 
                 char* addr;
                 char* msg;
@@ -316,7 +314,7 @@ bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
         
         for (int i=0; i!=BUFFER_SIZE; i++) {
             
-            if (!RECEIVING_BUFFER[i]) {
+            if (*RECEIVING_BUFFER[i] != '\0') {
                 break;
             }
             
@@ -397,6 +395,7 @@ char* Network::find_challenger(char** game_status) {
     
     std::cout << "Found challenger: " << challenger << std::endl;
     
+    return nullptr;
     
 }
 
@@ -405,7 +404,7 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
     while (listening) {
         
         for (int i=0; i!=BUFFER_SIZE; i++) {
-            if (!RECEIVING_BUFFER[i]) {
+            if (*RECEIVING_BUFFER[i] == '\0') {
                 continue;
             }
                 
