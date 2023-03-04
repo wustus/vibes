@@ -499,11 +499,12 @@ short Network::receive_move() {
                     std::memcpy(&move, tmp, sizeof(short));
                     
                     for (int j=0; j!=8; j++) {
-                        if (game.played_moves[j] != -1 && game.played_moves[j] == move) {
+                        if (game.played_moves[j] == move) {
                             break;
+                        } else if (game.played_moves[j] == -1) {
+                            new_move = true;
                         }
                         
-                        new_move = true;
                     }
                     
                     delete[] tmp;
