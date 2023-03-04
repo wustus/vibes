@@ -495,7 +495,6 @@ short Network::receive_move() {
                     short move;
                     bool new_move = false;;
                     
-                    
                     std::memcpy(tmp, msg+5, sizeof(short));
                     std::memcpy(&move, tmp, sizeof(short));
                     
@@ -526,7 +525,7 @@ short Network::receive_move() {
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
     
-    return move;
+    return -1;
 }
 
 void Network::make_move(short m) {
