@@ -365,14 +365,13 @@ bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
 
 char* Network::find_challenger(char** game_status) {
     
-    bool pending_challenge = false;
+    bool receiving = false;
     bool found_challenger = false;
     bool waiting_for_challenge = false;
     
     char* challenger = nullptr;
     
-    std::thread recv_thread([this, &found_challenger, &waiting_for_challenge]() {
-        bool receiving = !found_challenger && !waiting_for_challenge;
+    std::thread recv_thread([this, &receiving]() {
         receive_messages(chlg_sckt, receiving);
     });
     
@@ -404,6 +403,8 @@ char* Network::find_challenger(char** game_status) {
             pending_timeout = 10;
         }
     }
+    
+    receiving = false;
     
     recv_thread.join();
     handler_thread.join();
