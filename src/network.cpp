@@ -500,6 +500,7 @@ short Network::receive_move() {
                     std::memcpy(&move, tmp, sizeof(short));
                     
                     received = true;
+                    std::cout << "MOVE RECEIVED " << move << std::endl;
                     
                     delete[] tmp;
                 }
@@ -527,7 +528,6 @@ void Network::make_move(short m) {
     }
     
     std::cout << "MOVE PLAYED: " << m << std::endl;
-    std::cout << "MOVE PLAYED: " << msg << std::endl << std::endl;
     
     for (int i=0; i!=8; i++) {
         if (game.played_moves[i] == -1) {
