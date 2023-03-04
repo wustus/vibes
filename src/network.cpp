@@ -498,6 +498,9 @@ short Network::receive_move() {
                     std::memcpy(tmp, msg+5, sizeof(short));
                     std::memcpy(&move, tmp, sizeof(short));
                     
+                    std::cout << "CHECKING PREVIOUS MOVES" << std::endl;
+                    std::cout << "MOVE: " << move << std::endl;
+                    
                     for (int j=0; j!=8; j++) {
                         if (game.played_moves[j] == -1 || game.played_moves[j] == move) {
                             break;
@@ -511,6 +514,13 @@ short Network::receive_move() {
                     if (new_move) {
                         delete[] msg;
                         delete[] addr;
+                        
+                        for (int j=0; j!=9; j++) {
+                            if (game.played_moves[j] == -1) {
+                                game.played_moves[j] = move;
+                                break;
+                            }
+                        }
                         
                         return move;
                     }
