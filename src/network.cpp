@@ -478,10 +478,7 @@ void Network::start_game(char* addr) {
 
 short Network::receive_move() {
     
-    bool received = false;
-    short move;
-    
-    while (!received) {
+    while (true) {
         for (int i=0; i!=BUFFER_SIZE; i++) {
             if (*RECEIVING_BUFFER[i] == '\0') {
                 break;
@@ -495,6 +492,9 @@ short Network::receive_move() {
             if (std::strcmp(addr, game.opponent_addr) == 0) {
                 if (std::strncmp("MOVE", msg, 4) == 0) {
                     char* tmp = new char[std::strlen(msg)];
+                    short move;
+                    bool new_move = false;;
+                    
                     
                     std::memcpy(tmp, msg+5, sizeof(short));
                     std::memcpy(&move, tmp, sizeof(short));
@@ -504,11 +504,18 @@ short Network::receive_move() {
                             break;
                         }
                         
-                        received = true;
                         std::cout << "MOVE RECEIVED " << move << std::endl;
+                        new_move = true;
                     }
                     
                     delete[] tmp;
+                    
+                    if (new_move) {
+                        delete[] msg;
+                        delete[] addr;
+                        
+                        return move;
+                    }
                 }
             }
             
