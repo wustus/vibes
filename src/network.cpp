@@ -5,6 +5,12 @@ Network::Network(int NUMBER_OF_DEVICES) {
     
     Network::NUMBER_OF_DEVICES = NUMBER_OF_DEVICES;
     
+    RECEIVING_BUFFER = new char*[BUFFER_SIZE];
+    for (int i=0; i!=BUFFER_SIZE; i++) {
+        RECEIVING_BUFFER[i] = new char[MESSAGE_SIZE];
+        RECEIVING_BUFFER[i][0] = '\0';
+    }
+    
     // initialize sockets
     int response;
     
@@ -33,6 +39,12 @@ Network::~Network() {
     close(ack_sckt);
     close(chlg_sckt);
     close(ntp_sckt);
+    
+    for (int i=0; i!=BUFFER_SIZE; i++) {
+        delete[] RECEIVING_BUFFER[i];
+    }
+    
+    delete[] RECEIVING_BUFFER;
 }
 
 int Network::create_udp_socket(int port) {
@@ -51,7 +63,7 @@ int Network::create_udp_socket(int port) {
     // receive timeout
     struct timeval timeout;
     std::memset(&timeout, 0, sizeof(timeout));
-    timeout.tv_sec = 3;
+    timeout.tv_sec = 2;
     timeout.tv_usec = 0;
     
     if (setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
@@ -113,26 +125,21 @@ void Network::set_local_addr() {
 
 void Network::append_to_buffer(char* addr, char* message) {
     
-    char* buffer_msg = new char[std::strlen(addr) + 2 + std::strlen(message)];
-    
-    std::memcpy(buffer_msg, addr, strlen(addr));
-    std::memcpy(buffer_msg + std::strlen(addr), "::", 2);
-    std::memcpy(buffer_msg + std::strlen(addr) + 2, message, strlen(message));
-    
-    buffer_mutex.lock();
-    
-    if (current_index < BUFFER_SIZE) {
-        RECEIVING_BUFFER[current_index] = new char[std::strlen(buffer_msg)];
-        std::memcpy(RECEIVING_BUFFER[current_index], buffer_msg, std::strlen(buffer_msg));
-        current_index++;
-    } else {
-        RECEIVING_BUFFER++;
-        RECEIVING_BUFFER[current_index-1] = new char[std::strlen(buffer_msg)];
-        std::memcpy(RECEIVING_BUFFER[current_index-1], buffer_msg, std::strlen(buffer_msg));
+    if (std::strlen(addr) + 2 + std::strlen(message) > MESSAGE_SIZE) {
+        char errpr_msg[std::strlen(addr) + std::strlen(message) + 128];
+        std::snprintf(errpr_msg, sizeof(errpr_msg), "Message too long for Buffer: \n\t%s::%s (%zu + 2 + %zu) \ntoo long for MESSAGE_SIZE=%d.", addr, message, std::strlen(addr), std::strlen(message), MESSAGE_SIZE);
+        throw std::length_error(" ");
     }
     
-    delete[] buffer_msg;
-    buffer_mutex.unlock();
+    char buffer_msg[MESSAGE_SIZE];
+    std::snprintf(buffer_msg, MESSAGE_SIZE, "%s::%s", addr, message);
+    
+    std::lock_guard<std::mutex> lock(buffer_mutex);
+    
+    std::strncpy(RECEIVING_BUFFER[current_index], buffer_msg, MESSAGE_SIZE-1);
+    current_index = (current_index + 1) % BUFFER_SIZE;
+    
+    
 }
 
 bool Network::listen_for_ack(const char* addr) {
@@ -257,7 +264,7 @@ void Network::discover_devices() {
                 }
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
     
     for (int i=0; i!=sending_threads.size(); i++) {

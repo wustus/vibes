@@ -46,8 +46,9 @@ private:
     
     int NUMBER_OF_DEVICES;
     const int BUFFER_SIZE = 128;
+    const int MESSAGE_SIZE = 256;
     
-    char** RECEIVING_BUFFER = new char*[BUFFER_SIZE]();
+    char** RECEIVING_BUFFER;
     int current_index = 0;
     
     std::mutex buffer_mutex;
