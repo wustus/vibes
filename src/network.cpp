@@ -493,13 +493,13 @@ short Network::receive_move() {
                 if (std::strncmp("MOVE", msg, 4) == 0) {
                     char* tmp = new char[std::strlen(msg)];
                     short move;
-                    bool new_move = false;;
+                    bool new_move = false;
                     
                     std::memcpy(tmp, msg+5, sizeof(short));
                     std::memcpy(&move, tmp, sizeof(short));
                     
                     for (int j=0; j!=8; j++) {
-                        if (game.played_moves[j] == -1 || game.played_moves[j] == move) {
+                        if (game.played_moves[j] != -1 && game.played_moves[j] == move) {
                             break;
                         }
                         
