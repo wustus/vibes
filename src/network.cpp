@@ -259,7 +259,7 @@ void Network::discover_devices() {
                     return std::string(addr) == std::string(c);
                 }) == discovered_devices.end()) {
                     char* temp = new char[INET_ADDRSTRLEN];
-                    std::memcpy(temp, RECEIVING_BUFFER[i], INET_ADDRSTRLEN);
+                    std::memcpy(temp, addr.c_str(), INET_ADDRSTRLEN);
                     discovered_devices.push_back(temp);
                     std::cout << "Address added: " << addr << std::endl;
                 } else {
