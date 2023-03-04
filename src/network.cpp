@@ -498,8 +498,8 @@ short Network::receive_move() {
                     std::memcpy(tmp, msg+5, sizeof(short));
                     std::memcpy(&move, tmp, sizeof(short));
                     
-                    for (int j=0; i!=8; j++) {
-                        if (game.played_moves[j] == -1 || game.played_moves[i] == move) {
+                    for (int j=0; j!=8; j++) {
+                        if (game.played_moves[j] == -1 || game.played_moves[j] == move) {
                             break;
                         }
                         
