@@ -339,6 +339,8 @@ bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
                             
                             return false;
                         }
+                    } else if (std::strcmp(msg, "CHLG") == 0) {
+                        found_challenger = true;
                     }
                 }
             } else {
