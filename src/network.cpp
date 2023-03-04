@@ -224,7 +224,7 @@ void Network::receive_messages(int sckt, bool& receiving) {
 
 void Network::discover_devices() {
     
-    std::vector<const char*> discovered_devices;
+    std::vector<char*> discovered_devices;
     std::vector<std::thread> sending_threads;
     char* local_addr = net_config.address;
     
