@@ -126,9 +126,9 @@ void Network::set_local_addr() {
 void Network::append_to_buffer(char* addr, char* message) {
     
     if (std::strlen(addr) + 2 + std::strlen(message) > MESSAGE_SIZE) {
-        char errpr_msg[std::strlen(addr) + std::strlen(message) + 128];
-        std::snprintf(errpr_msg, sizeof(errpr_msg), "Message too long for Buffer: \n\t%s::%s (%zu + 2 + %zu) \ntoo long for MESSAGE_SIZE=%d.", addr, message, std::strlen(addr), std::strlen(message), MESSAGE_SIZE);
-        throw std::length_error(" ");
+        char error_msg[std::strlen(addr) + std::strlen(message) + 128];
+        std::snprintf(error_msg, sizeof(error_msg), "Message too long for Buffer: \n\t%s::%s (%zu + 2 + %zu) \ntoo long for MESSAGE_SIZE=%d.", addr, message, std::strlen(addr), std::strlen(message), MESSAGE_SIZE);
+        throw std::length_error(error_msg);
     }
     
     char buffer_msg[MESSAGE_SIZE];

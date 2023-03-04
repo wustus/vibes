@@ -46,7 +46,7 @@ private:
     
     int NUMBER_OF_DEVICES;
     const int BUFFER_SIZE = 128;
-    const int MESSAGE_SIZE = 256;
+    const int MESSAGE_SIZE = 512;
     
     char** RECEIVING_BUFFER;
     int current_index = 0;
