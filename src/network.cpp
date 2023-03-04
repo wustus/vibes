@@ -244,7 +244,7 @@ void Network::discover_devices() {
                 std::string addr = buffer.substr(0, delimiter_index);
                 std::string msg = buffer.substr(delimiter_index+2, buffer.size());
                 
-                if (addr == std::string(SSDP_ADDR)) {
+                if (addr == std::string(SSDP_ADDR) || addr == std::string(local_addr) || addr == std::string(ROUTER_ADDR)) {
                     continue;
                 }
                 
