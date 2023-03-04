@@ -466,6 +466,7 @@ void Network::start_game(char* addr) {
     
     std::memset(&game, 0, sizeof(game));
     
+    game.opponent_addr = new char[INET_ADDRSTRLEN];
     std::memcpy(game.opponent_addr, addr, INET_ADDRSTRLEN);
     
     for (int i=0; i!=0; i++) {
@@ -542,6 +543,7 @@ void Network::make_move(short m) {
 void Network::end_game() {
     
     game.is_game_live = false;
+    delete[] game.opponent_addr;
     std::memset(&game, 0, sizeof(game));
 }
 
