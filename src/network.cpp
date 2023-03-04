@@ -381,16 +381,28 @@ char* Network::find_challenger(char** game_status) {
     std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 500));
     
     int current_addr = 0;
+    int pending_timeout = 10;
     
     while (!found_challenger && !waiting_for_challenge) {
         
         if (challenger == nullptr) {
-            if (send_message(chlg_sckt, net_config.devices[current_addr], CHLG_PORT, "CHLG"));
+            char* chlg_addr = net_config.devices[current_addr];
+            if (send_message(chlg_sckt, chlg_addr, CHLG_PORT, "CHLG")) {
+                challenger = new char[INET_ADDRSTRLEN];
+                std::memcpy(challenger, chlg_addr, INET_ADDRSTRLEN);
+            } else {
+                pending_timeout = 0;
+            }
+        } else {
+            pending_timeout--;
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
         
-        current_addr = ++current_addr % NUMBER_OF_DEVICES;
+        if (pending_timeout == 0) {
+            current_addr = ++current_addr % NUMBER_OF_DEVICES;
+            pending_timeout = 10;
+        }
     }
     
     std::cout << "Found challenger: " << challenger << std::endl;
