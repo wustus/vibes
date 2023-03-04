@@ -92,7 +92,9 @@ void SynchronizationHandler::reset_game() {
 
 void SynchronizationHandler::determine_master() {
     
-        
+    char** game_status;
+    
+    network.find_challenger(game_status);
     
 }
 
