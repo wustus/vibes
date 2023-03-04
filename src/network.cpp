@@ -244,10 +244,16 @@ void Network::discover_devices() {
                 std::string addr = buffer.substr(0, delimiter_index);
                 std::string msg = buffer.substr(delimiter_index+2, buffer.size());
                 
+                if (addr == std::string(SSDP_ADDR)) {
+                    continue;
+                }
+                
                 if (msg == "ACK" && std::find_if(discovered_devices.begin(), discovered_devices.end(), [local_addr, addr](char* c) {
                     return std::string(local_addr) != std::string(addr) && std::string(addr) == std::string(c);
                 }) == discovered_devices.end()) {
                     discovered_devices.push_back((char*) addr.c_str());
+                } else {
+                    sending_threads.emplace_back([this, addr]() { send_message(ssdp_sckt, addr.c_str(), ACK_PORT, "BUDDY"); });
                 }
             }
         }
