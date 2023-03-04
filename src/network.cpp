@@ -255,15 +255,11 @@ void Network::discover_devices() {
                     continue;
                 }
                 
-                std::cout << addr << std::endl;
-                std::cout << msg << std::endl;
-                std::cout << (msg == "ACK") << std::endl;
-                
                 if (msg == "ACK" && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
-                    std::cout << addr << std::endl;
                     return std::string(addr) == std::string(c);
                 }) == discovered_devices.end()) {
                     discovered_devices.push_back((char*) addr.c_str());
+                    std::cout << "Address added: " << addr << std::endl;
                 } else {
                     sending_threads.emplace_back([this, addr]() { send_message(ssdp_sckt, addr.c_str(), ACK_PORT, "BUDDY"); });
                 }
