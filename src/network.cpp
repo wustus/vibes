@@ -63,7 +63,7 @@ int Network::create_udp_socket(int port) {
     // receive timeout
     struct timeval timeout;
     std::memset(&timeout, 0, sizeof(timeout));
-    timeout.tv_sec = 2;
+    timeout.tv_sec = 1;
     timeout.tv_usec = 0;
     
     if (setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
@@ -184,7 +184,6 @@ void Network::send_message(int sckt, const char* addr, int port, const char* msg
     if (!listen_for_ack(addr)) {
         
         if (timeout == 0) {
-            std::cout << "Timeout of device " << addr << std::endl;
             return;
         }
         
@@ -267,7 +266,7 @@ void Network::discover_devices() {
                 }
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
     
     for (int i=0; i!=sending_threads.size(); i++) {
@@ -279,15 +278,6 @@ void Network::discover_devices() {
     receive_thread_ssdp.join();
     close(ssdp_sckt);
     close(ack_sckt);
-    
-    std::cout << "BUFFER CONTENT" << std::endl;
-    std::cout << "--------------" << std::endl;
-    for (int i=0; i!=BUFFER_SIZE; i++) {
-        if (*RECEIVING_BUFFER[i] != '\0') {
-            std::cout << "Message " << i << std::endl;
-            std::cout << RECEIVING_BUFFER[i] << std::endl << std::endl;
-        }
-    }
     
     std::cout << "Discovered " << discovered_devices.size() << " devices." << std::endl;
     
