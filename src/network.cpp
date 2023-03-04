@@ -323,8 +323,6 @@ bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
             
             split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
             
-            std::cout << RECEIVING_BUFFER[i] << std::endl;
-            
             // pending challenge
             if (challenger != nullptr) {
                 if (std::strcmp(addr, challenger) == 0) {
@@ -407,10 +405,10 @@ char* Network::find_challenger(char** game_status) {
         }
     }
     
-    std::cout << "Found challenger: " << challenger << std::endl;
+    recv_thread.join();
+    handler_thread.join();
     
-    return nullptr;
-    
+    return challenger;
 }
 
 void Network::game_status_listener(char**& game_status, bool& listening) {
