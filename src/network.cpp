@@ -177,6 +177,7 @@ void Network::send_message(int sckt, const char* addr, int port, const char* msg
     if (!listen_for_ack(addr)) {
         
         if (timeout == 0) {
+            std::cout << "Timeout of device " << addr << std::endl;
             return;
         }
         
@@ -262,6 +263,15 @@ void Network::discover_devices() {
     receive_thread_ssdp.join();
     close(ssdp_sckt);
     close(ack_sckt);
+    
+    std::cout << "BUFFER CONTENT" << std::endl;
+    std::cout << "--------------" << std::endl;
+    for (int i=0; i!=BUFFER_SIZE; i++) {
+        if (RECEIVING_BUFFER[i]) {
+            std::cout << "Message " << i << std::endl;
+            std::cout << RECEIVING_BUFFER[i] << std::endl << std::endl;
+        }
+    }
     
     std::cout << "Discovered " << discovered_devices.size() << " devices." << std::endl;
     
