@@ -490,11 +490,10 @@ short Network::receive_move() {
             char* addr;
             char* msg;
             
-            std::cout << RECEIVING_BUFFER[i] << std::endl;
-            
             split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
             
             if (std::strcmp(addr, game.opponent_addr) == 0) {
+                std::cout << i << " --- " << RECEIVING_BUFFER[i] << std::endl;
                 if (std::strcmp("MOVE", msg) == 0) {
                     char* tmp = new char[std::strlen(msg)];
                     short move;
@@ -510,6 +509,8 @@ short Network::receive_move() {
             delete[] msg;
             delete[] addr;
         }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
     
     return move;
@@ -526,7 +527,8 @@ void Network::make_move(short m) {
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
     
-    std::cout << "MOVE PLAYED: " << m << std::endl;;
+    std::cout << "MOVE PLAYED: " << m << std::endl;
+    std::cout << "MOVE PLAYED: " << msg << std::endl << std::endl;
     
     for (int i=0; i!=8; i++) {
         if (game.played_moves[i] == -1) {
