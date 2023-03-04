@@ -224,7 +224,7 @@ void Network::receive_messages(int sckt, bool& receiving) {
 
 void Network::discover_devices() {
     
-    std::vector<char*> discovered_devices;
+    std::vector<const char*> discovered_devices;
     std::vector<std::thread> sending_threads;
     char* local_addr = net_config.address;
     
@@ -258,7 +258,9 @@ void Network::discover_devices() {
                 if (msg == "ACK" && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
                     return std::string(addr) == std::string(c);
                 }) == discovered_devices.end()) {
-                    discovered_devices.push_back((char*) addr.c_str());
+                    char* temp = new char[INET_ADDRSTRLEN];
+                    std::memcpy(temp, RECEIVING_BUFFER[i], INET_ADDRSTRLEN);
+                    discovered_devices.push_back(temp);
                     std::cout << "Address added: " << addr << std::endl;
                 } else {
                     sending_threads.emplace_back([this, addr]() { send_message(ssdp_sckt, addr.c_str(), ACK_PORT, "BUDDY"); });
