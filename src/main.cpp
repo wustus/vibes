@@ -106,9 +106,9 @@ int main(int argc, const char* argv[]) {
     network.discover_devices();
     
     // determine master
-    //SynchronizationHandler sync_handler = SynchronizationHandler(network);
+    SynchronizationHandler sync_handler = SynchronizationHandler(network);
     
-    //sync_handler.determine_master();
+    sync_handler.determine_master();
     
     exit(0);
     

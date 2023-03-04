@@ -54,18 +54,24 @@ private:
     std::mutex buffer_mutex;
 
     NetworkConfig net_config;
-public:
-    Network(int);
-    ~Network();
     
     int create_udp_socket(int);
+    void split_buffer_message(char*& addr, char*& msg, char* buffer_msg);
+    void append_to_buffer(char* addr, char* message);
+    bool listen_for_ack(const char* addr);
+    bool send_message(int sckt, const char* addr, int port, const char* msg, short timeout);
+    void receive_messages(int sckt, bool& receiving);
+    
+    bool challenge_handler(char*& challenger, bool& found_challenger);
+    void game_status_listener(char**& game_status, bool& listening);
+public:
+    Network(int);
+    Network(Network& other);
+    ~Network();
     
     void set_local_addr();
     void discover_devices();
-    void append_to_buffer(char* addr, char* message);
-    bool listen_for_ack(const char* addr);
-    void send_message(int sckt, const char* addr, int port, const char* msg, short timeout);
-    void receive_messages(int sckt, bool& receiving);
+    char* find_challenger(char** game_status);
     
     /*
      dont write to buffers from methods
@@ -95,6 +101,10 @@ public:
     int get_ntp_port();
     int get_ntp_sckt();
     int get_number_of_devices();
+    int get_buffer_size();
+    int get_message_size();
+    char** get_receiving_buffer();
+    int get_current_index();
     NetworkConfig* get_network_config();
 };
 

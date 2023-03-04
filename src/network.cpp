@@ -11,6 +11,12 @@ Network::Network(int NUMBER_OF_DEVICES) {
         RECEIVING_BUFFER[i][0] = '\0';
     }
     
+    net_config.devices = new char*[NUMBER_OF_DEVICES-1];
+    for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
+        net_config.devices[i] = new char[INET_ADDRSTRLEN];
+        net_config.devices[i][0] = '\0';
+    }
+    
     // initialize sockets
     int response;
     
@@ -32,6 +38,18 @@ Network::Network(int NUMBER_OF_DEVICES) {
         std::cerr << "Error setting Multicast socket option: " << std::strerror(errno) << std::endl;
         exit(1);
     }
+}
+
+Network::Network(Network& other) {
+    
+    other.ssdp_sckt = get_ssdp_sckt();
+    other.ack_sckt = get_ack_sckt();
+    other.chlg_sckt = get_chlg_sckt();
+    other.ntp_sckt = get_ntp_sckt();
+    other.NUMBER_OF_DEVICES = get_number_of_devices();
+    other.RECEIVING_BUFFER = get_receiving_buffer();
+    other.current_index = get_current_index();
+    other.net_config = *get_network_config();
 }
 
 Network::~Network() {
@@ -123,6 +141,21 @@ void Network::set_local_addr() {
     }
 }
 
+void Network::split_buffer_message(char *&addr, char *&msg, char* buffer_msg) {
+    
+    std::string buffer = std::string(buffer_msg);
+    int delimiter_index = static_cast<int>(buffer.find_first_of("::"));
+    
+    std::string temp_addr = buffer.substr(0, delimiter_index);
+    std::string temp_msg = buffer.substr(delimiter_index+2, buffer.size());
+    
+    addr = new char[INET_ADDRSTRLEN];
+    msg = new char[temp_msg.size()];
+    
+    std::memcpy(addr, temp_addr.c_str(), INET_ADDRSTRLEN);
+    std::memcpy(msg, temp_msg.c_str(), temp_msg.size());
+}
+
 void Network::append_to_buffer(char* addr, char* message) {
     
     if (std::strlen(addr) + 2 + std::strlen(message) > MESSAGE_SIZE) {
@@ -164,7 +197,7 @@ bool Network::listen_for_ack(const char* addr) {
     return false;
 }
 
-void Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=3) {
+bool Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=3) {
     
     struct sockaddr_in dest_addr;
     memset(&dest_addr, 0, sizeof(dest_addr));
@@ -184,11 +217,13 @@ void Network::send_message(int sckt, const char* addr, int port, const char* msg
     if (!listen_for_ack(addr)) {
         
         if (timeout == 0) {
-            return;
+            return false;
         }
         
         send_message(sckt, addr, port, msg, timeout-1);
     }
+    
+    return true;
 }
 
 void Network::receive_messages(int sckt, bool& receiving) {
@@ -244,26 +279,26 @@ void Network::discover_devices() {
         sending_threads.emplace_back([this, message]() { send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message); });
         for (int i=0; i!=current_index; i++) {
             if (RECEIVING_BUFFER[i]) {
-                std::string buffer = std::string(RECEIVING_BUFFER[i]);
-                int delimiter_index = static_cast<int>(buffer.find_first_of("::"));
                 
-                std::string addr = buffer.substr(0, delimiter_index);
-                std::string msg = buffer.substr(delimiter_index+2, buffer.size());
+                char* addr;
+                char* msg;
+                
+                split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
                 
                 if (addr == std::string(SSDP_ADDR) || addr == std::string(local_addr) || addr == std::string(ROUTER_ADDR)) {
                     continue;
                 }
                 
-                if ((msg == "ACK" || msg == "BUDDY") && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
+                if ((std::strcmp(msg, "ACK") == 0 || std::strcmp(msg, "BUDDY") == 0) && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
                     return std::string(addr) == std::string(c);
                 }) == discovered_devices.end()) {
-                    char* temp = new char[INET_ADDRSTRLEN];
-                    std::memcpy(temp, addr.c_str(), INET_ADDRSTRLEN);
-                    discovered_devices.push_back(temp);
+                    discovered_devices.push_back(addr);
                     std::cout << "Address added: " << addr << std::endl;
                 } else {
-                    sending_threads.emplace_back([this, addr]() { send_message(ssdp_sckt, addr.c_str(), ACK_PORT, "BUDDY"); });
+                    sending_threads.emplace_back([this, addr]() { send_message(ssdp_sckt, addr, ACK_PORT, "BUDDY"); });
                 }
+                
+                delete[] msg;
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
@@ -277,18 +312,149 @@ void Network::discover_devices() {
     
     receive_thread_ssdp.join();
     close(ssdp_sckt);
-    close(ack_sckt);
     
     std::cout << "Discovered " << discovered_devices.size() << " devices." << std::endl;
     
-    net_config.devices = new char*[discovered_devices.size()];
-    
     for (int i=0; i!=discovered_devices.size(); i++) {
-        auto x = discovered_devices[i];
-        net_config.devices[i] = new char[INET_ADDRSTRLEN];
-        memcpy(net_config.devices[i], x, INET_ADDRSTRLEN);
+        memcpy(net_config.devices[i], discovered_devices[i], INET_ADDRSTRLEN);
         std::cout << "\t" << net_config.devices[i] << std::endl;
         
+    }
+}
+
+bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
+    
+    while (!found_challenger) {
+        
+        for (int i=0; i!=BUFFER_SIZE; i++) {
+            
+            if (!RECEIVING_BUFFER[i]) {
+                break;
+            }
+            
+            char* addr;
+            char* msg;
+            
+            split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
+            
+            // pending challenge
+            if (challenger != nullptr) {
+                if (std::strcmp(addr, challenger) == 0) {
+                    if (std::strcmp(msg, "ACC") == 0) {
+                        found_challenger = true;
+                        challenger = new char[INET_ADDRSTRLEN];
+                        std::memcpy(challenger, addr, INET_ADDRSTRLEN);
+                    } else if (std::strcmp(msg, "DEC") == 0) {
+                        challenger = nullptr;
+                        
+                        // just for tests i dont like it though
+                        if (NUMBER_OF_DEVICES == 3) {
+                            delete[] addr;
+                            delete[] msg;
+                            
+                            return false;
+                        }
+                    }
+                }
+            } else {
+                if (std::strcmp(msg, "CHLG") == 0) {
+                    if (send_message(chlg_sckt, addr, CHLG_PORT, "ACC")) {
+                        found_challenger = true;
+                        challenger = new char[INET_ADDRSTRLEN];
+                        std::memcpy(challenger, addr, INET_ADDRSTRLEN);
+                    }
+                }
+            }
+            
+            
+            delete[] addr;
+            delete[] msg;
+        }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    }
+    
+    return true;
+}
+
+char* Network::find_challenger(char** game_status) {
+    
+    bool pending_challenge = false;
+    bool found_challenger = false;
+    bool waiting_for_challenge = false;
+    
+    char* challenger = nullptr;
+    
+    std::thread recv_thread([this, &found_challenger, &waiting_for_challenge]() {
+        bool receiving = !found_challenger && !waiting_for_challenge;
+        receive_messages(chlg_sckt, receiving);
+    });
+    
+    std::thread handler_thread([this, &challenger, &found_challenger, &waiting_for_challenge]() { waiting_for_challenge = !challenge_handler(challenger, found_challenger); });
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 500));
+    
+    int current_addr = 0;
+    
+    while (!found_challenger && !waiting_for_challenge) {
+        
+        if (challenger == nullptr) {
+            if (send_message(chlg_sckt, net_config.devices[current_addr], CHLG_PORT, "CHLG"));
+        }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        
+        current_addr = ++current_addr % NUMBER_OF_DEVICES;
+    }
+    
+    std::cout << "Found challenger: " << challenger << std::endl;
+    
+    
+}
+
+void Network::game_status_listener(char**& game_status, bool& listening) {
+    
+    while (listening) {
+        
+        for (int i=0; i!=BUFFER_SIZE; i++) {
+            if (!RECEIVING_BUFFER[i]) {
+                continue;
+            }
+                
+            char* src_addr;
+            char* temp_msg;
+            char* ref_addr;
+            char* msg;
+            
+            // get source addr (the one that has won or lost)
+            split_buffer_message(src_addr, temp_msg, RECEIVING_BUFFER[i]);
+            
+            // get opponent address
+            split_buffer_message(ref_addr, msg, temp_msg);
+            
+            if (std::strcmp(msg, "WON") != 0) {
+                continue;
+            }
+            
+            int c = 0;
+            bool contains_message = false;
+            
+            while (game_status[c]) {
+                
+                if (std::strcmp(game_status[c], RECEIVING_BUFFER[i]) == 0) {
+                    contains_message = true;
+                    break;
+                }
+                
+                c++;
+            }
+            
+            if (contains_message) {
+                break;
+            }
+            
+            std::memcpy(game_status[c], RECEIVING_BUFFER[c], std::strlen(RECEIVING_BUFFER[c]));
+        }
     }
 }
 
@@ -326,6 +492,22 @@ int Network::get_ntp_sckt() {
 
 int Network::get_number_of_devices() {
     return NUMBER_OF_DEVICES;
+}
+
+int Network::get_buffer_size() {
+    return BUFFER_SIZE;
+}
+
+int Network::get_message_size() {
+    return MESSAGE_SIZE;
+}
+
+char** Network::get_receiving_buffer() {
+    return RECEIVING_BUFFER;
+}
+
+int Network::get_current_index() {
+    return current_index;
 }
 
 Network::NetworkConfig* Network::get_network_config() {
