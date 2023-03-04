@@ -493,8 +493,7 @@ short Network::receive_move() {
             split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
             
             if (std::strcmp(addr, game.opponent_addr) == 0) {
-                std::cout << i << " --- " << RECEIVING_BUFFER[i] << std::endl;
-                if (std::strcmp("MOVE", msg) == 0) {
+                if (std::strncmp("MOVE", msg, 4) == 0) {
                     char* tmp = new char[std::strlen(msg)];
                     short move;
                     std::memcpy(tmp, msg+5, sizeof(short));
