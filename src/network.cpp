@@ -296,7 +296,9 @@ void Network::discover_devices() {
     }
     
     for (int i=0; i!=sending_threads.size(); i++) {
-        sending_threads[i].join();
+        if (sending_threads[i].joinable()) {
+            sending_threads[i].join();
+        }
     }
     
     discovering = false;
