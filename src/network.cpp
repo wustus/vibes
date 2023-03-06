@@ -353,7 +353,7 @@ void Network::discover_devices() {
     // discovery phase
     while (discovered_devices.size() != NUMBER_OF_DEVICES-1) {
         sending_threads.emplace_back([this, message]() { send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message); });
-        for (int i=0; i!=current_index; i++) {
+        for (int i=0; i!=std::max(current_index, current_ack_index); i++) {
             if (*RECEIVING_BUFFER[i] != '\0') {
                 
                 char* addr;
@@ -361,21 +361,39 @@ void Network::discover_devices() {
                 
                 split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
                 
-                if (addr == std::string(SSDP_ADDR) || addr == std::string(local_addr) || addr == std::string(ROUTER_ADDR)) {
-                    continue;
+                if (addr != std::string(SSDP_ADDR) && addr != std::string(local_addr) && addr != std::string(ROUTER_ADDR)) {
+                    if (std::strcmp(msg, "BUDDY") == 0 && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
+                        return std::string(addr) == std::string(c);
+                    }) == discovered_devices.end()) {
+                        discovered_devices.push_back(addr);
+                    } else {
+                        sending_threads.emplace_back([this, addr]() { send_message(ssdp_sckt, addr, ACK_PORT, "BUDDY"); });
+                    }
                 }
                 
-                if ((std::strcmp(msg, "ACK") == 0 || std::strcmp(msg, "BUDDY") == 0) && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
-                    return std::string(addr) == std::string(c);
-                }) == discovered_devices.end()) {
-                    discovered_devices.push_back(addr);
-                } else {
-                    sending_threads.emplace_back([this, addr]() { send_message(ssdp_sckt, addr, ACK_PORT, "BUDDY"); });
+                delete[] msg;
+            }
+            
+            if (*ACK_BUFFER[i] != '\0') {
+                
+                char* addr;
+                char* msg;
+                
+                split_buffer_message(addr, msg, ACK_BUFFER[i]);
+                
+                if (addr != std::string(SSDP_ADDR) && addr != std::string(local_addr) && addr != std::string(ROUTER_ADDR)) {
+                    if (std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
+                        return std::string(addr) == std::string(c);
+                    }) == discovered_devices.end()) {
+                        discovered_devices.push_back(addr);
+                    }
                 }
                 
                 delete[] msg;
             }
         }
+        
+        
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
         
         for (int i=0; i!=sending_threads.size(); i++) {
