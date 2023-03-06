@@ -71,6 +71,7 @@ private:
     
     bool challenge_handler(char*& challenger, bool& found_challenger);
     void game_status_listener(char**& game_status, bool& listening);
+    void listen_for_ready(char* addr, bool& is_opponent_ready);
 public:
     Network(int);
     ~Network();
@@ -78,6 +79,7 @@ public:
     void set_local_addr();
     void discover_devices();
     char* find_challenger(char** game_status);
+    void wait_until_ready(char* addr);
     void start_game(char* addr);
     short receive_move();
     void make_move(short m);

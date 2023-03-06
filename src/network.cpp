@@ -459,6 +459,49 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
     }
 }
 
+void Network::listen_for_ready(char* addr, bool &is_opponent_ready) {
+
+    while (!is_opponent_ready) {
+        
+        for (int i=0; i!=current_index; i++) {
+            
+            if (*RECEIVING_BUFFER[i] == '\0') {
+                break;
+            }
+            
+            char* recv_addr;
+            char* msg;
+            
+            split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
+            
+            if (std::strcmp(recv_addr, addr) == 0 && std::strcmp(msg, "READY")) {
+                is_opponent_ready = true;
+                continue;
+            }
+            
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        
+    }
+}
+
+void Network::wait_until_ready(char *addr) {
+    
+    bool is_opponent_ready = false;
+    
+    std::thread recv_thread(&Network::receive_messages, this, chlg_sckt, std::ref(is_opponent_ready));
+    std::thread ready_listener(&Network::listen_for_ready, this, std::ref(is_opponent_ready));
+    
+    send_message(chlg_sckt, addr, CHLG_PORT, "READY");
+    
+    while (!is_opponent_ready) {
+        send_message(chlg_sckt, addr, CHLG_PORT, "READY");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    
+    recv_thread.join();
+    ready_listener.join();
+}
 
 void Network::start_game(char* addr) {
     
@@ -474,6 +517,9 @@ void Network::start_game(char* addr) {
     game.is_game_live = true;
     
     game.game_thread = std::thread(&Network::receive_messages, this, chlg_sckt, std::ref(game.is_game_live));
+    
+    // time buffer
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
 }
 
 short Network::receive_move() {
