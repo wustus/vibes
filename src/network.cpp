@@ -492,8 +492,8 @@ void Network::listen_for_ready(char* addr, bool &is_opponent_ready) {
             
             delete[] recv_addr;
             delete[] msg;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
