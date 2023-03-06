@@ -494,6 +494,7 @@ short Network::receive_move() {
                     char* tmp = new char[std::strlen(msg)];
                     short move;
                     bool new_move = false;
+                    short new_move_index = -1;
                     
                     std::memcpy(tmp, msg+5, sizeof(short));
                     std::memcpy(&move, tmp, sizeof(short));
@@ -503,6 +504,7 @@ short Network::receive_move() {
                             break;
                         } else if (game.played_moves[j] == -1) {
                             new_move = true;
+                            new_move_index = j;
                         }
                         
                     }
@@ -513,12 +515,9 @@ short Network::receive_move() {
                         delete[] msg;
                         delete[] addr;
                         
-                        for (int j=0; j!=9; j++) {
-                            if (game.played_moves[j] == -1) {
-                                game.played_moves[j] = move;
-                                break;
-                            }
-                        }
+                        std::cout << "New Move " << move << std::endl;
+
+                        game.played_moves[new_move_index] = move;
                         
                         return move;
                     }
