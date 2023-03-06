@@ -476,9 +476,14 @@ void Network::listen_for_ready(char* addr, bool &is_opponent_ready) {
             
             if (std::strcmp(recv_addr, addr) == 0 && std::strncmp(msg, "READY", 5) == 0) {
                 is_opponent_ready = true;
+                
+                delete[] recv_addr;
+                delete[] msg;
                 continue;
             }
             
+            delete[] recv_addr;
+            delete[] msg;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
