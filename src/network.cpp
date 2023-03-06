@@ -490,7 +490,7 @@ void Network::wait_until_ready(char *addr) {
     bool is_opponent_ready = false;
     
     std::thread recv_thread(&Network::receive_messages, this, chlg_sckt, std::ref(is_opponent_ready));
-    std::thread ready_listener(&Network::listen_for_ready, this, std::ref(is_opponent_ready));
+    std::thread ready_listener(&Network::listen_for_ready, this, addr, std::ref(is_opponent_ready));
     
     send_message(chlg_sckt, addr, CHLG_PORT, "READY");
     
