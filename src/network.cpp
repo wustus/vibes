@@ -472,7 +472,7 @@ void Network::listen_for_ready(char* addr, bool &is_opponent_ready) {
             char* recv_addr;
             char* msg;
             
-            split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
+            split_buffer_message(recv_addr, msg, RECEIVING_BUFFER[i]);
             
             if (std::strcmp(recv_addr, addr) == 0 && std::strncmp(msg, "READY", 5) == 0) {
                 is_opponent_ready = true;
