@@ -280,7 +280,8 @@ void Network::discover_devices() {
                 }) == discovered_devices.end()) {
                     discovered_devices.push_back(addr);
                 } else {
-                    sending_threads.emplace_back([this, addr]() { send_message(ssdp_sckt, addr, ACK_PORT, "BUDDY"); });
+                    std::thread temp_thread([this, addr]() { send_message(ssdp_sckt, addr, ACK_PORT, "BUDDY"); });
+                    temp_thread.join();
                 }
                 
                 delete[] msg;
@@ -463,7 +464,7 @@ void Network::listen_for_ready(char* addr, bool &is_opponent_ready) {
 
     while (!is_opponent_ready) {
         
-        for (int i=0; i!=current_index; i++) {
+        for (int i=0; i!=BUFFER_SIZE; i++) {
             
             if (*RECEIVING_BUFFER[i] == '\0') {
                 break;
@@ -496,7 +497,7 @@ void Network::wait_until_ready(char *addr) {
     std::thread recv_thread(&Network::receive_messages, this, chlg_sckt, std::ref(is_opponent_ready));
     std::thread ready_listener(&Network::listen_for_ready, this, addr, std::ref(is_opponent_ready));
     
-    send_message(chlg_sckt, addr, CHLG_PORT, "READY");
+    while (!send_message(chlg_sckt, addr, CHLG_PORT, "READY")) {}
     
     while (!is_opponent_ready) {
         send_message(chlg_sckt, addr, CHLG_PORT, "READY");
