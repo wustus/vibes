@@ -280,14 +280,19 @@ void Network::discover_devices() {
                 }) == discovered_devices.end()) {
                     discovered_devices.push_back(addr);
                 } else {
-                    std::thread temp_thread([this, addr]() { send_message(ssdp_sckt, addr, ACK_PORT, "BUDDY"); });
-                    temp_thread.join();
+                    sending_threads.emplace_back([this, addr]() { send_message(ssdp_sckt, addr, ACK_PORT, "BUDDY"); });
                 }
                 
                 delete[] msg;
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        
+        for (int i=0; i!=sending_threads.size(); i++) {
+            if (sending_threads[i].joinable()) {
+                sending_threads[i].join();
+            }
+        }
     }
     
     for (int i=0; i!=sending_threads.size(); i++) {
