@@ -44,7 +44,7 @@ Network::Network(int NUMBER_OF_DEVICES) {
         exit(1);
     }
 
-    std::thread ack_thread(&Network::ack_listener, this);
+    ack_thread = std::thread(&Network::ack_listener, this);
 }
 
 Network::~Network() {
@@ -199,7 +199,7 @@ void Network::ack_listener() {
         socklen_t src_addr_len = sizeof(src_addr);
         
         if (recvfrom(ack_sckt, recv_buffer, sizeof(recv_buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
-            if (errno != 0xB) {
+            if (errno != 0x23) {
                 std::cerr << "Failed to receive ACK message: " << std::strerror(errno) << std::endl;
             }
             continue;
