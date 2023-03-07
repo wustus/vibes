@@ -43,6 +43,8 @@ Network::Network(int NUMBER_OF_DEVICES) {
         std::cerr << "Error setting Multicast socket option: " << std::strerror(errno) << std::endl;
         exit(1);
     }
+
+    std::thread ack_thread(&Network::ack_listener, this);
 }
 
 Network::~Network() {
@@ -51,11 +53,15 @@ Network::~Network() {
     close(chlg_sckt);
     close(ntp_sckt);
     
+    ack_thread.join();
+    
     for (int i=0; i!=BUFFER_SIZE; i++) {
         delete[] RECEIVING_BUFFER[i];
+        delete[] ACK_BUFFER[i];
     }
     
     delete[] RECEIVING_BUFFER;
+    delete[] ACK_BUFFER;
 }
 
 int Network::create_udp_socket(int port) {
@@ -215,6 +221,8 @@ void Network::ack_listener() {
         std::snprintf(buffer_msg, buffer_msg_size, "%s::%s", ack, chksum);
         
         append_to_buffer((char*) addr, (char*) chksum, ACK_BUFFER, current_ack_index);
+        
+        delete[] recv_buffer;
     }
 }
 

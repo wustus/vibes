@@ -65,6 +65,8 @@ private:
 
     NetworkConfig net_config;
     
+    std::thread ack_thread;
+    
     int create_udp_socket(int);
     void split_buffer_message(char*& addr, char*& msg, char* buffer_msg);
     void append_to_buffer(char* addr, char* message, char**& buffer, int& counter);
