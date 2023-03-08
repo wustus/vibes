@@ -279,6 +279,8 @@ void Network::send_ack(const char* addr, const char* msg) {
     
     std::snprintf(ack_msg, ack_msg_size, "%s::%d", msg, chksum);
     
+    std::cout << ack_msg << std::endl;
+    
     if (sendto(ack_sckt, (void*)(intptr_t) ack_msg, ack_msg_size, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Failed sending ACK for message: \n\t" << msg << std::endl << "Error: " << std::strerror(errno) << std::endl;
     }
@@ -317,14 +319,14 @@ void Network::receive_messages(int sckt, bool& receiving) {
     
     while (receiving) {
         
-        char recv_buffer[256];
+        char* recv_buffer = new char[256];
         memset(&recv_buffer, 0, sizeof(recv_buffer));
         
         struct sockaddr_in src_addr;
         std::memset(&src_addr, 0, sizeof(src_addr));
         socklen_t src_addr_len = sizeof(src_addr);
         
-        if (recvfrom(sckt, &recv_buffer, sizeof(recv_buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
+        if (recvfrom(sckt, recv_buffer, std::strlen(recv_buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
             if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Error while receiving message: " << std::strerror(errno) << std::endl;
             }
@@ -335,8 +337,8 @@ void Network::receive_messages(int sckt, bool& receiving) {
         std::memset(&device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
 
-        send_message(ack_sckt, device, ACK_PORT, "ACK");
-        append_to_buffer(device, (char*) recv_buffer, RECEIVING_BUFFER, current_index);
+        send_ack(device, recv_buffer);
+        append_to_buffer(device, recv_buffer, RECEIVING_BUFFER, current_index);
     }
 }
 
