@@ -245,7 +245,7 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
         char* recv_addr;
         char* recv_msg;
         
-        split_buffer_message(recv_addr, msg, buffer_msg);
+        split_buffer_message(recv_addr, recv_msg, buffer_msg);
         
         if (std::strcmp(recv_addr, addr) == 0) {
             uint16_t chksum;
