@@ -173,8 +173,6 @@ void Network::append_to_buffer(char* addr, char* message, char**& buffer, int& c
     
     std::strncpy(buffer[counter], buffer_msg, MESSAGE_SIZE);
     counter = (counter + 1) % BUFFER_SIZE;
-    
-    std::cout << buffer_msg << std::endl;
 }
 
 uint16_t Network::checksum(char* data) {
@@ -240,7 +238,7 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
         
         if (*ACK_BUFFER[c] == '\0') {
             c = 0;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
             continue;
         }
         
