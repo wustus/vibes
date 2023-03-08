@@ -171,8 +171,10 @@ void Network::append_to_buffer(char* addr, char* message, char**& buffer, int& c
     
     std::lock_guard<std::mutex> lock(buffer_mutex);
     
-    std::strncpy(buffer[counter], buffer_msg, MESSAGE_SIZE-1);
+    std::strncpy(buffer[counter], buffer_msg, MESSAGE_SIZE);
     counter = (counter + 1) % BUFFER_SIZE;
+    
+    std::cout << buffer_msg << std::endl;
 }
 
 uint16_t Network::checksum(char* data) {
@@ -232,6 +234,8 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
     
     int c = 0;
     
+    uint16_t calc_chksum = checksum(msg);
+    
     while (std::chrono::steady_clock::now() - start_time < duration) {
         
         if (*ACK_BUFFER[c] == '\0') {
@@ -251,7 +255,6 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
             uint16_t chksum;
             std::memcpy(&chksum, recv_msg, sizeof(uint16_t));
             
-            uint16_t calc_chksum = checksum(msg);
             if (chksum == calc_chksum) {
                 delete[] recv_addr;
                 delete[] recv_msg;
@@ -259,6 +262,8 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
                 return true;
             }
         }
+        
+        c++;
         
         delete[] recv_addr;
         delete[] recv_msg;
@@ -280,6 +285,10 @@ void Network::send_ack(const char* addr, const char* msg) {
     char* ack_msg = new char[ack_msg_size];
     
     uint16_t chksum = checksum((char*) msg);
+    
+    if (std::strncmp(msg, "READY", 5) == 0) {
+        std::cout << "READY: " << chksum << std::endl;
+    }
     
     std::snprintf(ack_msg, ack_msg_size, "%s::%d", net_config.address, chksum);
     
