@@ -199,7 +199,7 @@ void Network::ack_listener() {
         socklen_t src_addr_len = sizeof(src_addr);
         
         if (recvfrom(ack_sckt, recv_buffer, sizeof(recv_buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
-            if (errno != 0x23) {
+            if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Failed to receive ACK message: " << std::strerror(errno) << std::endl;
             }
             continue;
@@ -214,6 +214,8 @@ void Network::ack_listener() {
         char* buffer_msg = new char[buffer_msg_size];
         
         std::snprintf(buffer_msg, buffer_msg_size, "%s::%s", addr, chksum);
+        
+        std::cout << buffer_msg << std::endl;
         
         append_to_buffer((char*) addr, (char*) chksum, ACK_BUFFER, current_ack_index);
         
@@ -267,14 +269,12 @@ void Network::send_ack(const char* addr, const char* msg) {
     dest_addr.sin_addr.s_addr = inet_addr(addr);
     dest_addr.sin_port = htons(ACK_PORT);
     
-    size_t ack_msg_size = std::strlen(net_config.address) + 2 + 16;
+    size_t ack_msg_size = INET_ADDRSTRLEN + 2 + sizeof(uint16_t);
     char* ack_msg = new char[ack_msg_size];
     
     uint16_t chksum = checksum((char*) msg);
     
     std::snprintf(ack_msg, ack_msg_size, "%s::%d", net_config.address, chksum);
-    
-    std::cout << ack_msg << std::endl;
     
     if (sendto(ack_sckt, (void*)(intptr_t) ack_msg, ack_msg_size, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Failed sending ACK for message: \n\t" << msg << std::endl << "Error: " << std::strerror(errno) << std::endl;
