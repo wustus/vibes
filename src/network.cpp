@@ -219,6 +219,8 @@ void Network::ack_listener() {
         append_to_buffer((char*) addr, (char*) chksum, ACK_BUFFER, current_ack_index);
         
         delete[] recv_buffer;
+        delete[] addr;
+        delete[] chksum;
     }
 }
 
@@ -251,9 +253,15 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
             
             uint16_t calc_chksum = checksum(msg);
             if (chksum == calc_chksum) {
+                delete[] recv_addr;
+                delete[] recv_msg;
+                
                 return true;
             }
         }
+        
+        delete[] recv_addr;
+        delete[] recv_msg;
     }
     
     return false;
@@ -278,6 +286,8 @@ void Network::send_ack(const char* addr, const char* msg) {
     if (sendto(ack_sckt, (void*)(intptr_t) ack_msg, ack_msg_size, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Failed sending ACK for message: \n\t" << msg << std::endl << "Error: " << std::strerror(errno) << std::endl;
     }
+    
+    delete[] ack_msg;
 }
 
 bool Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=3) {
