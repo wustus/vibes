@@ -206,19 +206,14 @@ void Network::ack_listener() {
         }
         
         char* addr;
-        char* ack_msg;
-        
-        split_buffer_message(addr, ack_msg, recv_buffer);
-        
-        char* ack;
         char* chksum;
         
-        split_buffer_message(ack, chksum, ack_msg);
+        split_buffer_message(addr, chksum, recv_buffer);
         
         size_t buffer_msg_size = INET_ADDRSTRLEN + 2 + 16;
         char* buffer_msg = new char[buffer_msg_size];
         
-        std::snprintf(buffer_msg, buffer_msg_size, "%s::%s", ack, chksum);
+        std::snprintf(buffer_msg, buffer_msg_size, "%s::%s", addr, chksum);
         
         append_to_buffer((char*) addr, (char*) chksum, ACK_BUFFER, current_ack_index);
         
@@ -228,7 +223,7 @@ void Network::ack_listener() {
 
 bool Network::listen_for_ack(const char* addr, char* msg) {
     
-    std::chrono::duration<double> duration{3.0};
+    std::chrono::duration<double> duration{1.5};
     
     std::chrono::time_point start_time = std::chrono::steady_clock::now();
     
@@ -245,13 +240,13 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
         char* buffer_msg = ACK_BUFFER[c];
         
         char* recv_addr;
-        char* msg;
+        char* recv_msg;
         
         split_buffer_message(recv_addr, msg, buffer_msg);
         
         if (std::strcmp(recv_addr, addr) == 0) {
             uint16_t chksum;
-            std::memcpy(&chksum, msg, sizeof(uint16_t));
+            std::memcpy(&chksum, recv_msg, sizeof(uint16_t));
             
             uint16_t calc_chksum = checksum(msg);
             if (chksum == calc_chksum) {
@@ -272,12 +267,12 @@ void Network::send_ack(const char* addr, const char* msg) {
     dest_addr.sin_addr.s_addr = inet_addr(addr);
     dest_addr.sin_port = htons(ACK_PORT);
     
-    size_t ack_msg_size = std::strlen(msg) + 2 + 16;
+    size_t ack_msg_size = std::strlen(net_config.address) + 2 + 16;
     char* ack_msg = new char[ack_msg_size];
     
     uint16_t chksum = checksum((char*) msg);
     
-    std::snprintf(ack_msg, ack_msg_size, "%s::%d", msg, chksum);
+    std::snprintf(ack_msg, ack_msg_size, "%s::%d", net_config.address, chksum);
     
     std::cout << ack_msg << std::endl;
     
@@ -298,10 +293,6 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
     if (sendto(sckt, (void*)(intptr_t) msg, std::strlen(msg), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
     }
-
-    if (std::strcmp(msg, "ACK") == 0) {
-        return true;
-    }
     
     if (!listen_for_ack(addr, (char*) msg)) {
         
@@ -319,14 +310,14 @@ void Network::receive_messages(int sckt, bool& receiving) {
     
     while (receiving) {
         
-        char* recv_buffer = new char[MESSAGE_SIZE];
+        char recv_buffer[MESSAGE_SIZE];
         memset(&recv_buffer, 0, sizeof(recv_buffer));
         
         struct sockaddr_in src_addr;
         std::memset(&src_addr, 0, sizeof(src_addr));
         socklen_t src_addr_len = sizeof(src_addr);
         
-        if (recvfrom(sckt, recv_buffer, MESSAGE_SIZE, 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
+        if (recvfrom(sckt, &recv_buffer, sizeof(recv_buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
             if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Error while receiving message: " << std::strerror(errno) << std::endl;
             }
@@ -337,7 +328,7 @@ void Network::receive_messages(int sckt, bool& receiving) {
         std::memset(&device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
 
-        send_ack(device, recv_buffer);
+        send_ack(device, (char*) recv_buffer);
         append_to_buffer(device, recv_buffer, RECEIVING_BUFFER, current_index);
     }
 }
