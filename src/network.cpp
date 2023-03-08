@@ -319,14 +319,14 @@ void Network::receive_messages(int sckt, bool& receiving) {
     
     while (receiving) {
         
-        char* recv_buffer = new char[256];
+        char* recv_buffer = new char[MESSAGE_SIZE];
         memset(&recv_buffer, 0, sizeof(recv_buffer));
         
         struct sockaddr_in src_addr;
         std::memset(&src_addr, 0, sizeof(src_addr));
         socklen_t src_addr_len = sizeof(src_addr);
         
-        if (recvfrom(sckt, recv_buffer, std::strlen(recv_buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
+        if (recvfrom(sckt, recv_buffer, MESSAGE_SIZE, 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
             if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Error while receiving message: " << std::strerror(errno) << std::endl;
             }
