@@ -191,6 +191,7 @@ uint16_t Network::checksum(char* data) {
 void Network::ack_listener() {
     
     while (ack_sckt > 0) {
+        
         char* recv_buffer = new char[MESSAGE_SIZE];
         std::memset(recv_buffer, 0, MESSAGE_SIZE);
         
@@ -198,7 +199,7 @@ void Network::ack_listener() {
         std::memset(&src_addr, 0, sizeof(src_addr));
         socklen_t src_addr_len = sizeof(src_addr);
         
-        if (recvfrom(ack_sckt, recv_buffer, sizeof(recv_buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
+        if (recvfrom(ack_sckt, recv_buffer, MESSAGE_SIZE, 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
             if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Failed to receive ACK message: " << std::strerror(errno) << std::endl;
             }
@@ -214,8 +215,6 @@ void Network::ack_listener() {
         char* buffer_msg = new char[buffer_msg_size];
         
         std::snprintf(buffer_msg, buffer_msg_size, "%s::%s", addr, chksum);
-        
-        std::cout << buffer_msg << std::endl;
         
         append_to_buffer((char*) addr, (char*) chksum, ACK_BUFFER, current_ack_index);
         
