@@ -304,6 +304,9 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
     
     if (!listen_for_ack(addr, (char*) msg)) {
         if (timeout == 0) {
+            if (std::strncmp(msg, "READY", 5) == 0) {
+                std::cout << "Ready sent and failed ack" << std::endl;
+            }
             return false;
         }
         
@@ -650,7 +653,6 @@ void Network::wait_until_ready(char *addr) {
     while (!send_message(chlg_sckt, addr, CHLG_PORT, "READY")) {}
     
     while (!is_opponent_ready) {
-        std::cout << "SENDING READY" << std::endl;
         send_message(chlg_sckt, addr, CHLG_PORT, "READY");
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
