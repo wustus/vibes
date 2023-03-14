@@ -376,11 +376,12 @@ void Network::discover_devices() {
     
     // discovery phase
     while (discovered_devices.size() != NUMBER_OF_DEVICES-1) {
-        sending_threads.emplace_back([this, message, &finished_threads, &t]() {
+        sending_threads.emplace_back([this, message, &finished_threads, t]() {
             send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message);
             finished_threads.push_back(t);
-            t++;
         });
+        t++;
+        
         for (int i=0; i!=std::max(current_index, current_ack_index); i++) {
             if (*RECEIVING_BUFFER[i] != '\0') {
                 
@@ -395,11 +396,11 @@ void Network::discover_devices() {
                     }) == discovered_devices.end()) {
                         discovered_devices.push_back(addr);
                     } else {
-                        sending_threads.emplace_back([this, addr, &finished_threads, &t]() {
+                        sending_threads.emplace_back([this, addr, &finished_threads, t]() {
                             send_message(ssdp_sckt, addr, ACK_PORT, "BUDDY");
                             finished_threads.push_back(t);
-                            t++;
                         });
+                        t++;
                     }
                 }
                 
