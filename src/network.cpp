@@ -684,13 +684,11 @@ short Network::receive_move() {
             
             if (std::strcmp(addr, game.opponent_addr) == 0) {
                 if (std::strncmp("MOVE", msg, 4) == 0) {
-                    char* tmp = new char[std::strlen(msg)];
                     short move;
                     bool new_move = false;
                     short new_move_index = -1;
                     
-                    std::memcpy(tmp, msg+5, sizeof(short));
-                    std::memcpy(&move, tmp, sizeof(short));
+                    std::memcpy(&move, msg+5, sizeof(short));
                     
                     for (short j=0; j!=8; j++) {
                         if (game.played_moves[j] == move) {
@@ -701,8 +699,6 @@ short Network::receive_move() {
                             break;
                         }
                     }
-                    
-                    delete[] tmp;
                     
                     if (new_move) {
                         delete[] msg;
