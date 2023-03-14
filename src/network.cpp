@@ -310,6 +310,10 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
         return send_message(sckt, addr, port, msg, timeout-1);
     }
     
+    if (std::strncmp(msg, "READY", 5) == 0) {
+        std::cout << "Ready sent and acknowledged" << std::endl;
+    }
+    
     return true;
 }
 
