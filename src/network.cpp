@@ -340,6 +340,10 @@ void Network::receive_messages(int sckt, bool& receiving) {
             continue;
         }
         
+        if (std::strncmp(recv_buffer, "READY", 5) == 0) {
+            std::cout << "Received: " << recv_buffer << std::endl;
+        }
+        
         char device[INET_ADDRSTRLEN];
         std::memset(&device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
@@ -353,6 +357,7 @@ void Network::discover_devices() {
     
     std::vector<char*> discovered_devices;
     std::vector<std::thread> sending_threads;
+    std::vector<int> finished_threads;
     char* local_addr = net_config.address;
     
     std::cout << "Discovering Devices..." << std::endl;
@@ -369,7 +374,10 @@ void Network::discover_devices() {
     
     // discovery phase
     while (discovered_devices.size() != NUMBER_OF_DEVICES-1) {
-        sending_threads.emplace_back([this, message]() { send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message); });
+        sending_threads.emplace_back([this, message, &finished_threads, sending_threads]() {
+            send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message);
+            finished_threads.push_back((int) sending_threads.size());
+        });
         for (int i=0; i!=std::max(current_index, current_ack_index); i++) {
             if (*RECEIVING_BUFFER[i] != '\0') {
                 
@@ -379,7 +387,7 @@ void Network::discover_devices() {
                 split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
                 
                 if (addr != std::string(SSDP_ADDR) && addr != std::string(local_addr) && addr != std::string(ROUTER_ADDR)) {
-                    if (std::strcmp(msg, "BUDDY") == 0 && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
+                    if (std::strncmp(msg, "BUDDY", 5) == 0 && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
                         return std::string(addr) == std::string(c);
                     }) == discovered_devices.end()) {
                         discovered_devices.push_back(addr);
@@ -413,12 +421,15 @@ void Network::discover_devices() {
         
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
         
-        for (int i=0; i!=sending_threads.size(); i++) {
+        
+        for (int i=0; i!=finished_threads.size(); i++) {
             if (sending_threads[i].joinable()) {
                 sending_threads[i].join();
             }
         }
     }
+    
+    std::cout << "Finishd Searching..." << std::endl;
     
     for (int i=0; i!=sending_threads.size(); i++) {
         if (sending_threads[i].joinable()) {
