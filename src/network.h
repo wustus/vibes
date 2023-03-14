@@ -59,9 +59,11 @@ private:
     
     char** RECEIVING_BUFFER;
     char** ACK_BUFFER;
+    char** GAME_BUFFER;
     
     int current_index = 0;
     int current_ack_index = 0;
+    int current_game_index = 0;
     
     std::mutex buffer_mutex;
 
@@ -72,12 +74,13 @@ private:
     int create_udp_socket(int);
     void split_buffer_message(char*& addr, char*& msg, char* buffer_msg);
     void append_to_buffer(char* addr, char* message, char**& buffer, int& counter);
+    void flush_buffer(char**& buffer, int& counter);
     uint16_t checksum(char* data);
     void ack_listener();
     bool listen_for_ack(const char* addr, char* msg);
     void send_ack(const char* addr, const char* msg);
     bool send_message(int sckt, const char* addr, int port, const char* msg, short timeout);
-    void receive_messages(int sckt, bool& receiving);
+    void receive_messages(int sckt, bool& receiving, char**& buffer, int& counter);
 
     bool challenge_handler(char*& challenger, bool& found_challenger);
     void game_status_listener(char**& game_status, bool& listening);

@@ -7,13 +7,19 @@ Network::Network(int NUMBER_OF_DEVICES) {
     
     RECEIVING_BUFFER = new char*[BUFFER_SIZE];
     ACK_BUFFER = new char*[BUFFER_SIZE];
+    GAME_BUFFER = new char*[9];
     
     for (int i=0; i!=BUFFER_SIZE; i++) {
         RECEIVING_BUFFER[i] = new char[MESSAGE_SIZE];
         ACK_BUFFER[i] = new char[MESSAGE_SIZE];
         
-        RECEIVING_BUFFER[i][0] = '\0';
-        ACK_BUFFER[i][0] = '\0';
+        *RECEIVING_BUFFER[i] = '\0';
+        *ACK_BUFFER[i] = '\0';
+    }
+    
+    for (int i=0; i!=9; i++) {
+        GAME_BUFFER[i] = new char[16];
+        *GAME_BUFFER[i] = '\0';
     }
     
     net_config.devices = new char*[NUMBER_OF_DEVICES-1];
@@ -177,6 +183,16 @@ void Network::append_to_buffer(char* addr, char* message, char**& buffer, int& c
     counter = ++counter % BUFFER_SIZE;
 }
 
+void Network::flush_buffer(char**& buffer, int& counter) {
+    
+    for (int i=0; i!=BUFFER_SIZE; i++) {
+        delete[] buffer[i];
+        buffer[i] = new char[MESSAGE_SIZE];
+    }
+    
+    counter = 0;
+}
+
 uint16_t Network::checksum(char* data) {
     
     uint8_t sum1 = 0;
@@ -313,7 +329,7 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
     return true;
 }
 
-void Network::receive_messages(int sckt, bool& receiving) {
+void Network::receive_messages(int sckt, bool& receiving, char**& buffer, int& counter) {
     
     while (receiving) {
         
@@ -337,7 +353,7 @@ void Network::receive_messages(int sckt, bool& receiving) {
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
         
         send_ack(device, recv_buffer);
-        append_to_buffer(device, recv_buffer, RECEIVING_BUFFER, current_index);
+        append_to_buffer(device, recv_buffer, buffer, counter);
         
         delete[] recv_buffer;
     }
@@ -355,8 +371,8 @@ void Network::discover_devices() {
     std::cout << "Discovering Devices..." << std::endl;
     
     bool discovering = true;
-    std::thread receive_thread_ssdp(&Network::receive_messages, this, ssdp_sckt, std::ref(discovering));
-    std::thread receive_thread_disc(&Network::receive_messages, this, disc_sckt, std::ref(discovering));
+    std::thread receive_thread_ssdp(&Network::receive_messages, this, ssdp_sckt, std::ref(discovering), std::ref(RECEIVING_BUFFER), std::ref(current_index));
+    std::thread receive_thread_disc(&Network::receive_messages, this, disc_sckt, std::ref(discovering), std::ref(RECEIVING_BUFFER), std::ref(current_index));
     
     const char* message =   "M-SEARCH * HTTP/1.1\r\n"
                             "HOST: 239.255.255.250:1900\r\n"
@@ -516,7 +532,7 @@ char* Network::find_challenger(char** game_status) {
     char* challenger = nullptr;
     
     std::thread recv_thread([this, &receiving]() {
-        receive_messages(chlg_sckt, receiving);
+        receive_messages(chlg_sckt, receiving, RECEIVING_BUFFER, current_game_index);
     });
     
     std::thread handler_thread([this, &challenger, &found_challenger, &waiting_for_challenge]() { waiting_for_challenge = !challenge_handler(challenger, found_challenger); });
@@ -636,7 +652,7 @@ void Network::wait_until_ready(char *addr) {
     
     bool listening = true;
     
-    std::thread recv_thread(&Network::receive_messages, this, chlg_sckt, std::ref(listening));
+    std::thread recv_thread(&Network::receive_messages, this, chlg_sckt, std::ref(listening), std::ref(RECEIVING_BUFFER), std::ref(current_index));
     std::thread ready_listener(&Network::listen_for_ready, this, addr, std::ref(listening));
     
     while (!send_message(chlg_sckt, addr, CHLG_PORT, "READY")) {}
@@ -663,24 +679,23 @@ void Network::start_game(char* addr) {
     
     game.is_game_live = true;
     
-    game.game_thread = std::thread(&Network::receive_messages, this, chlg_sckt, std::ref(game.is_game_live));
-    
-    // time buffer
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    game.game_thread = std::thread(&Network::receive_messages, this, chlg_sckt, std::ref(game.is_game_live), std::ref(GAME_BUFFER), std::ref(current_game_index));
+
+    flush_buffer(GAME_BUFFER, current_game_index);
 }
 
 short Network::receive_move() {
     
     while (true) {
-        for (int i=0; i!=BUFFER_SIZE; i++) {
-            if (*RECEIVING_BUFFER[i] == '\0') {
+        for (int i=0; i!=9; i++) {
+            if (*GAME_BUFFER[i] == '\0') {
                 break;
             }
             
             char* addr;
             char* msg;
             
-            split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
+            split_buffer_message(addr, msg, GAME_BUFFER[i]);
             
             if (std::strcmp(addr, game.opponent_addr) == 0) {
                 if (std::strncmp("MOVE", msg, 4) == 0) {
@@ -715,7 +730,7 @@ short Network::receive_move() {
             delete[] addr;
         }
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     
     return -1;
