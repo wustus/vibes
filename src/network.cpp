@@ -857,6 +857,10 @@ NTPPacket Network::request_time(char* addr) {
     if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Error Requesting NTP: " << std::strerror(errno) << std::endl;
     }
+    
+    recv_thread.join();
+    
+    return packet;
 }
 
 
