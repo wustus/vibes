@@ -776,6 +776,7 @@ void Network::end_game() {
 
 void Network::start_ntp_server() {
     ntp_thread = std::thread(&Network::ntp_server, this);
+    ntp_thread.join();
 }
 
 void Network::stop_ntp_server() {

@@ -95,6 +95,7 @@ void SynchronizationHandler::determine_master() {
     delete[] challenger;
     
     if (is_master) {
+        std::cout << "Starting NTP Server" << std::endl;
         network.start_ntp_server();
     }
 }
