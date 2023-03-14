@@ -306,6 +306,7 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
     
     if (sendto(sckt, (void*)(intptr_t) msg, std::strlen(msg), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
+        return false;
     }
     
     if (!listen_for_ack(addr, (char*) msg)) {
