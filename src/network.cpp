@@ -749,8 +749,10 @@ void Network::make_move(short m) {
 void Network::end_game() {
     
     game.is_game_live = false;
+    game.game_thread.join();
     delete[] game.opponent_addr;
     std::memset(&game, 0, sizeof(game));
+    
 }
 
 
