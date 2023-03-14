@@ -91,6 +91,7 @@ private:
     tic_tac_toe ttt;
     
     bool is_master;
+    char* ntp_server;
     uint64_t start_time;
     
     
@@ -99,7 +100,7 @@ public:
     void reset_game();
     void play(char*);
     void determine_master();
-    void sync();
+    uint64_t sync();
 };
 
 #endif /* SynchronizationHandler_hpp */

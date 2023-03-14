@@ -592,6 +592,9 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
             // get opponent address
             split_buffer_message(ref_addr, msg, temp_msg);
             
+            delete[] src_addr;
+            delete[] temp_msg;
+            delete[] ref_addr;
             if (std::strcmp(msg, "WON") != 0) {
                 continue;
             }
@@ -769,6 +772,91 @@ void Network::end_game() {
     delete[] game.opponent_addr;
     std::memset(&game, 0, sizeof(game));
     
+}
+
+void Network::start_ntp_server() {
+    ntp_thread = std::thread(&Network::ntp_server, this);
+}
+
+void Network::stop_ntp_server() {
+    close(ntp_sckt);
+    ntp_thread.join();
+}
+
+void Network::ntp_server() {
+    
+    while (ntp_sckt > 0) {
+        
+        NTPPacket packet;
+        std::memset(&packet, 0, NTP_PACKET_SIZE);
+        
+        struct sockaddr_in src_addr;
+        std::memset(&src_addr, 0, sizeof(src_addr));
+        socklen_t src_addr_len = sizeof(src_addr);
+        
+        if (recvfrom(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
+            if (errno != 0x23 && errno != 0xB) {
+                std::cerr << "Error Receiving NTP Request: " << std::strerror(errno) << std::endl;
+                continue;
+            }
+        }
+        
+        packet.req_recv_time = htons((uint32_t) time(NULL) + 2208988800UL);
+        packet.res_trans_time = htons((uint32_t) time(NULL) + 2208988800UL);
+        
+        if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, src_addr_len) < 0) {
+            std::cerr << "Failed Sending NTP Response≤." << std::endl;
+        }
+    }
+}
+
+NTPPacket Network::ntp_listener() {
+    
+    bool received = false;
+    
+    NTPPacket packet;
+    std::memset(&packet, 0, NTP_PACKET_SIZE);
+    
+    sockaddr_in src_addr;
+    std::memset(&src_addr, 0, sizeof(src_addr));
+    socklen_t src_addr_len = sizeof(src_addr);
+    
+    while (!received) {
+        
+        if (recvfrom(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
+            if (errno != 0x23 && errno != 0xB) {
+                std::cerr << "Error Receiving NTP Response: " << std::strerror(errno) << std::endl;
+            }
+            continue;
+        }
+        
+        packet.res_recv_time = htons((uint32_t) time(NULL) + 2208988800UL);
+        received = true;
+    }
+
+    return packet;
+}
+
+NTPPacket Network::request_time(char* addr) {
+    
+    NTPPacket packet;
+    std::memset(&packet, 0, sizeof(packet));
+    
+    std::thread recv_thread([this, &packet]() {
+        packet = ntp_listener();
+    });
+    
+    struct sockaddr_in dest_addr;
+    std::memset(&dest_addr, 0, sizeof(dest_addr));
+    
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(NTP_PORT);
+    dest_addr.sin_addr.s_addr = inet_addr(addr);
+    
+    packet.res_trans_time = htons((uint32_t) time(NULL) + 2208988800UL);
+    if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
+        std::cerr << "Error Requesting NTP: " << std::strerror(errno) << std::endl;
+    }
 }
 
 

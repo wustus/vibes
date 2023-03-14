@@ -110,6 +110,8 @@ int main(int argc, const char* argv[]) {
     
     sync_handler.determine_master();
     
+    sync_handler.sync();
+    
     exit(0);
     
     // frames in PBO

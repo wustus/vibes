@@ -8,7 +8,9 @@
 #include "synchronization_handler.hpp"
 
 
-SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {}
+SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {
+    SynchronizationHandler::ntp_server = nullptr;
+}
 
 void SynchronizationHandler::play(char* challenger) {
     
@@ -66,6 +68,12 @@ void SynchronizationHandler::play(char* challenger) {
         std::cout << " -------------------" << std::endl;
     }
     
+    is_master = ttt.is_won;
+    
+    if (!is_master) {
+        ntp_server = new char[INET_ADDRSTRLEN];
+        std::memcpy(ntp_server, challenger, INET_ADDRSTRLEN);
+    }
 }
 
 void SynchronizationHandler::reset_game() {
@@ -84,7 +92,25 @@ void SynchronizationHandler::determine_master() {
     
     play(challenger);
     
-    
     delete[] challenger;
+    
+    if (is_master) {
+        
+    }
 }
 
+uint64_t SynchronizationHandler::sync() {
+
+    if (!is_master) {
+        NTPPacket packet = network.request_time(ntp_server);
+        
+        uint64_t offset = ((packet.req_recv_time - packet.req_trans_time) + (packet.res_recv_time - packet.res_trans_time)) / 2;
+        
+        std::cout << "Offset: " << offset;
+        
+        return offset;
+    }
+    
+    
+    return 0;
+}

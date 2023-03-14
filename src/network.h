@@ -25,6 +25,14 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+
+struct NTPPacket {
+    uint64_t req_trans_time;
+    uint64_t req_recv_time;
+    uint64_t res_trans_time;
+    uint64_t res_recv_time;
+};
+
 class Network {
 private:
     struct NetworkConfig {
@@ -38,6 +46,8 @@ private:
         bool is_game_live;
         short played_moves[9];
     };
+    
+    #define NTP_PACKET_SIZE 32
     
     const char* ROUTER_ADDR = "192.168.2.1";
     const char* SSDP_ADDR = "239.255.255.250";
@@ -70,6 +80,7 @@ private:
     NetworkConfig net_config;
     
     std::thread ack_thread;
+    std::thread ntp_thread;
     
     int create_udp_socket(int);
     void split_buffer_message(char*& addr, char*& msg, char* buffer_msg);
@@ -85,6 +96,9 @@ private:
     bool challenge_handler(char*& challenger, bool& found_challenger);
     void game_status_listener(char**& game_status, bool& listening);
     void listen_for_ready(char* addr, bool& is_opponent_ready);
+
+    void ntp_server();
+    NTPPacket ntp_listener();
 public:
     Network(int);
     ~Network();
@@ -98,24 +112,9 @@ public:
     void make_move(short m);
     void end_game();
     
-    /*
-     dont write to buffers from methods
-      -> write methods that run synchronously and expect a result
-     
-     internal methods should be
-        send_message(sckt, port, msg);
-            -> create thread which listens on buffer to detect positive ack, if not detected, message is sent again
-        receive_message(sckt, &buffer); // buffer is char** of size 1024 and works as a sliding window
-            -> send ack
-        bool listen_for_ack(devc) // listens for device::ACK
-     
-     external methods
-        set_local_addr();
-        discover_devices();
-        char* find_challenger();
-        send_move();
-     
-    */
+    void start_ntp_server();
+    void stop_ntp_server();
+    NTPPacket request_time(char* addr);
     
     int get_ssdp_port();
     int get_ssdp_sckt();
