@@ -358,6 +358,8 @@ void Network::discover_devices() {
     std::vector<char*> discovered_devices;
     std::vector<std::thread> sending_threads;
     std::vector<int> finished_threads;
+    int t = 0;
+    
     char* local_addr = net_config.address;
     
     std::cout << "Discovering Devices..." << std::endl;
@@ -374,9 +376,10 @@ void Network::discover_devices() {
     
     // discovery phase
     while (discovered_devices.size() != NUMBER_OF_DEVICES-1) {
-        sending_threads.emplace_back([this, message, &finished_threads, sending_threads]() {
+        sending_threads.emplace_back([this, message, &finished_threads, &t]() {
             send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message);
-            finished_threads.push_back((int) sending_threads.size());
+            finished_threads.push_back(t);
+            t++;
         });
         for (int i=0; i!=std::max(current_index, current_ack_index); i++) {
             if (*RECEIVING_BUFFER[i] != '\0') {
@@ -392,7 +395,11 @@ void Network::discover_devices() {
                     }) == discovered_devices.end()) {
                         discovered_devices.push_back(addr);
                     } else {
-                        sending_threads.emplace_back([this, addr]() { send_message(ssdp_sckt, addr, ACK_PORT, "BUDDY"); });
+                        sending_threads.emplace_back([this, addr, &finished_threads, &t]() {
+                            send_message(ssdp_sckt, addr, ACK_PORT, "BUDDY");
+                            finished_threads.push_back(t);
+                            t++;
+                        });
                     }
                 }
                 
