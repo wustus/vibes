@@ -168,12 +168,12 @@ void Network::append_to_buffer(char* addr, char* message, char**& buffer, int& c
         throw std::length_error(error_msg);
     }
     
-    char buffer_msg[MESSAGE_SIZE];
+    char* buffer_msg = new char[MESSAGE_SIZE];
     std::snprintf(buffer_msg, MESSAGE_SIZE, "%s::%s", addr, message);
     
     std::lock_guard<std::mutex> lock(buffer_mutex);
     
-    std::strncpy(buffer[counter], buffer_msg, MESSAGE_SIZE);
+    buffer[counter] = buffer_msg;
     counter = ++counter % BUFFER_SIZE;
 }
 
@@ -317,10 +317,6 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
         send_message(sckt, addr, port, msg, timeout-1);
     }
     
-    if (std::strncmp(msg, "READY", 5) == 0) {
-        std::cout << "READY acknowledged..." << std::endl;
-    }
-    
     return true;
 }
 
@@ -328,26 +324,33 @@ void Network::receive_messages(int sckt, bool& receiving) {
     
     while (receiving) {
         
-        char recv_buffer[MESSAGE_SIZE];
-        memset(&recv_buffer, 0, sizeof(recv_buffer));
+        char* recv_buffer = new char[MESSAGE_SIZE];
+        memset(recv_buffer, 0, MESSAGE_SIZE);
         
         struct sockaddr_in src_addr;
         std::memset(&src_addr, 0, sizeof(src_addr));
         socklen_t src_addr_len = sizeof(src_addr);
         
-        if (recvfrom(sckt, &recv_buffer, sizeof(recv_buffer), 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
+        if (recvfrom(sckt, recv_buffer, MESSAGE_SIZE, 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
             if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Error while receiving message: " << std::strerror(errno) << std::endl;
             }
+            delete[] recv_buffer;
             continue;
         }
         
         char device[INET_ADDRSTRLEN];
         std::memset(&device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
+        
+        if (std::strncmp(recv_buffer, "READY", 5) == 0) {
+            std::cout << "Received " << recv_buffer << std::endl;
+        }
 
-        send_ack(device, (char*) recv_buffer);
+        send_ack(device, recv_buffer);
         append_to_buffer(device, recv_buffer, RECEIVING_BUFFER, current_index);
+        
+        delete[] recv_buffer;
     }
 }
 
@@ -632,7 +635,7 @@ void Network::listen_for_ready(char* addr, bool& is_opponent_ready) {
                 
                 delete[] recv_addr;
                 delete[] msg;
-                continue;
+                break;
             }
             
             delete[] recv_addr;
