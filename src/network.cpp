@@ -682,6 +682,9 @@ void Network::start_game(char* addr) {
     game.game_thread = std::thread(&Network::receive_messages, this, chlg_sckt, std::ref(game.is_game_live), std::ref(GAME_BUFFER), std::ref(current_game_index));
 
     flush_buffer(GAME_BUFFER, current_game_index);
+    
+    // new random seedg
+    std::srand(std::time(nullptr));
 }
 
 short Network::receive_move() {
@@ -744,7 +747,7 @@ void Network::make_move(short m) {
     std::memcpy(msg+5, &m, sizeof(m));
     
     while (!send_message(chlg_sckt, game.opponent_addr, CHLG_PORT, msg)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     
     for (int i=0; i!=8; i++) {
