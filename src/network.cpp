@@ -23,8 +23,6 @@ Network::Network(int NUMBER_OF_DEVICES) {
     }
     
     // initialize sockets
-    int response;
-    
     ssdp_sckt = create_udp_socket(SSDP_PORT);
     ack_sckt = create_udp_socket(ACK_PORT);
     disc_sckt = create_udp_socket(DISC_PORT);
@@ -32,6 +30,8 @@ Network::Network(int NUMBER_OF_DEVICES) {
     ntp_sckt = create_udp_socket(NTP_PORT);
     
     // join ssdp multicast group
+    int response;
+    
     struct ip_mreq mreq;
     std::memset(&mreq, 0, sizeof(mreq));
     
@@ -212,13 +212,7 @@ void Network::ack_listener() {
         char* chksum;
         
         split_buffer_message(addr, chksum, recv_buffer);
-        
-        size_t buffer_msg_size = INET_ADDRSTRLEN + 2 + 16;
-        char* buffer_msg = new char[buffer_msg_size];
-        
-        std::snprintf(buffer_msg, buffer_msg_size, "%s::%s", addr, chksum);
-        
-        append_to_buffer((char*) addr, (char*) chksum, ACK_BUFFER, current_ack_index);
+        append_to_buffer(addr, chksum, ACK_BUFFER, current_ack_index);
         
         delete[] recv_buffer;
         delete[] addr;
@@ -306,17 +300,19 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
     
     if (sendto(sckt, (void*)(intptr_t) msg, std::strlen(msg), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
+        std::cout << "Message: " << msg << " to " << addr << std::endl;
         return false;
     }
     
     if (!listen_for_ack(addr, (char*) msg)) {
-        
         if (timeout == 0) {
             return false;
         }
         
         return send_message(sckt, addr, port, msg, timeout-1);
     }
+    
+    std::cout << "Acknowledged: " << msg << " to " << addr << std::endl;
     
     return true;
 }
@@ -429,9 +425,7 @@ void Network::discover_devices() {
             }
         }
         
-        
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
-        
         
         for (int i=0; i!=finished_threads.size(); i++) {
             if (sending_threads[i].joinable()) {
@@ -440,7 +434,7 @@ void Network::discover_devices() {
         }
     }
     
-    std::cout << "Finishd Searching..." << std::endl;
+    std::cout << "Finishd Searching." << std::endl;
     
     for (int i=0; i!=sending_threads.size(); i++) {
         if (sending_threads[i].joinable()) {
@@ -458,7 +452,7 @@ void Network::discover_devices() {
     std::cout << "Discovered " << discovered_devices.size() << " devices." << std::endl;
     
     for (int i=0; i!=discovered_devices.size(); i++) {
-        memcpy(net_config.devices[i], discovered_devices[i], INET_ADDRSTRLEN);
+        std::memcpy(net_config.devices[i], discovered_devices[i], INET_ADDRSTRLEN);
         std::cout << "\t" << net_config.devices[i] << std::endl;
         delete[] discovered_devices[i];
     }
@@ -557,7 +551,7 @@ char* Network::find_challenger(char** game_status) {
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
         
         if (pending_timeout == 0) {
-            current_addr = ++current_addr % NUMBER_OF_DEVICES;
+            current_addr = ++current_addr % (NUMBER_OF_DEVICES-1);
             pending_timeout = 10;
         }
     }
