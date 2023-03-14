@@ -95,7 +95,7 @@ void SynchronizationHandler::determine_master() {
     delete[] challenger;
     
     if (is_master) {
-        
+        network.start_ntp_server();
     }
 }
 
