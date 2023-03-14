@@ -385,8 +385,6 @@ void Network::discover_devices() {
                 
                 split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
                 
-                std::cout << addr << std::endl;
-                
                 if (addr != std::string(SSDP_ADDR) && addr != std::string(local_addr) && addr != std::string(ROUTER_ADDR)) {
                     if (std::strncmp(msg, "BUDDY", 5) == 0 && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
                         return std::string(addr) == std::string(c);
@@ -410,8 +408,6 @@ void Network::discover_devices() {
                 char* msg;
                 
                 split_buffer_message(addr, msg, ACK_BUFFER[i]);
-                
-                std::cout << addr << std::endl;
                 
                 if (addr != std::string(SSDP_ADDR) && addr != std::string(local_addr) && addr != std::string(ROUTER_ADDR)) {
                     if (std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
@@ -626,8 +622,6 @@ void Network::listen_for_ready(char* addr, bool &is_opponent_ready) {
             char* msg;
             
             split_buffer_message(recv_addr, msg, RECEIVING_BUFFER[i]);
-            
-            std::cout << recv_addr << " " << msg << std::endl;
             
             if (std::strcmp(recv_addr, addr) == 0 && std::strncmp(msg, "READY", 5) == 0) {
                 is_opponent_ready = true;
