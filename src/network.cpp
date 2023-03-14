@@ -683,8 +683,8 @@ void Network::start_game(char* addr) {
 
     flush_buffer(GAME_BUFFER, current_game_index);
     
-    // new random seedg
-    std::srand(std::time(nullptr));
+    // new random seed
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
 }
 
 short Network::receive_move() {
