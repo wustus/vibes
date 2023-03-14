@@ -732,8 +732,6 @@ void Network::make_move(short m) {
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
     
-    std::cout << "MOVE PLAYED: " << m << std::endl;
-    
     for (int i=0; i!=8; i++) {
         if (game.played_moves[i] == -1) {
             continue;

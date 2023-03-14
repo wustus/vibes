@@ -64,13 +64,14 @@ private:
         }
         
         void print_field() {
+            std::cout << " _ _ _ _ " << std::endl;
             for (int i=0; i!=9; i++) {
                 if (i%3 == 0) {
                     std::cout << std::endl;
                 }
                 std::cout << " " << field[i] << " ";
             }
-            
+            std::cout << std::endl << " _ _ _ _ " << std::endl;
             std::cout << std::endl;
         }
         

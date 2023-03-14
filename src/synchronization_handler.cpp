@@ -19,7 +19,6 @@ void SynchronizationHandler::play(char* challenger) {
     std::cout << "Starting Game." << std::endl;
     network.start_game(challenger);
     
-    
     if (std::strcmp(network.get_network_config()->address, challenger) < 0) {
         ttt.player = 'X';
         ttt.opponent = 'O';
@@ -29,6 +28,11 @@ void SynchronizationHandler::play(char* challenger) {
         ttt.opponent = 'X';
         ttt.is_move = false;
     }
+    
+    std::cout << " -------------------" << std::endl;
+    std::cout << " | Player: " << ttt.player << "       |" << std::endl;
+    std::cout << " | Opponent: " << ttt.opponent << "     |" << std::endl;
+    std::cout << " -------------------" << std::endl;
     
     while (!ttt.is_game_over()) {
         if (ttt.is_move) {
@@ -48,14 +52,20 @@ void SynchronizationHandler::play(char* challenger) {
     
     network.end_game();
     
+    std::cout << " -------------------" << std::endl;
+    
     if (ttt.is_won) {
-        std::cout << "Won." << std::endl;
+        std::cout << " | Won.            |" << std::endl;
+        std::cout << " -------------------" << std::endl;
     } else if (ttt.is_draw) {
-        std::cout << "Draw." << std::endl;
+        std::cout << " | Draw.           |" << std::endl;
+        std::cout << " -------------------" << std::endl;
         play(challenger);
     } else {
-        std::cout << "Lost." << std::endl;
+        std::cout << " | Lost.           |" << std::endl;
+        std::cout << " -------------------" << std::endl;
     }
+    
 }
 
 void SynchronizationHandler::reset_game() {
