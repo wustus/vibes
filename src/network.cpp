@@ -336,6 +336,10 @@ void Network::receive_messages(int sckt, bool& receiving) {
         std::memset(&device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
         
+        if (std::strncmp(recv_buffer, "READY", 5) == 0) {
+            std::cout << "READY RECEIVED" << std::endl;
+        }
+        
         send_ack(device, recv_buffer);
         append_to_buffer(device, recv_buffer, RECEIVING_BUFFER, current_index);
         
@@ -642,6 +646,7 @@ void Network::wait_until_ready(char *addr) {
     while (!send_message(chlg_sckt, addr, CHLG_PORT, "READY")) {}
     
     while (!is_opponent_ready) {
+        std::cout << "SENDING READY" << std::endl;
         send_message(chlg_sckt, addr, CHLG_PORT, "READY");
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
