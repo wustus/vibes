@@ -240,7 +240,7 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
         
         if (*ACK_BUFFER[c] == '\0') {
             c = 0;
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
             continue;
         }
         
@@ -315,6 +315,10 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
         }
         
         send_message(sckt, addr, port, msg, timeout-1);
+    }
+    
+    if (std::strncmp(msg, "READY", 5) == 0) {
+        std::cout << "READY acknowledged..." << std::endl;
     }
     
     return true;
@@ -608,7 +612,7 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
     }
 }
 
-void Network::listen_for_ready(char* addr, bool &is_opponent_ready) {
+void Network::listen_for_ready(char* addr, bool& is_opponent_ready) {
 
     while (!is_opponent_ready) {
         
