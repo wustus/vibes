@@ -43,11 +43,13 @@ private:
     const char* SSDP_ADDR = "239.255.255.250";
     const int SSDP_PORT = 1900;
     const int ACK_PORT = 1901;
+    const int DISC_PORT = 1902;
     const int CHLG_PORT = 6967;
     const int NTP_PORT = 123;
     
     int ssdp_sckt;
     int ack_sckt;
+    int disc_sckt;
     int chlg_sckt;
     int ntp_sckt;
     

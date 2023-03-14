@@ -27,6 +27,7 @@ Network::Network(int NUMBER_OF_DEVICES) {
     
     ssdp_sckt = create_udp_socket(SSDP_PORT);
     ack_sckt = create_udp_socket(ACK_PORT);
+    disc_sckt = create_udp_socket(DISC_PORT);
     chlg_sckt = create_udp_socket(CHLG_PORT);
     ntp_sckt = create_udp_socket(NTP_PORT);
     
@@ -50,6 +51,7 @@ Network::Network(int NUMBER_OF_DEVICES) {
 Network::~Network() {
     close(ssdp_sckt);
     close(ack_sckt);
+    close(disc_sckt);
     close(chlg_sckt);
     close(ntp_sckt);
     
@@ -284,10 +286,6 @@ void Network::send_ack(const char* addr, const char* msg) {
     
     uint16_t chksum = checksum((char*) msg);
     
-    if (std::strncmp(msg, "READY", 5) == 0) {
-        std::cout << "READY: " << chksum << std::endl;
-    }
-    
     std::snprintf(ack_msg, ack_msg_size, "%s::%d", net_config.address, chksum);
     
     if (sendto(ack_sckt, (void*)(intptr_t) ack_msg, ack_msg_size, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
@@ -340,10 +338,6 @@ void Network::receive_messages(int sckt, bool& receiving) {
             continue;
         }
         
-        if (std::strncmp(recv_buffer, "READY", 5) == 0) {
-            std::cout << "Received: " << recv_buffer << std::endl;
-        }
-        
         char device[INET_ADDRSTRLEN];
         std::memset(&device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
@@ -366,6 +360,7 @@ void Network::discover_devices() {
     
     bool discovering = true;
     std::thread receive_thread_ssdp(&Network::receive_messages, this, ssdp_sckt, std::ref(discovering));
+    std::thread receive_thread_disc(&Network::receive_messages, this, disc_sckt, std::ref(discovering));
     
     const char* message =   "M-SEARCH * HTTP/1.1\r\n"
                             "HOST: 239.255.255.250:1900\r\n"
@@ -390,6 +385,8 @@ void Network::discover_devices() {
                 
                 split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
                 
+                std::cout << addr << std::endl;
+                
                 if (addr != std::string(SSDP_ADDR) && addr != std::string(local_addr) && addr != std::string(ROUTER_ADDR)) {
                     if (std::strncmp(msg, "BUDDY", 5) == 0 && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
                         return std::string(addr) == std::string(c);
@@ -397,7 +394,7 @@ void Network::discover_devices() {
                         discovered_devices.push_back(addr);
                     } else {
                         sending_threads.emplace_back([this, addr, &finished_threads, t]() {
-                            send_message(ssdp_sckt, addr, ACK_PORT, "BUDDY");
+                            send_message(disc_sckt, addr, DISC_PORT, "BUDDY");
                             finished_threads.push_back(t);
                         });
                         t++;
@@ -413,6 +410,8 @@ void Network::discover_devices() {
                 char* msg;
                 
                 split_buffer_message(addr, msg, ACK_BUFFER[i]);
+                
+                std::cout << addr << std::endl;
                 
                 if (addr != std::string(SSDP_ADDR) && addr != std::string(local_addr) && addr != std::string(ROUTER_ADDR)) {
                     if (std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
@@ -448,7 +447,9 @@ void Network::discover_devices() {
     discovering = false;
     
     receive_thread_ssdp.join();
+    receive_thread_disc.join();
     close(ssdp_sckt);
+    close(disc_sckt);
     
     std::cout << "Discovered " << discovered_devices.size() << " devices." << std::endl;
     
@@ -625,6 +626,8 @@ void Network::listen_for_ready(char* addr, bool &is_opponent_ready) {
             char* msg;
             
             split_buffer_message(recv_addr, msg, RECEIVING_BUFFER[i]);
+            
+            std::cout << recv_addr << " " << msg << std::endl;
             
             if (std::strcmp(recv_addr, addr) == 0 && std::strncmp(msg, "READY", 5) == 0) {
                 is_opponent_ready = true;
