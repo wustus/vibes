@@ -314,7 +314,7 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
             return false;
         }
         
-        send_message(sckt, addr, port, msg, timeout-1);
+        return send_message(sckt, addr, port, msg, timeout-1);
     }
     
     return true;
