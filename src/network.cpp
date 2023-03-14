@@ -657,7 +657,7 @@ void Network::start_game(char* addr) {
     game.opponent_addr = new char[INET_ADDRSTRLEN];
     std::memcpy(game.opponent_addr, addr, INET_ADDRSTRLEN);
     
-    for (int i=0; i!=0; i++) {
+    for (int i=0; i!=9; i++) {
         game.played_moves[i] = -1;
     }
     
@@ -692,14 +692,14 @@ short Network::receive_move() {
                     std::memcpy(tmp, msg+5, sizeof(short));
                     std::memcpy(&move, tmp, sizeof(short));
                     
-                    for (int j=0; j!=8; j++) {
+                    for (short j=0; j!=8; j++) {
                         if (game.played_moves[j] == move) {
                             break;
                         } else if (game.played_moves[j] == -1) {
                             new_move = true;
                             new_move_index = j;
+                            break;
                         }
-                        
                     }
                     
                     delete[] tmp;
@@ -707,8 +707,6 @@ short Network::receive_move() {
                     if (new_move) {
                         delete[] msg;
                         delete[] addr;
-                        
-                        std::cout << "New Move " << move << std::endl;
 
                         game.played_moves[new_move_index] = move;
                         
