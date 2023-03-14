@@ -44,7 +44,7 @@ private:
     const int SSDP_PORT = 1900;
     const int ACK_PORT = 1901;
     const int DISC_PORT = 1902;
-    const int CHLG_PORT = 6967;
+    const int CHLG_PORT = 1903;
     const int NTP_PORT = 123;
     
     int ssdp_sckt;

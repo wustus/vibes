@@ -460,7 +460,7 @@ void Network::discover_devices() {
     for (int i=0; i!=discovered_devices.size(); i++) {
         memcpy(net_config.devices[i], discovered_devices[i], INET_ADDRSTRLEN);
         std::cout << "\t" << net_config.devices[i] << std::endl;
-        
+        delete[] discovered_devices[i];
     }
 }
 
