@@ -306,6 +306,7 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
     
     if (!listen_for_ack(addr, (char*) msg)) {
         if (timeout == 0) {
+            std::cout << "Message " << msg << " for addr " << addr << " ran out of time." << std::endl;
             return false;
         }
         
