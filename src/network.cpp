@@ -172,7 +172,7 @@ void Network::append_to_buffer(char* addr, char* message, char**& buffer, int& c
     std::lock_guard<std::mutex> lock(buffer_mutex);
     
     std::strncpy(buffer[counter], buffer_msg, MESSAGE_SIZE);
-    counter = (counter + 1) % BUFFER_SIZE;
+    counter = ++counter % BUFFER_SIZE;
 }
 
 uint16_t Network::checksum(char* data) {
@@ -261,7 +261,7 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
             }
         }
         
-        c++;
+        c = ++c % BUFFER_SIZE;
         
         delete[] recv_addr;
         delete[] recv_msg;
