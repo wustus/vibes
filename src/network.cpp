@@ -246,8 +246,7 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
         split_buffer_message(recv_addr, recv_msg, buffer_msg);
         
         if (std::strcmp(recv_addr, addr) == 0) {
-            uint16_t chksum;
-            std::memcpy(&chksum, recv_msg, sizeof(uint16_t));
+            uint16_t chksum = static_cast<uint16_t>(strtoul(recv_msg, nullptr, 10));
             
             if (chksum == calc_chksum) {
                 delete[] recv_addr;
@@ -300,20 +299,16 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
     
     if (sendto(sckt, (void*)(intptr_t) msg, std::strlen(msg), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
-        std::cout << "Message: " << msg << " to " << addr << std::endl;
         return false;
     }
     
     if (!listen_for_ack(addr, (char*) msg)) {
         if (timeout == 0) {
-            std::cout << "Message " << msg << " for addr " << addr << " ran out of time." << std::endl;
             return false;
         }
         
         return send_message(sckt, addr, port, msg, timeout-1);
     }
-    
-    std::cout << "Acknowledged: " << msg << " to " << addr << std::endl;
     
     return true;
 }
@@ -341,10 +336,6 @@ void Network::receive_messages(int sckt, bool& receiving) {
         std::memset(&device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
         
-        if (std::strncmp(recv_buffer, "READY", 5) == 0) {
-            std::cout << "Received " << recv_buffer << std::endl;
-        }
-
         send_ack(device, recv_buffer);
         append_to_buffer(device, recv_buffer, RECEIVING_BUFFER, current_index);
         
