@@ -727,7 +727,7 @@ short Network::receive_move() {
 
 void Network::make_move(short m) {
     
-    char* msg = new char[6 + sizeof(short)];
+    char* msg = new char[5 + sizeof(short)];
     
     std::memcpy(msg, "MOVE ", 5);
     std::memcpy(msg+5, &m, sizeof(m));

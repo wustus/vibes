@@ -32,7 +32,6 @@ void SynchronizationHandler::play(char* challenger) {
     
     while (!ttt.is_game_over()) {
         if (ttt.is_move) {
-            std::cout << "My Move." << std::endl;
             short move;
             while (ttt.is_move) {
                 move = rand() % 9;
@@ -42,7 +41,6 @@ void SynchronizationHandler::play(char* challenger) {
             network.make_move(move);
             
         } else {
-            std::cout << "Opponent Move." << std::endl;
             short move = network.receive_move();
             std::cout << "MOVE RECEIVED " << move << std::endl;
             ttt.make_move(move);
