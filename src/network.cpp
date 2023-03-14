@@ -304,17 +304,10 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
     
     if (!listen_for_ack(addr, (char*) msg)) {
         if (timeout == 0) {
-            if (std::strncmp(msg, "READY", 5) == 0) {
-                std::cout << "Ready sent and failed ack" << std::endl;
-            }
             return false;
         }
         
         return send_message(sckt, addr, port, msg, timeout-1);
-    }
-    
-    if (std::strncmp(msg, "READY", 5) == 0) {
-        std::cout << "Ready sent and acknowledged" << std::endl;
     }
     
     return true;
@@ -342,10 +335,6 @@ void Network::receive_messages(int sckt, bool& receiving) {
         char device[INET_ADDRSTRLEN];
         std::memset(&device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
-        
-        if (std::strncmp(recv_buffer, "READY", 5) == 0) {
-            std::cout << "READY RECEIVED" << std::endl;
-        }
         
         send_ack(device, recv_buffer);
         append_to_buffer(device, recv_buffer, RECEIVING_BUFFER, current_index);
@@ -677,7 +666,7 @@ void Network::start_game(char* addr) {
     game.game_thread = std::thread(&Network::receive_messages, this, chlg_sckt, std::ref(game.is_game_live));
     
     // time buffer
-    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 }
 
 short Network::receive_move() {
