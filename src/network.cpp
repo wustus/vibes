@@ -847,11 +847,6 @@ NTPPacket Network::ntp_listener() {
         packet.res_recv_time = htonl((uint32_t) time(NULL) + 2208988800UL);
         received = true;
     }
-    
-    packet.req_trans_time = ntohl(packet.req_trans_time);
-    packet.req_recv_time = ntohl(packet.req_recv_time);
-    packet.res_trans_time = ntohl(packet.res_trans_time);
-    packet.res_recv_time = ntohl(packet.res_recv_time);
 
     return packet;
 }

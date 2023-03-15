@@ -121,7 +121,6 @@ void SynchronizationHandler::set_offset() {
             uint64_t temp_offset = ((packet.req_recv_time - packet.req_trans_time) + (packet.res_recv_time - packet.res_trans_time)) / 2;
             offset += temp_offset;
             
-            std::cout << "Offset: " << temp_offset << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
         
