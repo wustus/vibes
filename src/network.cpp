@@ -249,6 +249,10 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
     
     uint16_t calc_chksum = checksum(msg);
     
+    if (std::strncmp(msg, "READY", 5) == 0) {
+        std::cout << "Ready sent, chksum" << calc_chksum << std::endl;
+    }
+    
     while (std::chrono::steady_clock::now() - start_time < duration) {
         
         if (*ACK_BUFFER[c] == '\0') {
@@ -270,6 +274,8 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
             if (BYTE_ORDER != BIG_ENDIAN) {
                 chksum = ntohs(chksum);
             }
+            
+            std::cout << "\t" << chksum << std::endl;
             
             if (chksum == calc_chksum) {
                 delete[] recv_addr;
@@ -301,6 +307,10 @@ void Network::send_ack(const char* addr, const char* msg) {
     char* ack_msg = new char[ack_msg_size];
     
     uint16_t chksum = checksum((char*) msg);
+    
+    if (std::strncmp(msg, "READY", 5) == 0) {
+        std::cout << "Ready received, chksm" << chksum << " htons " << htons(chksum) << std::endl;
+    }
     
     std::snprintf(ack_msg, ack_msg_size, "%s::%d", net_config.address, htons(chksum));
     
