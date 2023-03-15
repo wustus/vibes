@@ -811,10 +811,11 @@ void Network::ntp_server(uint32_t& start_time) {
             if (start_time == 0) {
                 start_time = (uint32_t) time(NULL) + 5UL;
                 std::cout << "Start Time Determined..." << std::endl;
-                std::cout << start_time << std::endl;
             }
             
-            packet.start_time = start_time;
+            packet.start_time = htonl(start_time);
+            
+            std::cout << "sending packet: " << packet.start_time << " " << ntohl(packet.start_time) << std::endl;
             
             if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, src_addr_len) < 0) {
                 std::cerr << "Error sending start time: " << std::strerror(errno) << std::endl;
@@ -905,7 +906,9 @@ uint32_t Network::request_start_time(char* addr) {
         
         packet = ntp_listener();
         
-        return packet.start_time;
+        std::cout << "receivingg packet: " << packet.start_time << " " << ntohl(packet.start_time) << std::endl;
+        
+        return ntohl(packet.start_time);
     }
 }
 
