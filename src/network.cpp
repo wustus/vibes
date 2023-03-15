@@ -671,7 +671,6 @@ void Network::wait_until_ready(char *addr) {
 
 void Network::start_game(char* addr) {
     
-    flush_buffer(GAME_BUFFER, current_game_index);
     std::memset(&game, 0, sizeof(game));
     
     game.opponent_addr = new char[INET_ADDRSTRLEN];
@@ -770,7 +769,7 @@ void Network::end_game() {
     game.game_thread.join();
     delete[] game.opponent_addr;
     std::memset(&game, 0, sizeof(game));
-    
+    flush_buffer(GAME_BUFFER, current_game_index);
 }
 
 void Network::start_ntp_server() {
