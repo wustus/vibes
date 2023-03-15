@@ -811,11 +811,13 @@ void Network::ntp_server(uint64_t& start_time) {
             if (start_time == 0) {
                 start_time = (uint32_t) time(NULL) + 2208988800UL + 5UL;
                 std::cout << "Start Time Determined..." << std::endl;
+            } else {
+                std::cout << "Time;: " << start_time << std::endl;g
             }
             
-            uint64_t trans_msg = htons(start_time);
+            packet.start_time = htons(start_time);
             
-            if (sendto(ntp_sckt, &trans_msg, sizeof(uint64_t), 0, (struct sockaddr*) &src_addr, src_addr_len) < 0) {
+            if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, src_addr_len) < 0) {
                 std::cerr << "Error sending start time: " << std::strerror(errno) << std::endl;
             }
         }
@@ -880,6 +882,11 @@ uint64_t Network::request_start_time(char* addr) {
     
     while (true) {
         
+        NTPPacket packet;
+        std::memset(&packet, 0, NTP_PACKET_SIZE);
+        
+        packet.time_request = true;
+        
         sockaddr_in dest_addr;
         std::memset(&dest_addr, 0, sizeof(dest_addr));
         
@@ -887,26 +894,20 @@ uint64_t Network::request_start_time(char* addr) {
         dest_addr.sin_port = htons(NTP_PORT);
         dest_addr.sin_addr.s_addr = inet_addr(addr);
         
-        char* msg = new char[8];
-        std::memcpy(msg, "REQ_TIME", 8);
-        
-        if (sendto(ntp_sckt, msg, std::strlen(msg), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
-            delete[] msg;
+        if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
             std::cerr << "Error sending start time: " << std::strerror(errno) << std::endl;
             continue;
         }
         
         uint64_t start_time;
         
-        if (recvfrom(ntp_sckt, &start_time, sizeof(uint64_t), 0, NULL, NULL) < 0) {
+        if (recvfrom(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, NULL, NULL) < 0) {
             if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Error receiving start time request: " << std::strerror(errno) << std::endl;
             }
-            delete[] msg;
             continue;
         }
-        delete[] msg;
-        return start_time;
+        return packet.start_time;
     }
 }
 
