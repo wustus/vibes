@@ -106,7 +106,10 @@ uint64_t SynchronizationHandler::sync() {
         uint64_t offset = 0;
         
         for (int i=0; i!=10; i++) {
-            NTPPacket packet = network.request_time(ntp_server);
+            NTPPacket packet;
+            std::memset(&packet, 0, NTP_PACKET_SIZE);
+            
+            packet = network.request_time(ntp_server);
             
             uint64_t temp_offset = ((packet.req_recv_time - packet.req_trans_time) + (packet.res_recv_time - packet.res_trans_time)) / 2;
             offset += temp_offset;
