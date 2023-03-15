@@ -140,7 +140,9 @@ void SynchronizationHandler::sync_handler() {
     
     uint64_t start_time = 0;
     
-    std::thread sync_thread(&Network::sync_handler, this, std::ref(start_time));
+    std::thread sync_thread([this, &start_time] () {
+        network.sync_handler(start_time);
+    });
     
     sync_thread.detach();
     
