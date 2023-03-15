@@ -121,7 +121,7 @@ int main(int argc, const char* argv[]) {
     
     // create frame producer and initialize video context
 #ifdef __APPLE__
-    FrameProducer frame_producer = FrameProducer("/Users/justus/dev/vibes-proto/assets/guitar_pi.mov", FRAMES_IN_BUFFER);
+    FrameProducer frame_producer = FrameProducer("/Users/justus/dev/vibes/assets/guitar_pi.mov", FRAMES_IN_BUFFER);
 #endif
     
 #ifdef __unix

@@ -812,7 +812,7 @@ void Network::ntp_server(uint64_t& start_time) {
                 start_time = (uint32_t) time(NULL) + 2208988800UL + 5UL;
                 std::cout << "Start Time Determined..." << std::endl;
             } else {
-                std::cout << "Time;: " << start_time << std::endl;g
+                std::cout << "Time;: " << start_time << std::endl;
             }
             
             packet.start_time = htons(start_time);
