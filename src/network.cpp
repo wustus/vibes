@@ -867,7 +867,7 @@ NTPPacket Network::request_time(char* addr) {
     dest_addr.sin_port = htons(NTP_PORT);
     dest_addr.sin_addr.s_addr = inet_addr(addr);
     
-    packet.res_trans_time = htonl((uint32_t) time(NULL) + 2208988800UL);
+    packet.req_trans_time = htonl((uint32_t) time(NULL) + 2208988800UL);
     if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Error Requesting NTP: " << std::strerror(errno) << std::endl;
     }
