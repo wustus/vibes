@@ -142,13 +142,9 @@ void SynchronizationHandler::sync_handler() {
     
     std::cout << "Starting Synchronization Handler..." << std::endl;
     
-    std::thread sync_thread([this, &start_time] () {
+    handler_thread = std::thread([this, &start_time] () {
         network.sync_handler(start_time);
     });
-    
-    sync_thread.detach();
-    
-    std::cout << "Detached Handler Thread..." << std::endl;
     
     while (start_time == 0) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));

@@ -90,6 +90,8 @@ private:
     
     tic_tac_toe ttt;
     
+    std::thread handler_thread;
+    
     bool is_master;
     char* ntp_server;
     
