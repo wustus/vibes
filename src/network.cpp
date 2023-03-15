@@ -545,7 +545,7 @@ char* Network::find_challenger(char** game_status) {
     char* challenger = nullptr;
     
     std::thread recv_thread([this, &receiving]() {
-        receive_messages(chlg_sckt, receiving, RECEIVING_BUFFER, current_game_index);
+        receive_messages(chlg_sckt, receiving, RECEIVING_BUFFER, current_index);
     });
     
     std::thread handler_thread([this, &challenger, &found_challenger, &waiting_for_challenge]() { waiting_for_challenge = !challenge_handler(challenger, found_challenger); });
@@ -576,8 +576,6 @@ char* Network::find_challenger(char** game_status) {
             pending_timeout = 10;
         }
     }
-    
-    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
     
     receiving = false;
     
