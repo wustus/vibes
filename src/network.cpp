@@ -265,7 +265,8 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
         split_buffer_message(recv_addr, recv_msg, buffer_msg);
         
         if (std::strcmp(recv_addr, addr) == 0) {
-            uint16_t chksum = static_cast<uint16_t>(strtoul(recv_msg, nullptr, 10));
+            uint16_t chksum;//static_cast<uint16_t>(strtoul(recv_msg, nullptr, 10));
+            std::memcpy(&chksum, recv_msg, sizeof(uint16_t));
             
             if (chksum == calc_chksum) {
                 delete[] recv_addr;
