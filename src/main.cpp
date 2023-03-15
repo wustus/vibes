@@ -173,7 +173,7 @@ int main(int argc, const char* argv[]) {
     // get primary display for fullscreen
     GLFWmonitor *primary = glfwGetPrimaryMonitor();
     // create window
-    GLFWwindow* window = glfwCreateWindow(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, "VIBES", NULL, NULL);
     
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -209,7 +209,7 @@ int main(int argc, const char* argv[]) {
     
     // load and compile shaders
 #ifdef __APPLE__
-    Shader shader("/Users/justus/dev/vibes-proto/src/shaders/vertex_shader.vs", "/Users/justus/dev/vibes-proto/src/shaders/fragment_shader.fs");
+    Shader shader("/Users/justus/dev/vibes/src/shaders/vertex_shader.vs", "/Users/justus/dev/vibes/src/shaders/fragment_shader.fs");
 #endif
     
 #ifdef __unix
