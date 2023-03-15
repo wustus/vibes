@@ -71,7 +71,7 @@ Network::~Network() {
     
     for (int i=0; i!=BUFFER_SIZE; i++) {
         delete[] RECEIVING_BUFFER[i];
-        delete[] RECEIVING_BUFFER[i];
+        delete[] ACK_BUFFER[i];
         delete[] GAME_BUFFER[i];
     }
     
@@ -815,7 +815,7 @@ void Network::ntp_server(uint32_t& start_time) {
             }
         } else {
             if (start_time == 0) {
-                start_time = (uint32_t) time(NULL) + 5UL;
+                start_time = (uint32_t) time(NULL) + 2UL;
                 std::cout << "Start Time Determined..." << std::endl;
             }
             
