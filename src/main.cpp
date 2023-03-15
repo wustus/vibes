@@ -113,9 +113,10 @@ int main(int argc, const char* argv[]) {
     sync_handler.set_offset();
     uint32_t offset = sync_handler.get_offset();
     
-    uint32_t playback_start_time = sync_handler.get_start_time() + offset;
+    uint32_t playback_start_time = sync_handler.get_start_time();
     time_t unix_time = (time_t) playback_start_time;
     
+    std::cout << "Start Time: " << playback_start_time << std::endl;
     std::cout << "Playback Start Time: " << std::ctime(&unix_time) << std::endl;
     
     // frames in PBO
