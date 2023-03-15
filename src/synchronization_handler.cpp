@@ -109,7 +109,7 @@ bool SynchronizationHandler::get_is_master() {
 void SynchronizationHandler::set_offset() {
 
     if (!is_master) {
-        uint64_t offset = 0;
+        uint32_t offset = 0;
         
         for (int i=0; i!=10; i++) {
             NTPPacket packet;
@@ -133,11 +133,11 @@ void SynchronizationHandler::set_offset() {
     }
 }
 
-uint64_t SynchronizationHandler::get_offset() {
+uint32_t SynchronizationHandler::get_offset() {
     return offset;
 }
 
-uint64_t SynchronizationHandler::get_start_time() {
+uint32_t SynchronizationHandler::get_start_time() {
     
     if (is_master) {
         while (start_time == 0) {

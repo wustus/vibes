@@ -773,7 +773,7 @@ void Network::end_game() {
     flush_buffer(GAME_BUFFER, current_game_index);
 }
 
-void Network::start_ntp_server(uint64_t& start_time) {
+void Network::start_ntp_server(uint32_t& start_time) {
     ntp_thread = std::thread(&Network::ntp_server, this, std::ref(start_time));
 }
 
@@ -782,7 +782,7 @@ void Network::stop_ntp_server() {
     ntp_thread.join();
 }
 
-void Network::ntp_server(uint64_t& start_time) {
+void Network::ntp_server(uint32_t& start_time) {
     
     while (ntp_sckt > 0) {
         
@@ -801,8 +801,8 @@ void Network::ntp_server(uint64_t& start_time) {
         }
         
         if (!packet.time_request) {
-            packet.req_recv_time = htons((uint32_t) time(NULL) + 2208988800UL);
-            packet.res_trans_time = htons((uint32_t) time(NULL) + 2208988800UL);
+            packet.req_recv_time = htonl((uint32_t) time(NULL) + 2208988800UL);
+            packet.res_trans_time = htonl((uint32_t) time(NULL) + 2208988800UL);
             
             if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, src_addr_len) < 0) {
                 std::cerr << "Failed Sending NTP Response≤." << std::endl;
@@ -814,7 +814,7 @@ void Network::ntp_server(uint64_t& start_time) {
                 std::cout << start_time << std::endl;
             }
             
-            packet.start_time = start_time;
+            packet.start_time = htonl(start_time);
             
             if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, src_addr_len) < 0) {
                 std::cerr << "Error sending start time: " << std::strerror(errno) << std::endl;
@@ -844,9 +844,14 @@ NTPPacket Network::ntp_listener() {
             continue;
         }
         
-        packet.res_recv_time = htons((uint32_t) time(NULL) + 2208988800UL);
+        packet.res_recv_time = htonl((uint32_t) time(NULL) + 2208988800UL);
         received = true;
     }
+    
+    packet.req_trans_time = ntohl(packet.req_trans_time);
+    packet.req_recv_time = ntohl(packet.req_recv_time);
+    packet.res_trans_time = ntohl(packet.res_trans_time);
+    packet.res_recv_time = ntohl(packet.res_recv_time);
 
     return packet;
 }
@@ -877,7 +882,7 @@ NTPPacket Network::request_time(char* addr) {
     return packet;
 }
 
-uint64_t Network::request_start_time(char* addr) {
+uint32_t Network::request_start_time(char* addr) {
     
     while (true) {
         
@@ -901,9 +906,9 @@ uint64_t Network::request_start_time(char* addr) {
         packet = ntp_listener();
         
         std::cout << packet.start_time << std::endl;
-        std::cout << ntohs(packet.start_time) << std::endl;
+        std::cout << ntohl(packet.start_time) << std::endl;
         
-        return packet.start_time;
+        return ntohl(packet.start_time);
     }
 }
 

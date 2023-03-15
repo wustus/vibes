@@ -110,9 +110,10 @@ int main(int argc, const char* argv[]) {
     
     sync_handler.determine_master();
     
-    uint64_t offset = sync_handler.get_offset();
+    sync_handler.set_offset();
+    uint32_t offset = sync_handler.get_offset();
     
-    uint64_t playback_start_time = sync_handler.get_start_time();
+    uint32_t playback_start_time = sync_handler.get_start_time() - offset;
     time_t unix_time = (time_t) playback_start_time;
     
     std::cout << "Playback Start Time: " << std::ctime(&unix_time) << std::endl;

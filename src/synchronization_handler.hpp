@@ -95,8 +95,8 @@ private:
     bool is_master;
     char* ntp_server;
     
-    uint64_t start_time;
-    uint64_t offset;
+    uint32_t start_time;
+    uint32_t offset;
     
 public:
     SynchronizationHandler(Network& network);
@@ -105,8 +105,8 @@ public:
     void determine_master();
     bool get_is_master();
     void set_offset();
-    uint64_t get_offset();
-    uint64_t get_start_time();
+    uint32_t get_offset();
+    uint32_t get_start_time();
     
 };
 
