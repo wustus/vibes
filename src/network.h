@@ -50,7 +50,7 @@ private:
         short played_moves[9];
     };
     
-    #define NTP_PACKET_SIZE 22
+    #define NTP_PACKET_SIZE 24
     
     const char* ROUTER_ADDR = "192.168.2.1";
     const char* SSDP_ADDR = "239.255.255.250";
