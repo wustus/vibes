@@ -746,9 +746,7 @@ short Network::receive_move() {
 void Network::make_move(short m) {
     
     char* msg = new char[5 + sizeof(short)];
-    
-    std::memcpy(msg, "MOVE ", 5);
-    std::memcpy(msg+5, &m, sizeof(m));
+    std::snprintf(msg, 5 + sizeof(short), "MOVE %d", htons(m));
     
     while (!send_message(game_sckt, game.opponent_addr, GAME_PORT, msg)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
