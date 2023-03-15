@@ -7,7 +7,7 @@ Network::Network(int NUMBER_OF_DEVICES) {
     
     RECEIVING_BUFFER = new char*[BUFFER_SIZE];
     ACK_BUFFER = new char*[BUFFER_SIZE];
-    GAME_BUFFER = new char*[16];
+    GAME_BUFFER = new char*[BUFFER_SIZE];
     
     for (int i=0; i!=BUFFER_SIZE; i++) {
         RECEIVING_BUFFER[i] = new char[MESSAGE_SIZE];
@@ -66,11 +66,13 @@ Network::~Network() {
     
     for (int i=0; i!=BUFFER_SIZE; i++) {
         delete[] RECEIVING_BUFFER[i];
-        delete[] ACK_BUFFER[i];
+        delete[] RECEIVING_BUFFER[i];
+        delete[] GAME_BUFFER[i];
     }
     
     delete[] RECEIVING_BUFFER;
     delete[] ACK_BUFFER;
+    delete[] GAME_BUFFER;
 }
 
 int Network::create_udp_socket(int port) {
@@ -327,6 +329,10 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
         return send_message(sckt, addr, port, msg, timeout-1);
     }
     
+    if (std::strncmp(msg, "READY", 5) == 0) {
+        std::cout << "ready ackd" << std::endl;
+    }
+    
     return true;
 }
 
@@ -347,6 +353,10 @@ void Network::receive_messages(int sckt, bool& receiving, char**& buffer, int& c
             }
             delete[] recv_buffer;
             continue;
+        }
+        
+        if (std::strncmp(recv_buffer, "READY", 5) == 0) {
+            std::cout << "Ready received" << std::endl;
         }
         
         char device[INET_ADDRSTRLEN];
@@ -692,7 +702,7 @@ void Network::start_game(char* addr) {
 short Network::receive_move() {
     
     while (true) {
-        for (int i=0; i!=9; i++) {
+        for (int i=0; i!=BUFFER_SIZE; i++) {
             if (*GAME_BUFFER[i] == '\0') {
                 break;
             }
