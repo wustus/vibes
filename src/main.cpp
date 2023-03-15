@@ -118,6 +118,8 @@ int main(int argc, const char* argv[]) {
     
     uint64_t playback_start_time = sync_handler.get_start_time();
     
+    std::cout << "Playback Start Time: " << playback_start_time << std::endl;
+    
     // frames in PBO
     int FRAMES_IN_BUFFER = 16;
     
