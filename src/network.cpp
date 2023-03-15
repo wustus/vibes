@@ -329,10 +329,6 @@ bool Network::send_message(int sckt, const char* addr, int port, const char* msg
         return send_message(sckt, addr, port, msg, timeout-1);
     }
     
-    if (std::strncmp(msg, "READY", 5) == 0) {
-        std::cout << "ready ackd" << std::endl;
-    }
-    
     return true;
 }
 
@@ -353,12 +349,6 @@ void Network::receive_messages(int sckt, bool& receiving, char**& buffer, int& c
             }
             delete[] recv_buffer;
             continue;
-        }
-        
-        if (std::strncmp(recv_buffer, "READY", 5) == 0) {
-            std::cout << "Ready received" << std::endl;
-        } else if (std::strncmp(recv_buffer, "MOVE", 4) == 0) {
-            std::cout << "move received" << std::endl;
         }
         
         char device[INET_ADDRSTRLEN];
