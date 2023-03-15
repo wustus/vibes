@@ -50,10 +50,15 @@ Network::Network(int NUMBER_OF_DEVICES) {
         exit(1);
     }
 
+    ack_thread_active = true;
     ack_thread = std::thread(&Network::ack_listener, this);
 }
 
 Network::~Network() {
+    
+    ack_thread_active = false;
+    ntp_thread_active = false;
+    
     close(ssdp_sckt);
     close(ack_sckt);
     close(disc_sckt);
@@ -211,7 +216,7 @@ uint16_t Network::checksum(char* data) {
 
 void Network::ack_listener() {
     
-    while (ack_sckt > 0) {
+    while (ack_thread_active) {
         
         char* recv_buffer = new char[MESSAGE_SIZE];
         std::memset(recv_buffer, 0, MESSAGE_SIZE);
@@ -774,6 +779,7 @@ void Network::end_game() {
 }
 
 void Network::start_ntp_server(uint32_t& start_time) {
+    ntp_thread_active = true;
     ntp_thread = std::thread(&Network::ntp_server, this, std::ref(start_time));
 }
 
@@ -784,7 +790,7 @@ void Network::stop_ntp_server() {
 
 void Network::ntp_server(uint32_t& start_time) {
     
-    while (ntp_sckt > 0) {
+    while (ntp_thread_active) {
         
         NTPPacket packet;
         std::memset(&packet, 0, NTP_PACKET_SIZE);

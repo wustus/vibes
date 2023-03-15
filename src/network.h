@@ -86,6 +86,8 @@ private:
     
     std::thread ack_thread;
     std::thread ntp_thread;
+    bool ack_thread_active = false;
+    bool ntp_thread_active = false;
     
     int create_udp_socket(int);
     void split_buffer_message(char*& addr, char*& msg, char* buffer_msg);
