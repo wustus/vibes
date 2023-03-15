@@ -748,7 +748,7 @@ void Network::make_move(short m) {
     std::memcpy(msg, "MOVE ", 5);
     std::memcpy(msg+5, &m, sizeof(m));
     
-    while (!send_message(chlg_sckt, game.opponent_addr, CHLG_PORT, msg)) {
+    while (!send_message(game_sckt, game.opponent_addr, GAME_PORT, msg)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
     
