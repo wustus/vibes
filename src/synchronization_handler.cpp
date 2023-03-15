@@ -148,9 +148,13 @@ void SynchronizationHandler::sync_handler() {
     
     sync_thread.detach();
     
+    std::cout << "Detached Handler Thread..." << std::endl;
+    
     while (start_time == 0) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+    
+    std::cout << "Setting Start Time..." << std::endl;
     
     this->start_time = start_time;
 }

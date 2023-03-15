@@ -58,9 +58,11 @@ Network::~Network() {
     close(ack_sckt);
     close(disc_sckt);
     close(chlg_sckt);
+    close(game_sckt);
     close(ntp_sckt);
     
     ack_thread.join();
+    ntp_thread.join();
     
     for (int i=0; i!=BUFFER_SIZE; i++) {
         delete[] RECEIVING_BUFFER[i];
@@ -881,6 +883,7 @@ void Network::sync_handler(uint64_t& start_time) {
         
         if (start_time == 0) {
             start_time = (uint32_t) time(NULL) + 2208988800UL + 5UL;
+            std::cout << "Start Time Determined..." << std::endl;
         }
         
         uint64_t trans_msg = htons(start_time);
