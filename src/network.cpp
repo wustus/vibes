@@ -267,6 +267,10 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
         if (std::strcmp(recv_addr, addr) == 0) {
             uint16_t chksum = static_cast<uint16_t>(strtoul(recv_msg, nullptr, 10));
             
+            if (BYTE_ORDER != BIG_ENDIAN) {
+                chksum = ntohs(chksum);
+            }
+            
             if (chksum == calc_chksum) {
                 delete[] recv_addr;
                 delete[] recv_msg;
@@ -298,7 +302,7 @@ void Network::send_ack(const char* addr, const char* msg) {
     
     uint16_t chksum = checksum((char*) msg);
     
-    std::snprintf(ack_msg, ack_msg_size, "%s::%d", net_config.address, chksum);
+    std::snprintf(ack_msg, ack_msg_size, "%s::%d", net_config.address, htons(chksum));
     
     if (sendto(ack_sckt, (void*)(intptr_t) ack_msg, ack_msg_size, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Failed sending ACK for message: \n\t" << msg << std::endl << "Error: " << std::strerror(errno) << std::endl;
@@ -711,6 +715,10 @@ short Network::receive_move() {
                     short new_move_index = -1;
                     
                     std::memcpy(&move, msg+5, sizeof(short));
+                    
+                    if (BYTE_ORDER != BIG_ENDIAN) {
+                        move = ntohs(move);
+                    }
                     
                     for (short j=0; j!=8; j++) {
                         if (game.played_moves[j] == move) {
