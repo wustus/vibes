@@ -33,6 +33,7 @@ Network::Network(int NUMBER_OF_DEVICES) {
     ack_sckt = create_udp_socket(ACK_PORT);
     disc_sckt = create_udp_socket(DISC_PORT);
     chlg_sckt = create_udp_socket(CHLG_PORT);
+    game_sckt = create_udp_socket(GAME_PORT);
     ntp_sckt = create_udp_socket(NTP_PORT);
     
     // join ssdp multicast group
@@ -76,6 +77,19 @@ int Network::create_udp_socket(int port) {
     
     int sckt = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     
+    // bind port
+    struct sockaddr_in bind_addr;
+    memset(&bind_addr, 0, sizeof(bind_addr));
+    
+    bind_addr.sin_family = AF_INET;
+    bind_addr.sin_port = htons(port);
+    bind_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    
+    if (bind(sckt, (struct sockaddr*) &bind_addr, sizeof(bind_addr)) < 0) {
+        std::cerr << "Error while binding address to port " << port << ": " << std::strerror(errno) << std::endl;
+        exit(1);
+    }
+    
     int opt = 1;
     
     // reuse address
@@ -93,19 +107,6 @@ int Network::create_udp_socket(int port) {
     
     if (setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
         std::cerr << "Error while setting timeout for port " << port << ": " << std::strerror(errno) << std::endl;
-        exit(1);
-    }
-    
-    // bind port
-    struct sockaddr_in bind_addr;
-    memset(&bind_addr, 0, sizeof(bind_addr));
-    
-    bind_addr.sin_family = AF_INET;
-    bind_addr.sin_port = htons(port);
-    bind_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    
-    if (bind(sckt, (struct sockaddr*) &bind_addr, sizeof(bind_addr)) < 0) {
-        std::cerr << "Error while binding address to port " << port << ": " << std::strerror(errno) << std::endl;
         exit(1);
     }
     
@@ -682,7 +683,7 @@ void Network::start_game(char* addr) {
     
     game.is_game_live = true;
     
-    game.game_thread = std::thread(&Network::receive_messages, this, chlg_sckt, std::ref(game.is_game_live), std::ref(GAME_BUFFER), std::ref(current_game_index));
+    game.game_thread = std::thread(&Network::receive_messages, this, game_sckt, std::ref(game.is_game_live), std::ref(GAME_BUFFER), std::ref(current_game_index));
     
     // new random seed
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -748,7 +749,7 @@ void Network::make_move(short m) {
     std::memcpy(msg+5, &m, sizeof(m));
     
     while (!send_message(chlg_sckt, game.opponent_addr, CHLG_PORT, msg)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
     
     for (int i=0; i!=8; i++) {

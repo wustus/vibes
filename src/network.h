@@ -55,12 +55,14 @@ private:
     const int ACK_PORT = 1901;
     const int DISC_PORT = 1902;
     const int CHLG_PORT = 1903;
+    const int GAME_PORT = 1904;
     const int NTP_PORT = 123;
     
     int ssdp_sckt;
     int ack_sckt;
     int disc_sckt;
     int chlg_sckt;
+    int game_sckt;
     int ntp_sckt;
     
     int NUMBER_OF_DEVICES;
