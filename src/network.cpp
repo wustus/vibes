@@ -874,10 +874,20 @@ NTPPacket Network::request_time(char* addr) {
     
     recv_thread.join();
     
+    std::cout << packet.req_trans_time << std::endl;
+    std::cout << packet.req_recv_time << std::endl;
+    std::cout << packet.res_trans_time << std::endl;
+    std::cout << packet.res_recv_time << std::endl;
+    
     packet.req_trans_time = ntohl(packet.req_trans_time);
     packet.req_recv_time = ntohl(packet.req_recv_time);
     packet.res_trans_time = ntohl(packet.res_trans_time);
     packet.res_recv_time = ntohl(packet.res_recv_time);
+    
+    std::cout << packet.req_trans_time << std::endl;
+    std::cout << packet.req_recv_time << std::endl;
+    std::cout << packet.res_trans_time << std::endl;
+    std::cout << packet.res_recv_time << std::endl << std::endl;
     
     return packet;
 }
