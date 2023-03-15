@@ -103,15 +103,24 @@ void SynchronizationHandler::determine_master() {
 uint64_t SynchronizationHandler::sync() {
 
     if (!is_master) {
-        NTPPacket packet = network.request_time(ntp_server);
+        uint64_t offset = 0;
         
-        uint64_t offset = ((packet.req_recv_time - packet.req_trans_time) + (packet.res_recv_time - packet.res_trans_time)) / 2;
+        for (int i=0; i!=10; i++) {
+            NTPPacket packet = network.request_time(ntp_server);
+            
+            uint64_t temp_offset = ((packet.req_recv_time - packet.req_trans_time) + (packet.res_recv_time - packet.res_trans_time)) / 2;
+            offset += temp_offset;
+            
+            std::cout << "Offset: " << temp_offset << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
         
-        std::cout << "Offset: " << offset;
+        offset /= 10;
+        
+        std::cout << "Average Offset: " << offset << std::endl;
         
         return offset;
     }
-    
     
     return 0;
 }

@@ -798,8 +798,8 @@ void Network::ntp_server() {
         if (recvfrom(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
             if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Error Receiving NTP Request: " << std::strerror(errno) << std::endl;
-                continue;
             }
+            continue;
         }
         
         packet.req_recv_time = htons((uint32_t) time(NULL) + 2208988800UL);
@@ -816,6 +816,7 @@ NTPPacket Network::ntp_listener() {
     bool received = false;
     
     NTPPacket packet;
+    
     std::memset(&packet, 0, NTP_PACKET_SIZE);
     
     sockaddr_in src_addr;
