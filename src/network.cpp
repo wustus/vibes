@@ -249,10 +249,6 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
     
     uint16_t calc_chksum = checksum(msg);
     
-    if (std::strncmp(msg, "READY", 5) == 0) {
-        std::cout << "Ready sent, chksum" << calc_chksum << std::endl;
-    }
-    
     while (std::chrono::steady_clock::now() - start_time < duration) {
         
         if (*ACK_BUFFER[c] == '\0') {
@@ -270,12 +266,6 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
         
         if (std::strcmp(recv_addr, addr) == 0) {
             uint16_t chksum = static_cast<uint16_t>(strtoul(recv_msg, nullptr, 10));
-            
-            if (BYTE_ORDER != BIG_ENDIAN) {
-                chksum = ntohs(chksum);
-            }
-            
-            std::cout << "\t" << chksum << std::endl;
             
             if (chksum == calc_chksum) {
                 delete[] recv_addr;
@@ -308,11 +298,7 @@ void Network::send_ack(const char* addr, const char* msg) {
     
     uint16_t chksum = checksum((char*) msg);
     
-    if (std::strncmp(msg, "READY", 5) == 0) {
-        std::cout << "Ready received, chksm" << chksum << " htons " << htons(chksum) << std::endl;
-    }
-    
-    std::snprintf(ack_msg, ack_msg_size, "%s::%d", net_config.address, htons(chksum));
+    std::snprintf(ack_msg, ack_msg_size, "%s::%d", net_config.address, chksum);
     
     if (sendto(ack_sckt, (void*)(intptr_t) ack_msg, ack_msg_size, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
         std::cerr << "Failed sending ACK for message: \n\t" << msg << std::endl << "Error: " << std::strerror(errno) << std::endl;
@@ -724,11 +710,7 @@ short Network::receive_move() {
                     bool new_move = false;
                     short new_move_index = -1;
                     
-                    std::memcpy(&move, msg+5, sizeof(short));
-                    
-                    if (BYTE_ORDER != BIG_ENDIAN) {
-                        move = ntohs(move);
-                    }
+                    sscanf(msg+5, "%hd", &move);
                     
                     for (short j=0; j!=8; j++) {
                         if (game.played_moves[j] == move) {
@@ -764,7 +746,7 @@ short Network::receive_move() {
 void Network::make_move(short m) {
     
     char* msg = new char[5 + sizeof(short)];
-    std::snprintf(msg, 5 + sizeof(short), "MOVE %d", htons(m));
+    std::snprintf(msg, 5 + sizeof(short), "MOVE %hu", m);
     
     while (!send_message(game_sckt, game.opponent_addr, GAME_PORT, msg)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
