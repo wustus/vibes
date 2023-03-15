@@ -7,19 +7,19 @@ Network::Network(int NUMBER_OF_DEVICES) {
     
     RECEIVING_BUFFER = new char*[BUFFER_SIZE];
     ACK_BUFFER = new char*[BUFFER_SIZE];
-    GAME_BUFFER = new char*[9];
+    GAME_BUFFER = new char*[16];
     
     for (int i=0; i!=BUFFER_SIZE; i++) {
         RECEIVING_BUFFER[i] = new char[MESSAGE_SIZE];
         ACK_BUFFER[i] = new char[MESSAGE_SIZE];
         
-        *RECEIVING_BUFFER[i] = '\0';
-        *ACK_BUFFER[i] = '\0';
+        RECEIVING_BUFFER[i][0] = '\0';
+        ACK_BUFFER[i][0] = '\0';
     }
     
     for (int i=0; i!=9; i++) {
         GAME_BUFFER[i] = new char[16];
-        *GAME_BUFFER[i] = '\0';
+        GAME_BUFFER[i][0] = '\0';
     }
     
     net_config.devices = new char*[NUMBER_OF_DEVICES-1];
@@ -671,6 +671,7 @@ void Network::wait_until_ready(char *addr) {
 
 void Network::start_game(char* addr) {
     
+    flush_buffer(GAME_BUFFER, current_game_index);
     std::memset(&game, 0, sizeof(game));
     
     game.opponent_addr = new char[INET_ADDRSTRLEN];
@@ -683,8 +684,6 @@ void Network::start_game(char* addr) {
     game.is_game_live = true;
     
     game.game_thread = std::thread(&Network::receive_messages, this, chlg_sckt, std::ref(game.is_game_live), std::ref(GAME_BUFFER), std::ref(current_game_index));
-
-    flush_buffer(GAME_BUFFER, current_game_index);
     
     // new random seed
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
