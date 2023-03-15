@@ -118,6 +118,9 @@ public:
     void stop_ntp_server();
     NTPPacket request_time(char* addr);
     
+    void sync_handler(uint64_t& start_time);
+    uint64_t request_start_time(char* addr);
+    
     int get_ssdp_port();
     int get_ssdp_sckt();
     int get_ack_port();

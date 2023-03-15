@@ -92,15 +92,21 @@ private:
     
     bool is_master;
     char* ntp_server;
-    uint64_t start_time;
     
+    uint64_t start_time;
+    uint64_t offset;
     
 public:
     SynchronizationHandler(Network& network);
     void reset_game();
     void play(char*);
     void determine_master();
-    uint64_t sync();
+    bool get_is_master();
+    void set_offset();
+    uint64_t get_offset();
+    void sync_handler();
+    uint64_t get_start_time();
+    
 };
 
 #endif /* SynchronizationHandler_hpp */

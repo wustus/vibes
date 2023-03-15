@@ -110,21 +110,25 @@ int main(int argc, const char* argv[]) {
     
     sync_handler.determine_master();
     
-    sync_handler.sync();
+    uint64_t offset = sync_handler.get_offset();
     
-    exit(0);
+    if (sync_handler.get_is_master()) {
+        sync_handler.sync_handler();
+    }
+    
+    uint64_t playback_start_time = sync_handler.get_start_time();
     
     // frames in PBO
     int FRAMES_IN_BUFFER = 16;
     
     // create frame producer and initialize video context
-    #ifdef __APPLE__
-        FrameProducer frame_producer = FrameProducer("/Users/justus/dev/vibes-proto/assets/guitar_pi.mov", FRAMES_IN_BUFFER);
-    #endif
+#ifdef __APPLE__
+    FrameProducer frame_producer = FrameProducer("/Users/justus/dev/vibes-proto/assets/guitar_pi.mov", FRAMES_IN_BUFFER);
+#endif
     
-    #ifdef __unix
-        FrameProducer frame_producer = FrameProducer("../assets/guitar_pi.mov", FRAMES_IN_BUFFER);
-    #endif
+#ifdef __unix
+    FrameProducer frame_producer = FrameProducer("../assets/guitar_pi.mov", FRAMES_IN_BUFFER);
+#endif
     
     // start producing frames
     frame_producer.start_thread();
@@ -149,20 +153,20 @@ int main(int argc, const char* argv[]) {
      */
     
     glfwInit();
-    #ifdef __APPLE__
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    #endif
-
-    #ifdef __unix
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-        glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ES_API);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    #endif
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+#endif
+    
+#ifdef __unix
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+    glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ES_API);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#endif
     
     glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
     
@@ -183,44 +187,44 @@ int main(int argc, const char* argv[]) {
     const GLFWvidmode *video_mode = glfwGetVideoMode(primary);
     MONITOR_WIDTH = video_mode->width;
     MONITOR_HEIGHT = video_mode->height;
-
+    
     glfwSwapInterval(0);
     
     // hide cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
+    
     glfwMakeContextCurrent(window);
     
-    #ifdef __APPLE__
-        if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-            std::cout << "Failed to initialize GLAD" << std::endl;
-            return -1;
-        }
-    #endif
+#ifdef __APPLE__
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+#endif
     
-    #ifdef __unix
-        if (!gladLoadGLES2Loader((GLADloadproc) glfwGetProcAddress)) {
-            std::cout << "Failed to initialize GLAD" << std::endl;
-            return -1;
-        }
-    #endif
+#ifdef __unix
+    if (!gladLoadGLES2Loader((GLADloadproc) glfwGetProcAddress)) {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+#endif
     
     // load and compile shaders
-    #ifdef __APPLE__
-        Shader shader("/Users/justus/dev/vibes-proto/src/shaders/vertex_shader.vs", "/Users/justus/dev/vibes-proto/src/shaders/fragment_shader.fs");
-    #endif
+#ifdef __APPLE__
+    Shader shader("/Users/justus/dev/vibes-proto/src/shaders/vertex_shader.vs", "/Users/justus/dev/vibes-proto/src/shaders/fragment_shader.fs");
+#endif
     
-    #ifdef __unix
-        Shader shader("../src/shaders/vertex_shader_es.vs", "../src/shaders/fragment_shader_es.fs");
-    #endif
+#ifdef __unix
+    Shader shader("../src/shaders/vertex_shader_es.vs", "../src/shaders/fragment_shader_es.fs");
+#endif
     
     // change viewPort (renderable area) with window size
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
     GLfloat vertices[] = {
-         // vertices                                                   padding  texture
-         1 - VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO,  0,     0,       1, 1,
-         1 - VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO,  0,     0,       1, 0,
+        // vertices                                                   padding  texture
+        1 - VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO,  0,     0,       1, 1,
+        1 - VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO,  0,     0,       1, 0,
         -1 + VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO,  0,     0,       0, 0,
         -1 + VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO,  0,     0,       0, 1
     };
@@ -298,18 +302,22 @@ int main(int argc, const char* argv[]) {
     
     shader.use();
     
-
+    
     /*
      *  Render Loop Parameters
      */
     
     int current_frame = 0;
-
+    
     bool clear_ghosts = false;
     
     float start_time, end_time;
     
     std::deque<int64_t> pts_buffer;
+    
+    while (playback_start_time < (uint32_t) time(NULL) + 2208988800UL) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
     
     // render loop
     while (!glfwWindowShouldClose(window)) {

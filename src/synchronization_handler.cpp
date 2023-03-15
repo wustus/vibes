@@ -10,6 +10,8 @@
 
 SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {
     SynchronizationHandler::ntp_server = nullptr;
+    SynchronizationHandler::start_time = 0;
+    SynchronizationHandler::offset = 0;
 }
 
 void SynchronizationHandler::play(char* challenger) {
@@ -100,7 +102,11 @@ void SynchronizationHandler::determine_master() {
     }
 }
 
-uint64_t SynchronizationHandler::sync() {
+bool SynchronizationHandler::get_is_master() {
+    return is_master;
+}
+
+void SynchronizationHandler::set_offset() {
 
     if (!is_master) {
         uint64_t offset = 0;
@@ -122,8 +128,34 @@ uint64_t SynchronizationHandler::sync() {
         
         std::cout << "Average Offset: " << offset << std::endl;
         
-        return offset;
+        this->offset = offset;
+    }
+}
+
+uint64_t SynchronizationHandler::get_offset() {
+    return offset;
+}
+
+void SynchronizationHandler::sync_handler() {
+    
+    uint64_t start_time = 0;
+    
+    std::thread sync_thread(&Network::sync_handler, this, std::ref(start_time));
+    
+    sync_thread.detach();
+    
+    while (start_time == 0) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     
-    return 0;
+    this->start_time = start_time;
+}
+
+uint64_t SynchronizationHandler::get_start_time() {
+    
+    if (is_master) {
+        return start_time;
+    }
+    
+    return network.request_start_time(ntp_server);
 }
