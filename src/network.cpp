@@ -357,6 +357,8 @@ void Network::receive_messages(int sckt, bool& receiving, char**& buffer, int& c
         
         if (std::strncmp(recv_buffer, "READY", 5) == 0) {
             std::cout << "Ready received" << std::endl;
+        } else if (std::strncmp(recv_buffer, "MOVE", 4) == 0) {
+            std::cout << "move received" << std::endl;
         }
         
         char device[INET_ADDRSTRLEN];
@@ -574,6 +576,8 @@ char* Network::find_challenger(char** game_status) {
             pending_timeout = 10;
         }
     }
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
     
     receiving = false;
     
