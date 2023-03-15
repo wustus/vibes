@@ -813,7 +813,7 @@ void Network::ntp_server(uint32_t& start_time) {
                 std::cout << "Start Time Determined..." << std::endl;
             }
             
-            packet.start_time = htonl(start_time);
+            packet.start_time = start_time;
             
             std::cout << "sending packet: " << packet.start_time << " " << ntohl(packet.start_time) << std::endl;
             
