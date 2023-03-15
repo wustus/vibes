@@ -96,7 +96,7 @@ int main(int argc, const char* argv[]) {
     }
     
     int NUMBER_OF_DEVICES = std::stoi(argv[1]);
-    
+
     // find devices
     Network network = Network(NUMBER_OF_DEVICES);
     
@@ -118,7 +118,7 @@ int main(int argc, const char* argv[]) {
     
     std::cout << "Start Time: " << playback_start_time << std::endl;
     std::cout << "Playback Start Time: " << std::ctime(&unix_time) << std::endl;
-    
+
     // frames in PBO
     int FRAMES_IN_BUFFER = 16;
     
@@ -316,16 +316,16 @@ int main(int argc, const char* argv[]) {
     
     std::deque<int64_t> pts_buffer;
     
-    while ((uint32_t) time(NULL) < playback_start_time) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-    
     // render loop
     while (!glfwWindowShouldClose(window)) {
         
         static bool initial_frame = true;
         
         if (initial_frame) {
+            while ((uint32_t) time(NULL) < playback_start_time) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            
             glfwSetTime(0.0);
         }
         
