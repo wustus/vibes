@@ -15,9 +15,7 @@ Network::Network(int NUMBER_OF_DEVICES) {
         
         RECEIVING_BUFFER[i][0] = '\0';
         ACK_BUFFER[i][0] = '\0';
-    }
-    
-    for (int i=0; i!=9; i++) {
+        
         GAME_BUFFER[i] = new char[16];
         GAME_BUFFER[i][0] = '\0';
     }
