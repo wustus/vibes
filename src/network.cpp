@@ -809,7 +809,7 @@ void Network::ntp_server(uint64_t& start_time) {
             }
         } else {
             if (start_time == 0) {
-                start_time = (uint32_t) time(NULL) + 2208988800UL + 5UL;
+                start_time = (uint32_t) time(NULL) + 5UL;
                 std::cout << "Start Time Determined..." << std::endl;
             } else {
                 std::cout << "Time;: " << start_time << std::endl;
