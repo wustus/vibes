@@ -773,8 +773,8 @@ void Network::end_game() {
     flush_buffer(GAME_BUFFER, current_game_index);
 }
 
-void Network::start_ntp_server() {
-    ntp_thread = std::thread(&Network::ntp_server, this);
+void Network::start_ntp_server(uint64_t& start_time) {
+    ntp_thread = std::thread(&Network::ntp_server, this, std::ref(start_time));
 }
 
 void Network::stop_ntp_server() {
@@ -782,7 +782,7 @@ void Network::stop_ntp_server() {
     ntp_thread.join();
 }
 
-void Network::ntp_server() {
+void Network::ntp_server(uint64_t& start_time) {
     
     while (ntp_sckt > 0) {
         
@@ -800,11 +800,24 @@ void Network::ntp_server() {
             continue;
         }
         
-        packet.req_recv_time = htons((uint32_t) time(NULL) + 2208988800UL);
-        packet.res_trans_time = htons((uint32_t) time(NULL) + 2208988800UL);
-        
-        if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, src_addr_len) < 0) {
-            std::cerr << "Failed Sending NTP Response≤." << std::endl;
+        if (!packet.time_request) {
+            packet.req_recv_time = htons((uint32_t) time(NULL) + 2208988800UL);
+            packet.res_trans_time = htons((uint32_t) time(NULL) + 2208988800UL);
+            
+            if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, src_addr_len) < 0) {
+                std::cerr << "Failed Sending NTP Response≤." << std::endl;
+            }
+        } else {
+            if (start_time == 0) {
+                start_time = (uint32_t) time(NULL) + 2208988800UL + 5UL;
+                std::cout << "Start Time Determined..." << std::endl;
+            }
+            
+            uint64_t trans_msg = htons(start_time);
+            
+            if (sendto(ntp_sckt, &trans_msg, sizeof(uint64_t), 0, (struct sockaddr*) &src_addr, src_addr_len) < 0) {
+                std::cerr << "Error sending start time: " << std::strerror(errno) << std::endl;
+            }
         }
     }
 }
@@ -861,38 +874,6 @@ NTPPacket Network::request_time(char* addr) {
     recv_thread.join();
     
     return packet;
-}
-
-void Network::sync_handler(uint64_t& start_time) {
-    
-    while (ntp_sckt > 0) {
-        
-        char* recv_buffer = new char[8];
-        std::memset(recv_buffer, 0, 8);
-        
-        sockaddr_in src_addr;
-        std::memset(&src_addr, 0, sizeof(src_addr));
-        socklen_t src_addr_len;
-        
-        if (recvfrom(ntp_sckt, recv_buffer, 8, 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
-            if (errno != 0x23 && errno != 0xB) {
-                std::cerr << "Error receiving start time request: " << std::strerror(errno) << std::endl;
-            }
-            continue;
-        }
-        
-        if (start_time == 0) {
-            start_time = (uint32_t) time(NULL) + 2208988800UL + 5UL;
-            std::cout << "Start Time Determined..." << std::endl;
-        }
-        
-        uint64_t trans_msg = htons(start_time);
-        
-        if (sendto(ntp_sckt, &trans_msg, sizeof(uint64_t), 0, (struct sockaddr*) &src_addr, src_addr_len) < 0) {
-            std::cerr << "Error sending start time: " << std::strerror(errno) << std::endl;
-        }
-    }
-    
 }
 
 uint64_t Network::request_start_time(char* addr) {

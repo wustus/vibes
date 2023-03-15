@@ -106,7 +106,6 @@ public:
     bool get_is_master();
     void set_offset();
     uint64_t get_offset();
-    void sync_handler();
     uint64_t get_start_time();
     
 };

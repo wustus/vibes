@@ -27,10 +27,13 @@
 
 
 struct NTPPacket {
+    bool time_request;
+    char padding;
     uint64_t req_trans_time;
     uint64_t req_recv_time;
     uint64_t res_trans_time;
     uint64_t res_recv_time;
+    uint64_t start_time;
 };
 
 class Network {
@@ -47,7 +50,7 @@ private:
         short played_moves[9];
     };
     
-    #define NTP_PACKET_SIZE 32
+    #define NTP_PACKET_SIZE 42
     
     const char* ROUTER_ADDR = "192.168.2.1";
     const char* SSDP_ADDR = "239.255.255.250";
@@ -99,7 +102,7 @@ private:
     void game_status_listener(char**& game_status, bool& listening);
     void listen_for_ready(char* addr, bool& is_opponent_ready);
 
-    void ntp_server();
+    void ntp_server(uint64_t& start_time);
     NTPPacket ntp_listener();
 public:
     Network(int);
@@ -114,7 +117,7 @@ public:
     void make_move(short m);
     void end_game();
     
-    void start_ntp_server();
+    void start_ntp_server(uint64_t& start_time);
     void stop_ntp_server();
     NTPPacket request_time(char* addr);
     

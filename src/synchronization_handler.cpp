@@ -98,7 +98,7 @@ void SynchronizationHandler::determine_master() {
     
     if (is_master) {
         std::cout << "Starting NTP Server" << std::endl;
-        network.start_ntp_server();
+        network.start_ntp_server(start_time);
     }
 }
 
@@ -115,6 +115,7 @@ void SynchronizationHandler::set_offset() {
             NTPPacket packet;
             std::memset(&packet, 0, NTP_PACKET_SIZE);
             
+            packet.time_request = false;
             packet = network.request_time(ntp_server);
             
             uint64_t temp_offset = ((packet.req_recv_time - packet.req_trans_time) + (packet.res_recv_time - packet.res_trans_time)) / 2;
@@ -136,28 +137,12 @@ uint64_t SynchronizationHandler::get_offset() {
     return offset;
 }
 
-void SynchronizationHandler::sync_handler() {
-    
-    uint64_t start_time = 0;
-    
-    std::cout << "Starting Synchronization Handler..." << std::endl;
-    
-    handler_thread = std::thread([this, &start_time] () {
-        network.sync_handler(start_time);
-    });
-    
-    while (start_time == 0) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-    
-    std::cout << "Setting Start Time..." << std::endl;
-    
-    this->start_time = start_time;
-}
-
 uint64_t SynchronizationHandler::get_start_time() {
     
     if (is_master) {
+        while (start_time == 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
         return start_time;
     }
     
