@@ -314,7 +314,7 @@ int main(int argc, const char* argv[]) {
     
     std::deque<int64_t> pts_buffer;
     
-    while (playback_start_time < (uint32_t) time(NULL) + 2208988800UL) {
+    while (playback_start_time < (uint32_t) time(NULL)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     
