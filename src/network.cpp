@@ -66,8 +66,13 @@ Network::~Network() {
     close(game_sckt);
     close(ntp_sckt);
     
-    ack_thread.join();
-    ntp_thread.join();
+    if (ack_thread.joinable()) {
+        ack_thread.join();
+    }
+    
+    if (ntp_thread.joinable()) {
+        ntp_thread.join();
+    }
     
     for (int i=0; i!=BUFFER_SIZE; i++) {
         delete[] RECEIVING_BUFFER[i];
