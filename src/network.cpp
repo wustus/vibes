@@ -922,7 +922,7 @@ void Network::announce_result(char* addr, const char* result, char**& game_statu
     char** devices = net_config.devices;
     
     // addr::addr::result
-    size_t msg_len = INET_ADDRSTRLEN + 2 + INET_ADDRSTRLEN + 2 + std::strlen(result);
+    size_t msg_len = INET_ADDRSTRLEN + 2 + std::strlen(result);
     char* msg = new char[msg_len];
     std::memset(msg, 0, msg_len);
 
@@ -937,7 +937,9 @@ void Network::announce_result(char* addr, const char* result, char**& game_statu
     
     for (int i=0; i!=16; i++) {
         if (*game_status[i] == '\0') {
-            std::memcpy(game_status[i], msg, msg_len);
+            size_t own_msg_len = INET_ADDRSTRLEN + 2 + INET_ADDRSTRLEN + 2 + std::strlen(result);
+            char* own_msg = new char[own_msg_len];
+            std::memcpy(game_status[i], own_msg, own_msg_len);
             break;
         }
     }
