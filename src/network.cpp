@@ -946,8 +946,6 @@ void Network::ntp_server(uint32_t& start_time) {
             
             packet.start_time = htonl(start_time);
             
-            std::cout << start_time << " " << packet.start_time << std::endl;
-            
             if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, src_addr_len) < 0) {
                 std::cerr << "Error sending start time: " << std::strerror(errno) << std::endl;
             }
@@ -1050,8 +1048,6 @@ uint32_t Network::request_start_time(char* addr) {
         }
         
         packet = ntp_listener(nullptr, true);
-        
-        std::cout << packet.start_time << " " << ntohl(packet.start_time) << std::endl;
         
         return ntohl(packet.start_time);
     }
