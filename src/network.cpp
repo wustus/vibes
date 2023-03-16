@@ -497,7 +497,7 @@ void Network::start_challenge_listener() {
     chlg_thread = std::thread(&Network::receive_messages, this, chlg_sckt, std::ref(chlg_thread_active), std::ref(CHLG_BUFFER), std::ref(current_chlg_index));
 }
 
-bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
+bool Network::challenge_handler(char**& losers, char*& challenger, bool& found_challenger) {
     
     while (!found_challenger) {
         
@@ -509,6 +509,21 @@ bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
             
             char* addr;
             char* msg;
+            
+            bool is_loser = false;
+            for (int j=0; j!=NUMBER_OF_DEVICES-1; j++) {
+                if (*losers[j] == '\0') {
+                    break;
+                }
+                
+                if (std::strncmp(addr, losers[j], INET_ADDRSTRLEN) == 0) {
+                    is_loser = true;
+                }
+            }
+            
+            if (is_loser) {
+                continue;
+            }
             
             split_buffer_message(addr, msg, CHLG_BUFFER[i]);
             
@@ -596,22 +611,10 @@ void Network::wait_for_challenge(char*& challenger) {
     }
 }
 
-
-char* Network::find_challenger(char** game_status) {
+void Network::update_losers(char**& game_status, char**& losers) {
     
-    bool found_challenger = false;
-    bool waiting_for_challenge = false;
-    
-    char* challenger = nullptr;
-    
-    char** losers = new char*[NUMBER_OF_DEVICES-1];
-    for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
-        losers[i] = new char[INET_ADDRSTRLEN];
-        *losers[i] = '\0';
-    }
-    
-    for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
-        if (*CHLG_BUFFER[i] == '\0') {
+    for (int i=0; i!=16; i++) {
+        if (*game_status[i] == '\0') {
             break;
         }
         
@@ -624,8 +627,16 @@ char* Network::find_challenger(char** game_status) {
         
         split_buffer_message(loser_addr, msg, tmp);
         
-        if (std::strncmp(msg, "WIN", 3) == 0) {
-            std::memmove(losers, loser_addr, INET_ADDRSTRLEN);
+        for (int j=0; j!=NUMBER_OF_DEVICES-1; j++) {
+            if (*losers[j] != '\0') {
+                if (std::strncmp(loser_addr, losers[j], INET_ADDRSTRLEN) == 0) {
+                    break;
+                }
+            } else {
+                if (std::strncmp(msg, "WIN", 3) == 0) {
+                    std::memmove(losers[j], loser_addr, INET_ADDRSTRLEN);
+                }
+            }
         }
         
         delete[] addr;
@@ -633,7 +644,22 @@ char* Network::find_challenger(char** game_status) {
         delete[] msg;
     }
     
-    std::thread handler_thread([this, &challenger, &found_challenger, &waiting_for_challenge]() { waiting_for_challenge = !challenge_handler(challenger, found_challenger); });
+}
+
+char* Network::find_challenger(char**& game_status) {
+    
+    bool found_challenger = false;
+    bool waiting_for_challenge = false;
+    
+    char* challenger = nullptr;
+    
+    char** losers = new char*[NUMBER_OF_DEVICES-1];
+    for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
+        losers[i] = new char[INET_ADDRSTRLEN];
+        *losers[i] = '\0';
+    }
+    
+    std::thread handler_thread([this, &losers, &challenger, &found_challenger, &waiting_for_challenge]() { waiting_for_challenge = !challenge_handler(losers, challenger, found_challenger); });
     
     std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 300));
     
@@ -642,9 +668,12 @@ char* Network::find_challenger(char** game_status) {
     
     while (!found_challenger && !waiting_for_challenge) {
         
+        update_losers(game_status, losers);
+        
         if (challenger == nullptr) {
             char* chlg_addr = net_config.devices[current_addr];
             
+            // don't send challenges to losers
             for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
                 if (*losers[i] == '\0') {
                     break;

@@ -105,7 +105,8 @@ private:
     bool send_message(int sckt, const char* addr, int port, const char* msg, short timeout);
     void receive_messages(int sckt, bool& receiving, char**& buffer, int& counter);
 
-    bool challenge_handler(char*& challenger, bool& found_challenger);
+    void update_losers(char**& game_status, char**& losers);
+    bool challenge_handler(char**& losers, char*& challenger, bool& found_challenger);
     void wait_for_challenge(char*& challenger);
     void game_status_listener(char**& game_status, bool& listening);
     void listen_for_ready(char* addr, bool& is_opponent_ready);
@@ -119,7 +120,7 @@ public:
     void set_local_addr();
     void discover_devices();
     void start_challenge_listener();
-    char* find_challenger(char** game_status);
+    char* find_challenger(char**& game_status);
     void wait_until_ready(char* addr);
     void start_game(char* addr);
     short receive_move();
