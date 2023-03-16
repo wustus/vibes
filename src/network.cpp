@@ -409,9 +409,8 @@ void Network::discover_devices() {
     while (discovered_devices.size() != NUMBER_OF_DEVICES-1) {
         sending_threads.emplace_back([this, message, &finished_threads, &thread_list_mutex, &t]() {
             send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message);
-            thread_list_mutex.lock();
+            std::lock_guard<std::mutex> lock(thread_list_mutex);
             finished_threads.push_back(t.load());
-            thread_list_mutex.unlock();
         });
         t++;
         
@@ -431,9 +430,8 @@ void Network::discover_devices() {
                     } else {
                         sending_threads.emplace_back([this, addr, &finished_threads, &thread_list_mutex, &t]() {
                             send_message(disc_sckt, addr, DISC_PORT, "BUDDY");
-                            thread_list_mutex.lock();
+                            std::lock_guard<std::mutex> lock(buffer_mutex);
                             finished_threads.push_back(t.load());
-                            thread_list_mutex.unlock();
                         });
                         t++;
                     }
@@ -463,13 +461,11 @@ void Network::discover_devices() {
         
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
         
-        thread_list_mutex.lock();
         for (int i=0; i!=finished_threads.size(); i++) {
             if (sending_threads[i].joinable()) {
                 sending_threads[i].join();
             }
         }
-        thread_list_mutex.unlock();
     }
     
     std::cout << "Finishd Searching." << std::endl;
