@@ -485,6 +485,7 @@ void Network::discover_devices() {
 }
 
 void Network::start_challenge_listener() {
+    chlg_thread_active = true;
     chlg_thread = std::thread(&Network::receive_messages, this, chlg_sckt, std::ref(chlg_thread_active), std::ref(RECEIVING_BUFFER), std::ref(current_index));
 }
 
