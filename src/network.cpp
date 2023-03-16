@@ -623,7 +623,7 @@ void Network::update_losers(char**& game_status, char**& losers) {
         char* tmp;
         char* msg;
         
-        split_buffer_message(addr, tmp, CHLG_BUFFER[i]);
+        split_buffer_message(addr, tmp, game_status[i]);
         
         split_buffer_message(loser_addr, msg, tmp);
         
