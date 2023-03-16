@@ -651,12 +651,12 @@ char* Network::find_challenger(char** game_status) {
                 }
                 if (std::strncmp(chlg_addr, losers[i], INET_ADDRSTRLEN) == 0) {
                     current_addr = ++current_addr % (NUMBER_OF_DEVICES-1);
-                    challenger = nullptr;
+                    chlg_addr = nullptr;
                     break;
                 }
             }
             
-            if (challenger == nullptr) {
+            if (chlg_addr == nullptr) {
                 continue;
             }
             
