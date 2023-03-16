@@ -482,7 +482,7 @@ void Network::discover_devices() {
     
     std::cout << "Discovered " << discovered_devices.size() << " devices." << std::endl;
     
-    for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
+    for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
         std::memcpy(net_config.devices[i], discovered_devices[i], INET_ADDRSTRLEN);
         std::cout << "\t" << net_config.devices[i] << std::endl;
         delete[] discovered_devices[i];
@@ -850,7 +850,7 @@ void Network::announce_result(char* addr, const char* result, char**& game_statu
 
     std::snprintf(msg, msg_len, "%s::%s::%s", local_addr, addr, result);
     
-    for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
+    for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
         char* dest_addr = devices[i];
         std::cout << dest_addr << std::endl;
         if (std::strncmp(addr, dest_addr, INET_ADDRSTRLEN) != 0) {
@@ -876,7 +876,7 @@ void Network::announce_master() {
     char* msg = new char[msg_size];
     std::snprintf(msg, msg_size, "%s::MASTER", addr);
     
-    for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
+    for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
         char* dest_addr = devices[i];
         std::cout << dest_addr << std::endl;
         send_message(chlg_sckt, dest_addr, CHLG_PORT, msg);
