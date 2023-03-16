@@ -704,6 +704,7 @@ char* Network::find_challenger(char**& game_status) {
         if (pending_timeout == 0) {
             current_addr = ++current_addr % (NUMBER_OF_DEVICES-1);
             pending_timeout = 5;
+            challenger = nullptr;
         }
     }
     
