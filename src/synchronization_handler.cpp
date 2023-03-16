@@ -82,7 +82,9 @@ void SynchronizationHandler::play(char* challenger) {
     
     if (ttt.is_won) {
         network.announce_result(challenger, "WIN", game_status);
-    } 
+    } else {
+        network.announce_result(challenger, "LOSE", game_status);
+    }
 }
 
 void SynchronizationHandler::reset_game() {
@@ -116,7 +118,7 @@ void SynchronizationHandler::determine_master() {
                 }
                 break;
             }
-            if (c == 2) {
+            if (c == 4) {
                 is_master = true;
                 break;
             }
