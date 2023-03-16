@@ -860,6 +860,7 @@ void Network::announce_result(char* addr, const char* result, char**& game_statu
     for (int i=0; i!=16; i++) {
         if (*game_status[i] == '\0') {
             std::memcpy(game_status[i], msg, msg_len);
+            break;
         }
     }
 }
