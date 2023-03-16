@@ -110,7 +110,7 @@ private:
     void listen_for_ready(char* addr, bool& is_opponent_ready);
 
     void ntp_server(uint32_t& start_time);
-    NTPPacket ntp_listener(bool* received);
+    NTPPacket ntp_listener(bool* received, bool time_request);
 public:
     Network(int);
     ~Network();

@@ -956,7 +956,7 @@ void Network::ntp_server(uint32_t& start_time) {
 }
 
     
-NTPPacket Network::ntp_listener(bool* received=nullptr) {
+NTPPacket Network::ntp_listener(bool* received=nullptr, bool time_request=false) {
     NTPPacket packet;
     
     std::memset(&packet, 0, NTP_PACKET_SIZE);
@@ -972,6 +972,12 @@ NTPPacket Network::ntp_listener(bool* received=nullptr) {
                 std::cerr << "Error Receiving NTP Response: " << std::strerror(errno) << std::endl;
             }
             continue;
+        }
+        
+        if (time_request) {
+            if (!packet.time_request) {
+                continue;
+            }
         }
         
         packet.res_recv_time = htonl((uint32_t) time(NULL) + 2208988800UL);
@@ -1025,7 +1031,7 @@ NTPPacket Network::request_time(char* addr) {
 uint32_t Network::request_start_time(char* addr) {
     
     while (true) {
-        
+
         NTPPacket packet;
         std::memset(&packet, 0, NTP_PACKET_SIZE);
         
@@ -1043,7 +1049,7 @@ uint32_t Network::request_start_time(char* addr) {
             continue;
         }
         
-        packet = ntp_listener();
+        packet = ntp_listener(nullptr, true);
         
         std::cout << packet.start_time << " " << ntohl(packet.start_time) << std::endl;
         
