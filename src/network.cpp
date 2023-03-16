@@ -5,12 +5,12 @@ Network::Network(int NUMBER_OF_DEVICES) {
     
     Network::NUMBER_OF_DEVICES = NUMBER_OF_DEVICES;
     
-    RECEIVING_BUFFER = new char*[BUFFER_SIZE];
-    ACK_BUFFER = new char*[BUFFER_SIZE];
-    CHLG_BUFFER = new char*[BUFFER_SIZE];
-    GAME_BUFFER = new char*[BUFFER_SIZE];
+    RECEIVING_BUFFER = new char*[MSG_BUFFER_SIZE];
+    ACK_BUFFER = new char*[MSG_BUFFER_SIZE];
+    CHLG_BUFFER = new char*[MSG_BUFFER_SIZE];
+    GAME_BUFFER = new char*[MSG_BUFFER_SIZE];
     
-    for (int i=0; i!=BUFFER_SIZE; i++) {
+    for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
         RECEIVING_BUFFER[i] = new char[MESSAGE_SIZE];
         ACK_BUFFER[i] = new char[MESSAGE_SIZE];
         CHLG_BUFFER[i] = new char[128];
@@ -82,7 +82,7 @@ Network::~Network() {
         ntp_thread.join();
     }
     
-    for (int i=0; i!=BUFFER_SIZE; i++) {
+    for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
         delete[] RECEIVING_BUFFER[i];
         delete[] ACK_BUFFER[i];
         delete[] CHLG_BUFFER[i];
@@ -203,12 +203,12 @@ void Network::append_to_buffer(char* addr, char* message, char**& buffer, int& c
     std::lock_guard<std::mutex> lock(buffer_mutex);
     
     buffer[counter] = buffer_msg;
-    counter = ++counter % BUFFER_SIZE;
+    counter = ++counter % MSG_BUFFER_SIZE;
 }
 
 void Network::flush_buffer(char**& buffer, int& counter, size_t msg_size=MESSAGE_SIZE) {
     
-    for (int i=0; i!=BUFFER_SIZE; i++) {
+    for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
         delete[] buffer[i];
         buffer[i] = new char[msg_size];
     }
@@ -295,7 +295,7 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
             }
         }
         
-        c = ++c % BUFFER_SIZE;
+        c = ++c % MSG_BUFFER_SIZE;
         
         delete[] recv_addr;
         delete[] recv_msg;
@@ -498,7 +498,7 @@ bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
     
     while (!found_challenger) {
         
-        for (int i=0; i!=BUFFER_SIZE; i++) {
+        for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
             
             if (*CHLG_BUFFER[i] == '\0') {
                 break;
@@ -563,7 +563,7 @@ void Network::wait_for_challenge(char*& challenger) {
     
     while (!found_challenger) {
         
-        for (int i=0; i!=BUFFER_SIZE; i++) {
+        for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
             
             if (*CHLG_BUFFER[i] == '\0') {
                 break;
@@ -644,7 +644,7 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
     
     while (listening) {
         
-        for (int i=0; i!=BUFFER_SIZE; i++) {
+        for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
             if (*CHLG_BUFFER[i] == '\0') {
                 continue;
             }
@@ -691,7 +691,7 @@ void Network::listen_for_ready(char* addr, bool& listening) {
 
     while (listening) {
         
-        for (int i=0; i!=BUFFER_SIZE; i++) {
+        for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
             
             if (*CHLG_BUFFER[i] == '\0') {
                 break;
@@ -759,7 +759,7 @@ void Network::flush_chlg_buffer() {
 short Network::receive_move() {
     
     while (true) {
-        for (int i=0; i!=BUFFER_SIZE; i++) {
+        for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
             if (*GAME_BUFFER[i] == '\0') {
                 break;
             }
@@ -885,7 +885,7 @@ void Network::listen_for_master(char*& addr) {
     bool master_announced = false;
     
     while (!master_announced) {
-        for (int i=0; i!=BUFFER_SIZE; i++) {
+        for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
             if (*CHLG_BUFFER[i] == '\0') {
                 break;
             }
@@ -1086,7 +1086,7 @@ int Network::get_number_of_devices() {
 }
 
 int Network::get_buffer_size() {
-    return BUFFER_SIZE;
+    return MSG_BUFFER_SIZE;
 }
 
 int Network::get_message_size() {

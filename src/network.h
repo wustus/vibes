@@ -51,7 +51,7 @@ private:
     };
     
     #define NTP_PACKET_SIZE 24
-    #define BUFFER_SIZE 128
+    #define MSG_BUFFER_SIZE 128
     #define MESSAGE_SIZE 512
     
     const char* ROUTER_ADDR = "192.168.2.1";

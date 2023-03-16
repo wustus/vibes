@@ -122,7 +122,7 @@ void SynchronizationHandler::determine_master() {
     }
     
     if (is_master) {
-        network.announce_master();g
+        network.announce_master();
         std::cout << "Starting NTP Server" << std::endl;
         network.start_ntp_server(start_time);
     }
