@@ -93,14 +93,18 @@ void SynchronizationHandler::determine_master() {
         game_status[i][0] = '\0';
     }
     
-    while (!is_master | ttt.is_won) {
+    bool next_round = true;
+    
+    while (next_round) {
         char* challenger = network.find_challenger(game_status);
         std::cout << "Found Challenger: " << challenger << std::endl;
         
         play(challenger);
         delete[] challenger;
         
-        if (ttt.is_won) {
+        next_round = ttt.is_won;
+        
+        if (next_round) {
             int c = 0;
             for (int i=0; i!=16; i++) {
                 if (*game_status[i] != '\0') {
@@ -109,7 +113,7 @@ void SynchronizationHandler::determine_master() {
                 }
                 break;
             }
-            if (c == 2) {
+            if (c == 1) {
                 is_master = true;
                 break;
             }
