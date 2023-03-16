@@ -74,6 +74,7 @@ void SynchronizationHandler::play(char* challenger) {
         std::cout << " | Draw.           |" << std::endl;
         std::cout << " -------------------" << std::endl;
         play(challenger);
+        return;
     } else {
         std::cout << " | Lost.           |" << std::endl;
         std::cout << " -------------------" << std::endl;
