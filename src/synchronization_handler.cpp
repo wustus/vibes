@@ -70,11 +70,8 @@ void SynchronizationHandler::play(char* challenger) {
         std::cout << " -------------------" << std::endl;
     }
     
-    is_master = ttt.is_won;
-    
-    if (!is_master) {
-        ntp_server = new char[INET_ADDRSTRLEN];
-        std::memcpy(ntp_server, challenger, INET_ADDRSTRLEN);
+    if (ttt.is_won) {
+        network.announce_result(challenger, "WIN");
     }
 }
 
@@ -87,14 +84,37 @@ void SynchronizationHandler::reset_game() {
 
 void SynchronizationHandler::determine_master() {
     
-    char** game_status;
+    network.start_challenge_listener();
     
-    char* challenger = network.find_challenger(game_status);
-    std::cout << "Found Challenger: " << challenger << std::endl;
+    char** game_status = new char*[16];
     
-    play(challenger);
+    for (int i=0; i!=16; i++) {
+        game_status[i] = new char[128];
+        game_status[i][0] = '\0';
+    }
     
-    delete[] challenger;
+    while (!is_master | ttt.is_won) {
+        char* challenger = network.find_challenger(game_status);
+        std::cout << "Found Challenger: " << challenger << std::endl;
+        
+        play(challenger);
+        delete[] challenger;
+        
+        if (ttt.is_won) {
+            int c = 0;
+            for (int i=0; i!=16; i++) {
+                if (*game_status[i] != '\0') {
+                    c++;
+                    continue;
+                }
+                break;
+            }
+            if (c == 2) {
+                is_master = true;
+                break;
+            }
+        }
+    }
     
     if (is_master) {
         std::cout << "Starting NTP Server" << std::endl;

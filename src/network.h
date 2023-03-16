@@ -85,8 +85,10 @@ private:
     NetworkConfig net_config;
     
     std::thread ack_thread;
+    std::thread chlg_thread;
     std::thread ntp_thread;
     bool ack_thread_active = false;
+    bool chlg_thread_active = false;
     bool ntp_thread_active = false;
     
     int create_udp_socket(int);
@@ -101,23 +103,26 @@ private:
     void receive_messages(int sckt, bool& receiving, char**& buffer, int& counter);
 
     bool challenge_handler(char*& challenger, bool& found_challenger);
+    void wait_for_challenge(char*& challenger);
     void game_status_listener(char**& game_status, bool& listening);
     void listen_for_ready(char* addr, bool& is_opponent_ready);
 
     void ntp_server(uint32_t& start_time);
-    NTPPacket ntp_listener();
+    NTPPacket ntp_listener(bool* received);
 public:
     Network(int);
     ~Network();
     
     void set_local_addr();
     void discover_devices();
+    void start_challenge_listener();
     char* find_challenger(char** game_status);
     void wait_until_ready(char* addr);
     void start_game(char* addr);
     short receive_move();
     void make_move(short m);
     void end_game();
+    void announce_result(char* addr, const char* result);
     
     void start_ntp_server(uint32_t& start_time);
     void stop_ntp_server();
