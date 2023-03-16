@@ -604,6 +604,35 @@ char* Network::find_challenger(char** game_status) {
     
     char* challenger = nullptr;
     
+    char** losers = new char*[NUMBER_OF_DEVICES-1];
+    for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
+        losers[i] = new char[INET_ADDRSTRLEN];
+        *losers[i] = '\0';
+    }
+    
+    for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
+        if (*CHLG_BUFFER[i] == '\0') {
+            break;
+        }
+        
+        char* addr;
+        char* loser_addr;
+        char* tmp;
+        char* msg;
+        
+        split_buffer_message(addr, tmp, CHLG_BUFFER[i]);
+        
+        split_buffer_message(loser_addr, msg, tmp);
+        
+        if (std::strncmp(msg, "WIN", 3) == 0) {
+            std::memmove(losers, loser_addr, INET_ADDRSTRLEN);
+        }
+        
+        delete[] addr;
+        delete[] tmp;
+        delete[] msg;
+    }
+    
     std::thread handler_thread([this, &challenger, &found_challenger, &waiting_for_challenge]() { waiting_for_challenge = !challenge_handler(challenger, found_challenger); });
     
     std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 300));
@@ -615,6 +644,22 @@ char* Network::find_challenger(char** game_status) {
         
         if (challenger == nullptr) {
             char* chlg_addr = net_config.devices[current_addr];
+            
+            for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
+                if (*losers[i] == '\0') {
+                    break;
+                }
+                if (std::strncmp(chlg_addr, losers[i], INET_ADDRSTRLEN) == 0) {
+                    current_addr = ++current_addr % (NUMBER_OF_DEVICES-1);
+                    challenger = nullptr;
+                    break;
+                }
+            }
+            
+            if (challenger == nullptr) {
+                continue;
+            }
+            
             if (send_message(chlg_sckt, chlg_addr, CHLG_PORT, "CHLG")) {
                 challenger = new char[INET_ADDRSTRLEN];
                 std::memcpy(challenger, chlg_addr, INET_ADDRSTRLEN);

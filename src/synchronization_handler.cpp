@@ -81,7 +81,7 @@ void SynchronizationHandler::play(char* challenger) {
     
     if (ttt.is_won) {
         network.announce_result(challenger, "WIN", game_status);
-    }
+    } 
 }
 
 void SynchronizationHandler::reset_game() {
