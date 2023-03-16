@@ -18,6 +18,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <deque>
 
 #include <sys/socket.h>
 #include <netinet/ip.h>
@@ -26,6 +27,13 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+struct Message {
+    int sckt;
+    char* addr;
+    int port;
+    char* msg;
+    int timeout;
+};
 
 struct NTPPacket {
     bool time_request;
@@ -36,6 +44,69 @@ struct NTPPacket {
     uint32_t res_recv_time;
     uint32_t start_time;
 };
+
+/*
+ 
+ #include <condition_variable>
+ #include <functional>
+ #include <iostream>
+ #include <list>
+ #include <mutex>
+ #include <thread>
+ #include <vector>
+
+ class ThreadPool {
+ public:
+     ThreadPool(size_t num_threads) {
+         for (size_t i = 0; i < num_threads; ++i) {
+             threads.emplace_back([this] {
+                 while (true) {
+                     std::function<void()> task;
+                     {
+                         std::unique_lock<std::mutex> lock(mutex);
+                         condition.wait(lock, [this] { return !tasks.empty() || stop; });
+                         if (stop) {
+                             break;
+                         }
+                         task = std::move(tasks.front());
+                         tasks.pop_front();
+                     }
+                     task();
+                 }
+             });
+         }
+     }
+
+     ~ThreadPool() {
+         {
+             std::unique_lock<std::mutex> lock(mutex);
+             stop = true;
+         }
+         condition.notify_all();
+         for (std::thread& t : threads) {
+             t.join();
+         }
+     }
+
+     void enqueue_task(const std::function<void()>& task) {
+         {
+             std::unique_lock<std::mutex> lock(mutex);
+             tasks.push_back(task);
+         }
+         condition.notify_one();
+     }
+
+ private:
+     std::vector<std::thread> threads;
+     std::list<std::function<void()>> tasks;
+     std::mutex mutex;
+     std::condition_variable condition;
+     bool stop = false;
+ };
+
+ 
+ 
+ */
 
 class Network {
 private:
@@ -73,6 +144,8 @@ private:
     
     int NUMBER_OF_DEVICES;
     
+    std::deque<Message> message_buffer;
+    
     char** RECEIVING_BUFFER;
     char** ACK_BUFFER;
     char** CHLG_BUFFER;
@@ -90,6 +163,8 @@ private:
     std::thread ack_thread;
     std::thread chlg_thread;
     std::thread ntp_thread;
+    
+    bool transmission_thread_active = false;
     bool ack_thread_active = false;
     bool chlg_thread_active = false;
     bool ntp_thread_active = false;
@@ -100,8 +175,10 @@ private:
     void flush_buffer(char**& buffer, int& counter, size_t msg_size);
     uint16_t checksum(char* data);
     void ack_listener();
+    void ack_handler(Message msg);
     bool listen_for_ack(const char* addr, char* msg);
     void send_ack(const char* addr, const char* msg);
+    void transmission_handler();
     bool send_message(int sckt, const char* addr, int port, const char* msg, short timeout);
     void receive_messages(int sckt, bool& receiving, char**& buffer, int& counter);
 

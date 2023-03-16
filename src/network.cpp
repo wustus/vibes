@@ -259,6 +259,20 @@ void Network::ack_listener() {
     }
 }
 
+void Network::ack_handler(Message msg) {
+    
+    char* addr = msg.addr;
+    char* message = msg.msg;
+    
+    if (!listen_for_ack(addr, message)) {
+        int sckt = msg.sckt;
+        int port = msg.port;
+        int timeout = msg.timeout;
+        
+        send_message(sckt, addr, port, message, timeout-1);
+    }
+}
+
 bool Network::listen_for_ack(const char* addr, char* msg) {
     
     std::chrono::duration<double> duration{1.5};
@@ -327,29 +341,53 @@ void Network::send_ack(const char* addr, const char* msg) {
     delete[] ack_msg;
 }
 
-bool Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=3) {
+void Network::transmission_handler() {
     
-    struct sockaddr_in dest_addr;
-    memset(&dest_addr, 0, sizeof(dest_addr));
-    
-    dest_addr.sin_family = AF_INET;
-    dest_addr.sin_addr.s_addr = inet_addr(addr);
-    dest_addr.sin_port = htons(port);
-    
-    if (sendto(sckt, (void*)(intptr_t) msg, std::strlen(msg), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
-        std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
-        return false;
-    }
-    
-    if (!listen_for_ack(addr, (char*) msg)) {
-        if (timeout == 0) {
+    while (transmission_thread_active) {
+        
+        if (message_buffer.size() == 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            continue;
+        }
+        
+        Message msg = message_buffer.front();
+        message_buffer.pop_front();
+        
+        int sckt = msg.sckt;
+        char* addr  = msg.addr;
+        int port = msg.port;
+        char* message = msg.msg;
+        int timeout = msg.timeout;
+        
+        struct sockaddr_in dest_addr;
+        memset(&dest_addr, 0, sizeof(dest_addr));
+        
+        dest_addr.sin_family = AF_INET;
+        dest_addr.sin_addr.s_addr = inet_addr(addr);
+        dest_addr.sin_port = htons(port);
+        
+        if (sendto(sckt, (void*)(intptr_t) message, std::strlen(message), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
+            std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
             return false;
         }
         
-        return send_message(sckt, addr, port, msg, timeout-1);
+        
+        /*
+        old implementation
+        if (!listen_for_ack(addr, (char*) message)) {
+            if (timeout == 0) {
+                return;
+            }
+            
+            send_message(sckt, addr, port, message, timeout-1);
+        }
+        */
     }
+}
+
+bool Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=3) {
     
-    return true;
+    
 }
 
 void Network::receive_messages(int sckt, bool& receiving, char**& buffer, int& counter) {
