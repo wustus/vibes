@@ -973,6 +973,10 @@ NTPPacket Network::ntp_listener(bool* received=nullptr) {
         }
         
         packet.res_recv_time = htonl((uint32_t) time(NULL) + 2208988800UL);
+        
+        if (received == nullptr) {
+            received = new bool;
+        }
         *received = true;
     }
 
@@ -1002,6 +1006,7 @@ NTPPacket Network::request_time(char* addr) {
         packet.req_trans_time = htonl((uint32_t) time(NULL) + 2208988800UL);
         if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
             std::cerr << "Error Requesting NTP: " << std::strerror(errno) << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
     }
