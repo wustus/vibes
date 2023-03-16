@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 #include <sys/socket.h>
 #include <netinet/ip.h>

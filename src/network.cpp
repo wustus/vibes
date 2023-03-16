@@ -387,7 +387,8 @@ void Network::discover_devices() {
     std::vector<char*> discovered_devices;
     std::vector<std::thread> sending_threads;
     std::vector<int> finished_threads;
-    int t = 0;
+    std::mutex thread_list_mutex;
+    std::atomic<int> t(0);
     
     char* local_addr = net_config.address;
     
@@ -406,9 +407,11 @@ void Network::discover_devices() {
     
     // discovery phase
     while (discovered_devices.size() != NUMBER_OF_DEVICES-1) {
-        sending_threads.emplace_back([this, message, &finished_threads, t]() {
+        sending_threads.emplace_back([this, message, &finished_threads, &thread_list_mutex, &t]() {
             send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message);
-            finished_threads.push_back(t);
+            thread_list_mutex.lock();
+            finished_threads.push_back(t.load());
+            thread_list_mutex.unlock();
         });
         t++;
         
@@ -426,9 +429,11 @@ void Network::discover_devices() {
                     }) == discovered_devices.end()) {
                         discovered_devices.push_back(addr);
                     } else {
-                        sending_threads.emplace_back([this, addr, &finished_threads, t]() {
+                        sending_threads.emplace_back([this, addr, &finished_threads, &thread_list_mutex, &t]() {
                             send_message(disc_sckt, addr, DISC_PORT, "BUDDY");
-                            finished_threads.push_back(t);
+                            thread_list_mutex.lock();
+                            finished_threads.push_back(t.load());
+                            thread_list_mutex.unlock();
                         });
                         t++;
                     }
@@ -458,11 +463,13 @@ void Network::discover_devices() {
         
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
         
+        thread_list_mutex.lock();
         for (int i=0; i!=finished_threads.size(); i++) {
             if (sending_threads[i].joinable()) {
                 sending_threads[i].join();
             }
         }
+        thread_list_mutex.unlock();
     }
     
     std::cout << "Finishd Searching." << std::endl;
