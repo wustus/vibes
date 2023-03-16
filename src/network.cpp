@@ -852,7 +852,6 @@ void Network::announce_result(char* addr, const char* result, char**& game_statu
     
     for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
         char* dest_addr = devices[i];
-        std::cout << dest_addr << std::endl;
         if (std::strncmp(addr, dest_addr, INET_ADDRSTRLEN) != 0) {
             send_message(chlg_sckt, dest_addr, CHLG_PORT, msg);
         }
@@ -878,7 +877,6 @@ void Network::announce_master() {
     
     for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
         char* dest_addr = devices[i];
-        std::cout << dest_addr << std::endl;
         send_message(chlg_sckt, dest_addr, CHLG_PORT, msg);
     }
 }
@@ -898,13 +896,14 @@ void Network::listen_for_master(char*& addr) {
             
             split_buffer_message(recv_addr, msg, CHLG_BUFFER[i]);
             
+            std::cout << recv_addr << " " << msg << std::endl;
+            
             if (std::strncmp(msg, "MASTER", 6) == 0) {
                 master_announced = true;
                 addr = new char[INET_ADDRSTRLEN];
                 std::memcpy(addr, recv_addr, INET_ADDRSTRLEN);
                 break;
             }
-            
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
