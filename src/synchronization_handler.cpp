@@ -9,9 +9,17 @@
 
 
 SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {
-    SynchronizationHandler::ntp_server = nullptr;
-    SynchronizationHandler::start_time = 0;
-    SynchronizationHandler::offset = 0;
+    
+    ntp_server = nullptr;
+    start_time = 0;
+    offset = 0;
+    
+    game_status = new char*[16];
+    
+    for (int i=0; i!=16; i++) {
+        game_status[i] = new char[128];
+        game_status[i][0] = '\0';
+    }
 }
 
 void SynchronizationHandler::play(char* challenger) {
@@ -71,7 +79,7 @@ void SynchronizationHandler::play(char* challenger) {
     }
     
     if (ttt.is_won) {
-        network.announce_result(challenger, "WIN");
+        network.announce_result(challenger, "WIN", game_status);
     }
 }
 
@@ -85,13 +93,6 @@ void SynchronizationHandler::reset_game() {
 void SynchronizationHandler::determine_master() {
     
     network.start_challenge_listener();
-    
-    char** game_status = new char*[16];
-    
-    for (int i=0; i!=16; i++) {
-        game_status[i] = new char[128];
-        game_status[i][0] = '\0';
-    }
     
     bool next_round = true;
     
@@ -121,6 +122,7 @@ void SynchronizationHandler::determine_master() {
     }
     
     if (is_master) {
+        network.announce_master();g
         std::cout << "Starting NTP Server" << std::endl;
         network.start_ntp_server(start_time);
     }

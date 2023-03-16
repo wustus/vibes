@@ -51,6 +51,8 @@ private:
     };
     
     #define NTP_PACKET_SIZE 24
+    #define BUFFER_SIZE 128
+    #define MESSAGE_SIZE 512
     
     const char* ROUTER_ADDR = "192.168.2.1";
     const char* SSDP_ADDR = "239.255.255.250";
@@ -69,15 +71,15 @@ private:
     int ntp_sckt;
     
     int NUMBER_OF_DEVICES;
-    const int BUFFER_SIZE = 128;
-    const int MESSAGE_SIZE = 512;
     
     char** RECEIVING_BUFFER;
     char** ACK_BUFFER;
+    char** CHLG_BUFFER;
     char** GAME_BUFFER;
     
     int current_index = 0;
     int current_ack_index = 0;
+    int current_chlg_index = 0;
     int current_game_index = 0;
     
     std::mutex buffer_mutex;
@@ -94,7 +96,7 @@ private:
     int create_udp_socket(int);
     void split_buffer_message(char*& addr, char*& msg, char* buffer_msg);
     void append_to_buffer(char* addr, char* message, char**& buffer, int& counter);
-    void flush_buffer(char**& buffer, int& counter);
+    void flush_buffer(char**& buffer, int& counter, size_t msg_size);
     uint16_t checksum(char* data);
     void ack_listener();
     bool listen_for_ack(const char* addr, char* msg);
@@ -122,8 +124,11 @@ public:
     short receive_move();
     void make_move(short m);
     void end_game();
-    void announce_result(char* addr, const char* result);
+    void announce_result(char* addr, const char* result, char**& game_status);
+    void announce_master();
+    void flush_chlg_buffer();
     
+    void listen_for_master(char*& addr);
     void start_ntp_server(uint32_t& start_time);
     void stop_ntp_server();
     NTPPacket request_time(char* addr);

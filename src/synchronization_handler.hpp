@@ -90,6 +90,8 @@ private:
     
     tic_tac_toe ttt;
     
+    char** game_status;
+    
     std::thread handler_thread;
     
     bool is_master;
