@@ -638,7 +638,6 @@ char* Network::find_challenger(char** game_status) {
     if (waiting_for_challenge) {
         std::cout << "Waiting for Challenge..." << std::endl;
         challenger = nullptr;
-        found_challenger = false;
         wait_for_challenge(challenger);
     }
     
@@ -876,7 +875,9 @@ void Network::announce_master() {
     
     for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
         char* addr = devices[i];
-        send_message(chlg_sckt, addr, CHLG_PORT, "MASTER");
+        while (!send_message(chlg_sckt, addr, CHLG_PORT, "MASTER")) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
     }
     
     std::cout << "Master: " << net_config.address << std::endl;

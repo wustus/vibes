@@ -9,7 +9,8 @@
 
 
 SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {
-    
+
+    is_master = false;
     ntp_server = nullptr;
     start_time = 0;
     offset = 0;
@@ -118,6 +119,7 @@ void SynchronizationHandler::determine_master() {
                 is_master = true;
                 break;
             }
+            network.flush_chlg_buffer();
         }
     }
     
