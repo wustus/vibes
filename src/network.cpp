@@ -517,6 +517,7 @@ bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
                         found_challenger = true;
                         challenger = new char[INET_ADDRSTRLEN];
                         std::memcpy(challenger, addr, INET_ADDRSTRLEN);
+                        break;
                     } else if (std::strcmp(msg, "DEC") == 0) {
                         // challenge has been declined, carry on
                         challenger = nullptr;
@@ -543,6 +544,7 @@ bool Network::challenge_handler(char*& challenger, bool& found_challenger) {
                         found_challenger = true;
                         challenger = new char[INET_ADDRSTRLEN];
                         std::memcpy(challenger, addr, INET_ADDRSTRLEN);
+                        break;
                     }
                 }
             }
@@ -873,6 +875,8 @@ void Network::announce_master() {
         char* addr = devices[i];
         send_message(chlg_sckt, addr, CHLG_PORT, "MASTER");
     }
+    
+    std::cout << "Master: " << net_config.address << std::endl;
 }
 
 void Network::listen_for_master(char*& addr) {

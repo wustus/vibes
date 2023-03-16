@@ -126,7 +126,9 @@ void SynchronizationHandler::determine_master() {
         std::cout << "Starting NTP Server" << std::endl;
         network.start_ntp_server(start_time);
     } else {
+        std::cout << "Wait Until NTP-Master is Determined..." << std::endl;
         network.listen_for_master(ntp_server);
+        std::cout << "NTP-Master: " << ntp_server << std::endl;
     }
 }
 
