@@ -253,17 +253,17 @@ void Network::ack_listener() {
     }
 }
 
-void Network::ack_handler(Message msg) {
+void Network::ack_handler(Message message) {
     
-    char* addr = msg.addr;
-    char* message = msg.msg;
+    char* addr = message.addr;
+    char* msg = message.msg;
+    int timeout = message.timeout;
     
-    if (!listen_for_ack(addr, message)) {
-        int sckt = msg.sckt;
-        int port = msg.port;
-        int timeout = msg.timeout;
+    if (!listen_for_ack(addr, msg) && timeout > 0) {
+        int sckt = message.sckt;
+        int port = message.port;
         
-        send_message(sckt, addr, port, message, timeout-1);
+        send_message(sckt, addr, port, msg, timeout-1);
     }
 }
 
@@ -344,14 +344,14 @@ void Network::transmission_handler() {
             continue;
         }
         
-        Message msg = message_buffer.front();
+        Message message = message_buffer.front();
         message_buffer.pop_front();
         
-        int sckt = msg.sckt;
-        char* addr  = msg.addr;
-        int port = msg.port;
-        char* message = msg.msg;
-        int timeout = msg.timeout;
+        int sckt = message.sckt;
+        char* addr  = message.addr;
+        int port = message.port;
+        char* msg = message.msg;
+        int timeout = message.timeout;
         
         struct sockaddr_in dest_addr;
         memset(&dest_addr, 0, sizeof(dest_addr));
@@ -360,12 +360,12 @@ void Network::transmission_handler() {
         dest_addr.sin_addr.s_addr = inet_addr(addr);
         dest_addr.sin_port = htons(port);
         
-        if (sendto(sckt, (void*)(intptr_t) message, std::strlen(message), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
+        if (sendto(sckt, (void*)(intptr_t) msg, std::strlen(msg), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
             std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
             return;
         }
         
-        thread_pool.enqueue_task([this, msg]() { ack_handler(msg); });
+        thread_pool.enqueue_task([this, message]() { ack_handler(message); });
         
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
