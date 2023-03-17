@@ -126,6 +126,10 @@ void SynchronizationHandler::determine_master() {
         }
     }
     
+    /*
+     TODO: fix not received move
+     */
+    
     if (is_master) {
         network.announce_master();
         std::cout << "Starting NTP Server" << std::endl;

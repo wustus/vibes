@@ -220,6 +220,7 @@ void Network::append_to_buffer(char* addr, char* message, char**& buffer, int& c
 
 void Network::flush_buffer(char**& buffer, int& counter) {
     
+    std::lock_guard<std::mutex> lock(buffer_mutex);
     for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
         delete[] buffer[i];
         buffer[i] = new char[MESSAGE_SIZE];
@@ -620,6 +621,7 @@ bool Network::challenge_handler(char**& losers, char*& challenger, bool& found_c
                     } else if (std::strcmp(msg, "CHLG") == 0) {
                         // pending challenge and challenge received from same device
                         found_challenger = true;
+                        break;
                     }
                 } else {
                     if (std::strncmp(msg, "CHLG", 4) == 0) {
@@ -733,6 +735,11 @@ void Network::update_losers(char**& game_status, char**& losers) {
 
 char* Network::find_challenger(char**& game_status) {
     
+    /*
+     TODO: Fix double acceptance (one device should always wait for challenge if 3)
+     */
+    
+    
     bool found_challenger = false;
     bool waiting_for_challenge = false;
     
@@ -749,7 +756,7 @@ char* Network::find_challenger(char**& game_status) {
     std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 300));
     
     int current_addr = 0;
-    int pending_timeout = 5;
+    int pending_timeout = 10;
     
     while (!found_challenger && !waiting_for_challenge) {
         
@@ -783,18 +790,44 @@ char* Network::find_challenger(char**& game_status) {
         
         if (pending_timeout == 0) {
             current_addr = ++current_addr % (NUMBER_OF_DEVICES-1);
-            pending_timeout = 5;
+            pending_timeout = 10;
             challenger = nullptr;
+            flush_buffer(CHLG_BUFFER, current_chlg_index);
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 500));
     }
     
     handler_thread.join();
     
+    if (found_challenger) {
+        for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
+            if (*CHLG_BUFFER[i] == '\0') {
+                break;
+            }
+            
+            char* buffer_msg;
+            {
+                std::lock_guard<std::mutex> lock(buffer_mutex);
+                std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            }
+            
+            char* addr;
+            char* msg;
+            
+            split_buffer_message(addr, msg, buffer_msg);
+            
+            if (std::strncmp(addr, challenger, INET_ADDRSTRLEN) != 0) {
+                send_message(chlg_sckt, addr, CHLG_PORT, "DEC");
+            }
+        }
+        flush_buffer(CHLG_BUFFER, current_chlg_index);
+    }
+    
     if (waiting_for_challenge) {
         std::cout << "Waiting for Challenge..." << std::endl;
         challenger = nullptr;
+        flush_buffer(CHLG_BUFFER, current_chlg_index);
         wait_for_challenge(challenger);
     }
     
