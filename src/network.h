@@ -271,6 +271,7 @@ private:
 
     NetworkConfig net_config;
     
+    std::thread transmission_thread;
     std::thread ack_thread;
     std::thread chlg_thread;
     std::thread ntp_thread;

@@ -47,12 +47,16 @@ Network::Network(int NUMBER_OF_DEVICES) : net_config(NUMBER_OF_DEVICES), thread_
         exit(1);
     }
 
+    transmission_thread_active = true;
+    transmission_thread = std::thread(&Network::transmission_thread, this);
+    
     ack_thread_active = true;
     ack_thread = std::thread(&Network::ack_listener, this);
 }
 
 Network::~Network() {
     
+    transmission_thread_active = false;
     ack_thread_active = false;
     chlg_thread_active = false;
     ntp_thread_active = false;
@@ -63,6 +67,10 @@ Network::~Network() {
     close(chlg_sckt);
     close(game_sckt);
     close(ntp_sckt);
+    
+    if (transmission_thread.joinable()) {
+        transmission_thread.join();
+    }
     
     if (ack_thread.joinable()) {
         ack_thread.join();
@@ -87,6 +95,8 @@ Network::~Network() {
     delete[] ACK_BUFFER;
     delete[] CHLG_BUFFER;
     delete[] GAME_BUFFER;
+    
+    message_buffer.clear();
 }
 
 int Network::create_udp_socket(int port) {
