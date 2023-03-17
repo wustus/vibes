@@ -177,6 +177,7 @@ void Network::set_local_addr() {
 
 void Network::split_buffer_message(char *&val1, char *&val2, char* msg) {
     
+    std::lock_guard<std::mutex> lock(buffer_mutex);
     std::string buffer = std::string(msg);
     int delimiter_index = static_cast<int>(buffer.find_first_of("::"));
     
@@ -258,7 +259,6 @@ void Network::ack_listener() {
             }
             
             delete[] recv_buffer;
-            
             continue;
         }
         
@@ -306,12 +306,15 @@ bool Network::listen_for_ack(char* addr, char* msg) {
             continue;
         }
         
-        char* buffer_msg = ACK_BUFFER[c];
-        
+        char* buffer_msg = new char[MESSAGE_SIZE];
+        std::memcpy(buffer_msg, ACK_BUFFER[c], MESSAGE_SIZE);
+         
         char* recv_addr;
         char* recv_msg;
         
         split_buffer_message(recv_addr, recv_msg, buffer_msg);
+        
+        delete[] buffer_msg;
         
         if (std::strcmp(recv_addr, addr) == 0) {
             uint16_t chksum = static_cast<uint16_t>(strtoul(recv_msg, nullptr, 10));
@@ -458,10 +461,15 @@ void Network::discover_devices() {
         for (int i=0; i!=max_index; i++) {
             if (*RECEIVING_BUFFER[i] != '\0') {
                 
+                char* buffer_msg = new char[MESSAGE_SIZE];
+                std::memcpy(buffer_msg, RECEIVING_BUFFER[i], MESSAGE_SIZE);
+                
                 char* addr;
                 char* msg;
                 
-                split_buffer_message(addr, msg, RECEIVING_BUFFER[i]);
+                split_buffer_message(addr, msg, buffer_msg);
+                
+                delete[] buffer_msg;
                 
                 if (addr != std::string(SSDP_ADDR) && addr != std::string(local_addr) && addr != std::string(ROUTER_ADDR)) {
                     if (std::strncmp(msg, "BUDDY", 5) == 0 && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
@@ -470,30 +478,39 @@ void Network::discover_devices() {
                         discovered_devices.push_back(addr);
                     } else {
                         send_message(disc_sckt, addr, DISC_PORT, "BUDDY");
+                        delete[] addr;
                     }
+                } else {
+                    delete[] addr;
                 }
                 
-                delete[] addr;
                 delete[] msg;
             }
             
             if (*ACK_BUFFER[i] != '\0') {
                 
+                char* buffer_msg = new char[MESSAGE_SIZE];
+                std::memcpy(buffer_msg, ACK_BUFFER[i], MESSAGE_SIZE);
+                
                 char* addr;
                 char* msg;
                 
-                split_buffer_message(addr, msg, ACK_BUFFER[i]);
+                split_buffer_message(addr, msg, buffer_msg);
+                
+                delete[] buffer_msg;
+                delete[] msg;
+                
                 
                 if (addr != std::string(SSDP_ADDR) && addr != std::string(local_addr) && addr != std::string(ROUTER_ADDR)) {
                     if (std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
                         return std::string(addr) == std::string(c);
                     }) == discovered_devices.end()) {
                         discovered_devices.push_back(addr);
+                        continue;
                     }
                 }
                 
                 delete[] addr;
-                delete[] msg;
             }
         }
         
@@ -535,10 +552,15 @@ bool Network::challenge_handler(char**& losers, char*& challenger, bool& found_c
                 break;
             }
             
+            char* buffer_msg = new char[MESSAGE_SIZE];
+            std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            
             char* addr;
             char* msg;
             
-            split_buffer_message(addr, msg, CHLG_BUFFER[i]);
+            split_buffer_message(addr, msg, buffer_msg);
+            
+            delete[] buffer_msg;
             
             bool is_loser = false;
             for (int j=0; j!=NUMBER_OF_DEVICES-1; j++) {
@@ -620,10 +642,15 @@ void Network::wait_for_challenge(char*& challenger) {
                 break;
             }
             
+            char* buffer_msg = new char[MESSAGE_SIZE];
+            std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            
             char* addr;
             char* msg;
             
-            split_buffer_message(addr, msg, CHLG_BUFFER[i]);
+            split_buffer_message(addr, msg, buffer_msg);
+            
+            delete[] buffer_msg;
             
             if (std::strncmp(msg, "CHLG", 4) == 0) {
                 send_message(chlg_sckt, addr, CHLG_PORT, "ACC");
@@ -758,6 +785,9 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
             if (*CHLG_BUFFER[i] == '\0') {
                 continue;
             }
+            
+            char* buffer_msg = new char[MESSAGE_SIZE];
+            std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
                 
             char* src_addr;
             char* temp_msg;
@@ -765,7 +795,9 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
             char* msg;
             
             // get source addr (the one that has won or lost)
-            split_buffer_message(src_addr, temp_msg, CHLG_BUFFER[i]);
+            split_buffer_message(src_addr, temp_msg, buffer_msg);
+            
+            delete[] buffer_msg;
             
             // get opponent address
             split_buffer_message(ref_addr, msg, temp_msg);
@@ -807,10 +839,15 @@ void Network::listen_for_ready(char* addr, bool& listening) {
                 break;
             }
             
+            char* buffer_msg = new char[MESSAGE_SIZE];
+            std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            
             char* recv_addr;
             char* msg;
             
-            split_buffer_message(recv_addr, msg, CHLG_BUFFER[i]);
+            split_buffer_message(recv_addr, msg, buffer_msg);
+            
+            delete[] buffer_msg;
             
             if (std::strcmp(recv_addr, addr) == 0 && std::strncmp(msg, "READY", 5) == 0) {
                 listening = false;
@@ -874,10 +911,15 @@ short Network::receive_move() {
                 break;
             }
             
+            char* buffer_msg = new char[MESSAGE_SIZE];
+            std::memcpy(buffer_msg, GAME_BUFFER[i], MESSAGE_SIZE);
+            
             char* addr;
             char* msg;
             
-            split_buffer_message(addr, msg, GAME_BUFFER[i]);
+            split_buffer_message(addr, msg, buffer_msg);
+            
+            delete[] buffer_msg;
             
             if (std::strcmp(addr, game.opponent_addr) == 0) {
                 if (std::strncmp("MOVE", msg, 4) == 0) {
@@ -997,10 +1039,15 @@ void Network::listen_for_master(char*& addr) {
                 break;
             }
             
+            char* buffer_msg = new char[MESSAGE_SIZE];
+            std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            
             char* recv_addr;
             char* msg;
             
-            split_buffer_message(recv_addr, msg, CHLG_BUFFER[i]);
+            split_buffer_message(recv_addr, msg, buffer_msg);
+            
+            delete[] buffer_msg;
             
             if (std::strncmp(msg, "MASTER", 6) == 0) {
                 master_announced = true;
