@@ -471,9 +471,9 @@ void Network::discover_devices() {
                 
                 delete[] buffer_msg;
                 
-                if (addr != std::string(SSDP_ADDR) && addr != std::string(local_addr) && addr != std::string(ROUTER_ADDR)) {
+                if (std::strncmp(addr, SSDP_ADDR, INET_ADDRSTRLEN) != 0 && std::strncmp(addr, local_addr, INET_ADDRSTRLEN) != 0 && std::strncmp(addr, ROUTER_ADDR, INET_ADDRSTRLEN) != 0) {
                     if (std::strncmp(msg, "BUDDY", 5) == 0 && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
-                        return std::string(addr) == std::string(c);
+                        return std::strcmp(addr, c) == 0;
                     }) == discovered_devices.end()) {
                         discovered_devices.push_back(addr);
                     } else {
@@ -500,10 +500,9 @@ void Network::discover_devices() {
                 delete[] buffer_msg;
                 delete[] msg;
                 
-                
-                if (addr != std::string(SSDP_ADDR) && addr != std::string(local_addr) && addr != std::string(ROUTER_ADDR)) {
+                if (std::strncmp(addr, SSDP_ADDR, INET_ADDRSTRLEN) != 0 && std::strncmp(addr, local_addr, INET_ADDRSTRLEN) != 0 && std::strncmp(addr, ROUTER_ADDR, INET_ADDRSTRLEN) != 0) {
                     if (std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
-                        return std::string(addr) == std::string(c);
+                        return std::strcmp(addr, c);
                     }) == discovered_devices.end()) {
                         discovered_devices.push_back(addr);
                         continue;
