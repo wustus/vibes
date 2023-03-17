@@ -480,7 +480,7 @@ void Network::discover_devices() {
                 
                 if (std::strncmp(addr, SSDP_ADDR, INET_ADDRSTRLEN) != 0 && std::strncmp(addr, local_addr, INET_ADDRSTRLEN) != 0 && std::strncmp(addr, ROUTER_ADDR, INET_ADDRSTRLEN) != 0) {
                     if (std::strncmp(msg, "BUDDY", 5) == 0 && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
-                        return std::strcmp(addr, c) == 0;
+                        return std::strncmp(addr, c, INET_ADDRSTRLEN) == 0;
                     }) == discovered_devices.end()) {
                         discovered_devices.push_back(addr);
                     } else {
@@ -512,7 +512,7 @@ void Network::discover_devices() {
                 
                 if (std::strncmp(addr, SSDP_ADDR, INET_ADDRSTRLEN) != 0 && std::strncmp(addr, local_addr, INET_ADDRSTRLEN) != 0 && std::strncmp(addr, ROUTER_ADDR, INET_ADDRSTRLEN) != 0) {
                     if (std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
-                        return std::strcmp(addr, c);
+                        return std::strncmp(addr, c, INET_ADDRSTRLEN) == 0;
                     }) == discovered_devices.end()) {
                         discovered_devices.push_back(addr);
                         continue;
@@ -817,7 +817,7 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
             
             // get source addr (the one that has won or lost)
             split_buffer_message(src_addr, temp_msg, buffer_msg);
-            
+             
             delete[] buffer_msg;
             
             // get opponent address
