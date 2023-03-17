@@ -362,7 +362,7 @@ void Network::transmission_handler() {
         
         if (sendto(sckt, (void*)(intptr_t) message, std::strlen(message), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
             std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
-            return false;
+            return;
         }
         
         thread_pool.enqueue_task([this, msg]() { ack_handler(msg); });
@@ -371,7 +371,7 @@ void Network::transmission_handler() {
     }
 }
 
-bool Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=3) {
+void Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=3) {
     
     Message message(sckt, (char*) addr, port, (char*) msg, timeout);
     
@@ -561,12 +561,11 @@ bool Network::challenge_handler(char**& losers, char*& challenger, bool& found_c
                 }
             } else {
                 if (std::strcmp(msg, "CHLG") == 0) {
-                    if (send_message(chlg_sckt, addr, CHLG_PORT, "ACC")) {
-                        found_challenger = true;
-                        challenger = new char[INET_ADDRSTRLEN];
-                        std::memcpy(challenger, addr, INET_ADDRSTRLEN);
-                        break;
-                    }
+                    send_message(chlg_sckt, addr, CHLG_PORT, "ACC");
+                    found_challenger = true;
+                    challenger = new char[INET_ADDRSTRLEN];
+                    std::memcpy(challenger, addr, INET_ADDRSTRLEN);
+                    break;
                 }
             }
             
@@ -598,12 +597,11 @@ void Network::wait_for_challenge(char*& challenger) {
             split_buffer_message(addr, msg, CHLG_BUFFER[i]);
             
             if (std::strncmp(msg, "CHLG", 4) == 0) {
-                if (send_message(chlg_sckt, addr, CHLG_PORT, "ACC")) {
-                    challenger = new char[INET_ADDRSTRLEN];
-                    std::memcpy(challenger, addr, INET_ADDRSTRLEN);
-                    found_challenger = true;
-                    break;
-                }
+                send_message(chlg_sckt, addr, CHLG_PORT, "ACC");
+                challenger = new char[INET_ADDRSTRLEN];
+                std::memcpy(challenger, addr, INET_ADDRSTRLEN);
+                found_challenger = true;
+                break;
             }
             
             delete[] addr;
@@ -692,23 +690,20 @@ char* Network::find_challenger(char**& game_status) {
                 continue;
             }
             
-            if (send_message(chlg_sckt, chlg_addr, CHLG_PORT, "CHLG")) {
-                challenger = new char[INET_ADDRSTRLEN];
-                std::memcpy(challenger, chlg_addr, INET_ADDRSTRLEN);
-            } else {
-                pending_timeout = 0;
-            }
-        } else {
-            pending_timeout--;
+            send_message(chlg_sckt, chlg_addr, CHLG_PORT, "CHLG");
+            challenger = new char[INET_ADDRSTRLEN];
+            std::memcpy(challenger, chlg_addr, INET_ADDRSTRLEN);
         }
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        pending_timeout--;
         
         if (pending_timeout == 0) {
             current_addr = ++current_addr % (NUMBER_OF_DEVICES-1);
             pending_timeout = 5;
             challenger = nullptr;
         }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
     
     handler_thread.join();
@@ -805,7 +800,7 @@ void Network::wait_until_ready(char *addr) {
     
     std::thread ready_listener(&Network::listen_for_ready, this, addr, std::ref(listening));
     
-    while (!send_message(chlg_sckt, addr, CHLG_PORT, "READY")) {}
+    send_message(chlg_sckt, addr, CHLG_PORT, "READY");
     
     while (listening) {
         send_message(chlg_sckt, addr, CHLG_PORT, "READY");
@@ -895,9 +890,7 @@ void Network::make_move(short m) {
     char* msg = new char[5 + sizeof(short)];
     std::snprintf(msg, 5 + sizeof(short), "MOVE %hu", m);
     
-    while (!send_message(game_sckt, game.opponent_addr, GAME_PORT, msg)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
+    send_message(game_sckt, game.opponent_addr, GAME_PORT, msg);
     
     for (int i=0; i!=8; i++) {
         if (game.played_moves[i] == -1) {
@@ -955,9 +948,7 @@ void Network::announce_master() {
     
     for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
         char* addr = devices[i];
-        while (!send_message(chlg_sckt, addr, CHLG_PORT, "MASTER")) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        }
+        send_message(chlg_sckt, addr, CHLG_PORT, "MASTER");
     }
     
     std::cout << "Master: " << net_config.address << std::endl;

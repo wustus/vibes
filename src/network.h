@@ -153,7 +153,9 @@ private:
         
         NetworkConfig() : address(nullptr), devices(nullptr), number_of_devices(0) {}
         
-        NetworkConfig(size_t number_of_devices) : address(nullptr), number_of_devices(number_of_devices) {
+        NetworkConfig(size_t number_of_devices) : number_of_devices(number_of_devices) {
+            
+            address = new char[INET_ADDRSTRLEN];
             devices = new char*[number_of_devices-1];
             
             for (int i=0; i!=number_of_devices-1; i++) {
@@ -288,7 +290,7 @@ private:
     bool listen_for_ack(const char* addr, char* msg);
     void send_ack(const char* addr, const char* msg);
     void transmission_handler();
-    bool send_message(int sckt, const char* addr, int port, const char* msg, short timeout);
+    void send_message(int sckt, const char* addr, int port, const char* msg, short timeout);
     void receive_messages(int sckt, bool& receiving, char**& buffer, int& counter);
 
     void update_losers(char**& game_status, char**& losers);
