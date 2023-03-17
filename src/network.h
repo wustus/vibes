@@ -231,6 +231,7 @@ private:
             for (int i=0; i!=number_of_devices-1; i++) {
                 if (*devices[i] == '\0') {
                     std::memcpy(devices[i], device, INET_ADDRSTRLEN);
+                    break;
                 }
             }
         }
