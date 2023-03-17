@@ -13,8 +13,8 @@ Network::Network(int NUMBER_OF_DEVICES) : net_config(NUMBER_OF_DEVICES), thread_
     for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
         RECEIVING_BUFFER[i] = new char[MESSAGE_SIZE];
         ACK_BUFFER[i] = new char[MESSAGE_SIZE];
-        CHLG_BUFFER[i] = new char[128];
-        GAME_BUFFER[i] = new char[16];
+        CHLG_BUFFER[i] = new char[MESSAGE_SIZE];
+        GAME_BUFFER[i] = new char[MESSAGE_SIZE];
         
         
         RECEIVING_BUFFER[i][0] = '\0';
@@ -48,7 +48,7 @@ Network::Network(int NUMBER_OF_DEVICES) : net_config(NUMBER_OF_DEVICES), thread_
     }
 
     transmission_thread_active = true;
-    transmission_thread = std::thread(&Network::transmission_thread, this);
+    transmission_thread = std::thread(&Network::transmission_handler, this);
     
     ack_thread_active = true;
     ack_thread = std::thread(&Network::ack_listener, this);
@@ -206,15 +206,23 @@ void Network::append_to_buffer(char* addr, char* message, char**& buffer, int& c
     
     std::lock_guard<std::mutex> lock(buffer_mutex);
     
-    buffer[counter] = buffer_msg;
+    if (*buffer[counter] != '\0') {
+        delete[] buffer[counter];
+        buffer[counter] = new char[MESSAGE_SIZE];
+        
+    }
+    
+    std::memcpy(buffer[counter], buffer_msg, MESSAGE_SIZE);
     counter = ++counter % MSG_BUFFER_SIZE;
+    
+    delete[] buffer_msg;
 }
 
-void Network::flush_buffer(char**& buffer, int& counter, size_t msg_size=MESSAGE_SIZE) {
+void Network::flush_buffer(char**& buffer, int& counter) {
     
     for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
         delete[] buffer[i];
-        buffer[i] = new char[msg_size];
+        buffer[i] = new char[MESSAGE_SIZE];
     }
     
     counter = 0;
@@ -248,6 +256,9 @@ void Network::ack_listener() {
             if (errno != 0x23 && errno != 0xB) {
                 std::cerr << "Failed to receive ACK message: " << std::strerror(errno) << std::endl;
             }
+            
+            delete[] recv_buffer;
+            
             continue;
         }
         
@@ -277,7 +288,7 @@ void Network::ack_handler(Message message) {
     }
 }
 
-bool Network::listen_for_ack(const char* addr, char* msg) {
+bool Network::listen_for_ack(char* addr, char* msg) {
     
     std::chrono::duration<double> duration{1.5};
     
@@ -322,7 +333,7 @@ bool Network::listen_for_ack(const char* addr, char* msg) {
     return false;
 }
 
-void Network::send_ack(const char* addr, const char* msg) {
+void Network::send_ack(char* addr, char* msg) {
     
     struct sockaddr_in dest_addr;
     std::memset(&dest_addr, 0, sizeof(dest_addr));
@@ -354,6 +365,9 @@ void Network::transmission_handler() {
             continue;
         }
         
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        
+        std::lock_guard<std::mutex> lock(sender_mutex);
         Message message = message_buffer.front();
         message_buffer.pop_front();
         
@@ -361,7 +375,6 @@ void Network::transmission_handler() {
         char* addr  = message.addr;
         int port = message.port;
         char* msg = message.msg;
-        int timeout = message.timeout;
         
         struct sockaddr_in dest_addr;
         memset(&dest_addr, 0, sizeof(dest_addr));
@@ -372,12 +385,10 @@ void Network::transmission_handler() {
         
         if (sendto(sckt, (void*)(intptr_t) msg, std::strlen(msg), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
             std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
-            return;
+            continue;
         }
         
         thread_pool.enqueue_task([this, message]() { ack_handler(message); });
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
@@ -408,13 +419,14 @@ void Network::receive_messages(int sckt, bool& receiving, char**& buffer, int& c
             continue;
         }
         
-        char device[INET_ADDRSTRLEN];
-        std::memset(&device, 0, INET_ADDRSTRLEN);
+        char* device = new char[INET_ADDRSTRLEN];
+        std::memset(device, 0, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(src_addr.sin_addr), device, INET_ADDRSTRLEN);
         
         send_ack(device, recv_buffer);
         append_to_buffer(device, recv_buffer, buffer, counter);
         
+        delete[] device;
         delete[] recv_buffer;
     }
 }
@@ -442,7 +454,8 @@ void Network::discover_devices() {
     while (discovered_devices.size() != NUMBER_OF_DEVICES-1) {
         send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message);
         
-        for (int i=0; i!=std::max(current_index, current_ack_index); i++) {
+        int max_index = std::max(current_index, current_ack_index);
+        for (int i=0; i!=max_index; i++) {
             if (*RECEIVING_BUFFER[i] != '\0') {
                 
                 char* addr;
@@ -460,6 +473,7 @@ void Network::discover_devices() {
                     }
                 }
                 
+                delete[] addr;
                 delete[] msg;
             }
             
@@ -478,6 +492,7 @@ void Network::discover_devices() {
                     }
                 }
                 
+                delete[] addr;
                 delete[] msg;
             }
         }
@@ -523,6 +538,8 @@ bool Network::challenge_handler(char**& losers, char*& challenger, bool& found_c
             char* addr;
             char* msg;
             
+            split_buffer_message(addr, msg, CHLG_BUFFER[i]);
+            
             bool is_loser = false;
             for (int j=0; j!=NUMBER_OF_DEVICES-1; j++) {
                 if (*losers[j] == '\0') {
@@ -537,8 +554,6 @@ bool Network::challenge_handler(char**& losers, char*& challenger, bool& found_c
             if (is_loser) {
                 continue;
             }
-            
-            split_buffer_message(addr, msg, CHLG_BUFFER[i]);
             
             // pending challenge
             if (challenger != nullptr) {
@@ -575,6 +590,10 @@ bool Network::challenge_handler(char**& losers, char*& challenger, bool& found_c
                     found_challenger = true;
                     challenger = new char[INET_ADDRSTRLEN];
                     std::memcpy(challenger, addr, INET_ADDRSTRLEN);
+                    
+                    delete[] addr;
+                    delete[] msg;
+                    
                     break;
                 }
             }
@@ -611,6 +630,10 @@ void Network::wait_for_challenge(char*& challenger) {
                 challenger = new char[INET_ADDRSTRLEN];
                 std::memcpy(challenger, addr, INET_ADDRSTRLEN);
                 found_challenger = true;
+                
+                delete[] addr;
+                delete[] msg;
+                
                 break;
             }
             
@@ -840,7 +863,7 @@ void Network::start_game(char* addr) {
 }
 
 void Network::flush_chlg_buffer() {
-    flush_buffer(CHLG_BUFFER, current_chlg_index, 128);
+    flush_buffer(CHLG_BUFFER, current_chlg_index);
 }
 
 short Network::receive_move() {

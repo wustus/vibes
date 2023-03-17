@@ -40,6 +40,7 @@ struct Message {
     Message() : sckt(0), addr(nullptr), port(0), msg(nullptr), timeout(0) {}
     
     Message(int sckt, char* addr, int port, char* msg, int timeout) : sckt(sckt), port(port), timeout(timeout) {
+        
         this->addr = new char[INET_ADDRSTRLEN];
         std::memcpy(this->addr, addr, INET_ADDRSTRLEN);
         
@@ -47,7 +48,17 @@ struct Message {
         std::memcpy(this->msg, msg, std::strlen(msg));
     }
     
+    Message(const Message& other) : sckt(other.sckt), port(other.port), timeout(other.timeout) {
+        
+        addr = new char[INET_ADDRSTRLEN];
+        std::memcpy(addr, other.addr, INET_ADDRSTRLEN);
+        
+        msg = new char[std::strlen(other.msg)];
+        std::memcpy(msg, other.msg, std::strlen(other.msg));
+    }
+    
     Message& operator=(Message& other) {
+        
         if (this == &other) {
             return *this;
         }
@@ -284,12 +295,12 @@ private:
     int create_udp_socket(int);
     void split_buffer_message(char*& addr, char*& msg, char* buffer_msg);
     void append_to_buffer(char* addr, char* message, char**& buffer, int& counter);
-    void flush_buffer(char**& buffer, int& counter, size_t msg_size);
+    void flush_buffer(char**& buffer, int& counter);
     uint16_t checksum(char* data);
     void ack_listener();
     void ack_handler(Message msg);
-    bool listen_for_ack(const char* addr, char* msg);
-    void send_ack(const char* addr, const char* msg);
+    bool listen_for_ack(char* addr, char* msg);
+    void send_ack(char* addr, char* msg);
     void transmission_handler();
     void send_message(int sckt, const char* addr, int port, const char* msg, short timeout);
     void receive_messages(int sckt, bool& receiving, char**& buffer, int& counter);
