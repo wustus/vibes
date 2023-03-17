@@ -177,7 +177,6 @@ void Network::set_local_addr() {
 
 void Network::split_buffer_message(char *&val1, char *&val2, char* msg) {
     
-    std::lock_guard<std::mutex> lock(buffer_mutex);
     std::string buffer = std::string(msg);
     int delimiter_index = static_cast<int>(buffer.find_first_of("::"));
     
@@ -306,9 +305,13 @@ bool Network::listen_for_ack(char* addr, char* msg) {
             continue;
         }
         
+        
         char* buffer_msg = new char[MESSAGE_SIZE];
-        std::memcpy(buffer_msg, ACK_BUFFER[c], MESSAGE_SIZE);
-         
+        {
+            std::lock_guard<std::mutex> lock(buffer_mutex);
+            std::memcpy(buffer_msg, ACK_BUFFER[c], MESSAGE_SIZE);
+        }
+        
         char* recv_addr;
         char* recv_msg;
         
@@ -462,7 +465,11 @@ void Network::discover_devices() {
             if (*RECEIVING_BUFFER[i] != '\0') {
                 
                 char* buffer_msg = new char[MESSAGE_SIZE];
-                std::memcpy(buffer_msg, RECEIVING_BUFFER[i], MESSAGE_SIZE);
+                
+                {
+                    std::lock_guard<std::mutex> lock(buffer_mutex);
+                    std::memcpy(buffer_msg, RECEIVING_BUFFER[i], MESSAGE_SIZE);
+                }
                 
                 char* addr;
                 char* msg;
@@ -490,7 +497,10 @@ void Network::discover_devices() {
             if (*ACK_BUFFER[i] != '\0') {
                 
                 char* buffer_msg = new char[MESSAGE_SIZE];
-                std::memcpy(buffer_msg, ACK_BUFFER[i], MESSAGE_SIZE);
+                {
+                    std::lock_guard<std::mutex> lock(buffer_mutex);
+                    std::memcpy(buffer_msg, ACK_BUFFER[i], MESSAGE_SIZE);
+                }
                 
                 char* addr;
                 char* msg;
@@ -552,7 +562,11 @@ bool Network::challenge_handler(char**& losers, char*& challenger, bool& found_c
             }
             
             char* buffer_msg = new char[MESSAGE_SIZE];
-            std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            
+            {
+                std::lock_guard<std::mutex> lock(buffer_mutex);
+                std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            }
             
             char* addr;
             char* msg;
@@ -642,7 +656,11 @@ void Network::wait_for_challenge(char*& challenger) {
             }
             
             char* buffer_msg = new char[MESSAGE_SIZE];
-            std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+
+            {
+                std::lock_guard<std::mutex> lock(buffer_mutex);
+                std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            }
             
             char* addr;
             char* msg;
@@ -786,7 +804,11 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
             }
             
             char* buffer_msg = new char[MESSAGE_SIZE];
-            std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            
+            {
+                std::lock_guard<std::mutex> lock(buffer_mutex);
+                std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            }
                 
             char* src_addr;
             char* temp_msg;
@@ -839,7 +861,11 @@ void Network::listen_for_ready(char* addr, bool& listening) {
             }
             
             char* buffer_msg = new char[MESSAGE_SIZE];
-            std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            
+            {
+                std::lock_guard<std::mutex> lock(buffer_mutex);
+                std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            }
             
             char* recv_addr;
             char* msg;
@@ -911,7 +937,11 @@ short Network::receive_move() {
             }
             
             char* buffer_msg = new char[MESSAGE_SIZE];
-            std::memcpy(buffer_msg, GAME_BUFFER[i], MESSAGE_SIZE);
+            
+            {
+                std::lock_guard<std::mutex> lock(buffer_mutex);
+                std::memcpy(buffer_msg, GAME_BUFFER[i], MESSAGE_SIZE);
+            }
             
             char* addr;
             char* msg;
@@ -1039,7 +1069,11 @@ void Network::listen_for_master(char*& addr) {
             }
             
             char* buffer_msg = new char[MESSAGE_SIZE];
-            std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            
+            {
+                std::lock_guard<std::mutex> lock(buffer_mutex);
+                std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
+            }
             
             char* recv_addr;
             char* msg;
