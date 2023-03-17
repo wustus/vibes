@@ -366,12 +366,12 @@ void Network::transmission_handler() {
     
     while (transmission_thread_active) {
         
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        
         if (message_buffer.size() == 0) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
             continue;
         }
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         
         std::lock_guard<std::mutex> lock(sender_mutex);
         Message message = message_buffer.front();
