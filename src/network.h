@@ -132,6 +132,7 @@ public:
     void enqueue_task(std::function<void()> task) {
         {
             std::unique_lock<std::mutex> locK(mutex);
+            stop = false;
             tasks.push_back(task);
         }
         condition.notify_one();

@@ -529,6 +529,7 @@ void Network::discover_devices() {
     std::cout << "Finishd Searching." << std::endl;
     
     thread_pool.stop_and_flush_threads();
+    message_buffer.clear();
     
     discovering = false;
     
