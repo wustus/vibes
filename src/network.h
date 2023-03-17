@@ -154,6 +154,10 @@ public:
             tasks.clear();
         }
     }
+    
+    bool is_running() {
+        return !stop;
+    }
 };
 
 class Network {

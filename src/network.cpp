@@ -394,7 +394,9 @@ void Network::transmission_handler() {
             continue;
         }
         
-        thread_pool.enqueue_task([this, message]() { ack_handler(message); });
+        if (thread_pool.is_running()) {
+            thread_pool.enqueue_task([this, message]() { ack_handler(message); });
+        }
     }
 }
 
