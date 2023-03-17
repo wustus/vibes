@@ -1,7 +1,7 @@
 
 #include "network.h"
 
-Network::Network(int NUMBER_OF_DEVICES) {
+Network::Network(int NUMBER_OF_DEVICES) : thread_pool(20) {
     
     Network::NUMBER_OF_DEVICES = NUMBER_OF_DEVICES;
     
@@ -371,23 +371,28 @@ void Network::transmission_handler() {
             return false;
         }
         
+        thread_pool.enqueue_task([this, msg]() { ack_handler(msg); });
         
-        /*
-        old implementation
-        if (!listen_for_ack(addr, (char*) message)) {
-            if (timeout == 0) {
-                return;
-            }
-            
-            send_message(sckt, addr, port, message, timeout-1);
-        }
-        */
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
 bool Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=3) {
     
+    Message message;
+    message.addr = new char[INET_ADDRSTRLEN];
+    message.msg = new char[std::strlen(msg)];
     
+    std::memset(&message, 0, sizeof(message));
+    
+    message.sckt = sckt;
+    std::memcpy(message.addr, addr, INET_ADDRSTRLEN);
+    message.port = port;
+    std::memcpy(message.msg, msg, std::strlen(msg));
+    message.timeout = timeout;
+    
+    std::lock_guard<std::mutex> lock(sender_mutex);
+    message_buffer.push_back(message);
 }
 
 void Network::receive_messages(int sckt, bool& receiving, char**& buffer, int& counter) {

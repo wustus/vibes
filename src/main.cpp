@@ -15,7 +15,6 @@
 
 #include <GLFW/glfw3.h>
 
-
 int RGB_FRAME_SIZE;
 
 float MONITOR_WIDTH;

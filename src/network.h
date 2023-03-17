@@ -19,6 +19,9 @@
 #include <mutex>
 #include <atomic>
 #include <deque>
+#include <condition_variable>
+#include <functional>
+#include <list>
 
 #include <sys/socket.h>
 #include <netinet/ip.h>
@@ -45,68 +48,55 @@ struct NTPPacket {
     uint32_t start_time;
 };
 
-/*
- 
- #include <condition_variable>
- #include <functional>
- #include <iostream>
- #include <list>
- #include <mutex>
- #include <thread>
- #include <vector>
-
- class ThreadPool {
- public:
-     ThreadPool(size_t num_threads) {
-         for (size_t i = 0; i < num_threads; ++i) {
-             threads.emplace_back([this] {
-                 while (true) {
-                     std::function<void()> task;
-                     {
-                         std::unique_lock<std::mutex> lock(mutex);
-                         condition.wait(lock, [this] { return !tasks.empty() || stop; });
-                         if (stop) {
-                             break;
-                         }
-                         task = std::move(tasks.front());
-                         tasks.pop_front();
-                     }
-                     task();
-                 }
-             });
-         }
-     }
-
-     ~ThreadPool() {
-         {
-             std::unique_lock<std::mutex> lock(mutex);
-             stop = true;
-         }
-         condition.notify_all();
-         for (std::thread& t : threads) {
-             t.join();
-         }
-     }
-
-     void enqueue_task(const std::function<void()>& task) {
-         {
-             std::unique_lock<std::mutex> lock(mutex);
-             tasks.push_back(task);
-         }
-         condition.notify_one();
-     }
-
- private:
-     std::vector<std::thread> threads;
-     std::list<std::function<void()>> tasks;
-     std::mutex mutex;
-     std::condition_variable condition;
-     bool stop = false;
- };
-
- 
- 
- */
+class ThreadPool {
+private:
+    std::vector<std::thread> threads;
+    std::list<std::function<void()>> tasks;
+    std::mutex mutex;
+    std::condition_variable condition;
+    bool stop = false;
+public:
+    ThreadPool(size_t number_of_threads) {
+        for (int i=0; i!=number_of_threads; i++) {
+            threads.emplace_back([this] {
+                while (true) {
+                    std::function<void()> task;
+                    {
+                        std::unique_lock<std::mutex> lock(mutex);
+                        condition.wait(lock, [this] { return !tasks.empty() || stop; });
+                        
+                        if (stop) {
+                            break;
+                        }
+                        task = std::move(tasks.front());
+                        tasks.pop_front();
+                    }
+                    task();
+                }
+            });
+        }
+    }
+    
+    ~ThreadPool() {
+        {
+            std::unique_lock<std::mutex> lock(mutex);
+            stop = true;
+        }
+        
+        condition.notify_all();
+        for (std::thread& t : threads) {
+            t.join();
+        }
+    }
+    
+    void enqueue_task(std::function<void()> task) {
+        {
+            std::unique_lock<std::mutex> locK(mutex);
+            tasks.push_back(task);
+        }
+        condition.notify_one();
+    }
+};
 
 class Network {
 private:
@@ -157,6 +147,7 @@ private:
     int current_game_index = 0;
     
     std::mutex buffer_mutex;
+    std::mutex sender_mutex;
 
     NetworkConfig net_config;
     
@@ -230,6 +221,7 @@ public:
     int get_current_index();
     NetworkConfig* get_network_config();
     Game game;
+    ThreadPool thread_pool;
 };
 
 
