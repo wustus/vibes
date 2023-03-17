@@ -1,7 +1,7 @@
 
 #include "network.h"
 
-Network::Network(int NUMBER_OF_DEVICES) : thread_pool(20) {
+Network::Network(int NUMBER_OF_DEVICES) : net_config(NUMBER_OF_DEVICES), thread_pool(20) {
     
     Network::NUMBER_OF_DEVICES = NUMBER_OF_DEVICES;
     
@@ -21,12 +21,6 @@ Network::Network(int NUMBER_OF_DEVICES) : thread_pool(20) {
         ACK_BUFFER[i][0] = '\0';
         CHLG_BUFFER[i][0] = '\0';
         GAME_BUFFER[i][0] = '\0';
-    }
-    
-    net_config.devices = new char*[NUMBER_OF_DEVICES-1];
-    for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
-        net_config.devices[i] = new char[INET_ADDRSTRLEN];
-        net_config.devices[i][0] = '\0';
     }
     
     // initialize sockets
@@ -156,14 +150,14 @@ void Network::set_local_addr() {
             inet_ntop(AF_INET, addr, ip_addr, INET_ADDRSTRLEN);
             #ifdef __APPLE__
                 if (std::strcmp(ifaddr_iter->ifa_name, "en1") == 0 || std::strcmp(ifaddr_iter->ifa_name, "en0") == 0) {
-                    memcpy((void*) net_config.address, ip_addr, sizeof(ip_addr));
+                    net_config.set_address(ip_addr);
                     return;
                 }
             #endif
             
             #ifdef __unix
                 if (std::strcmp(ifaddr_iter->ifa_name, "wlan0") == 0) {
-                    memcpy((void*) net_config.address, ip_addr, sizeof(ip_addr));
+                    net_config.set_address(ip_addr);
                     return;
                 }
             #endif
@@ -379,17 +373,7 @@ void Network::transmission_handler() {
 
 bool Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=3) {
     
-    Message message;
-    message.addr = new char[INET_ADDRSTRLEN];
-    message.msg = new char[std::strlen(msg)];
-    
-    std::memset(&message, 0, sizeof(message));
-    
-    message.sckt = sckt;
-    std::memcpy(message.addr, addr, INET_ADDRSTRLEN);
-    message.port = port;
-    std::memcpy(message.msg, msg, std::strlen(msg));
-    message.timeout = timeout;
+    Message message(sckt, (char*) addr, port, (char*) msg, timeout);
     
     std::lock_guard<std::mutex> lock(sender_mutex);
     message_buffer.push_back(message);
@@ -428,10 +412,6 @@ void Network::receive_messages(int sckt, bool& receiving, char**& buffer, int& c
 void Network::discover_devices() {
     
     std::vector<char*> discovered_devices;
-    std::vector<std::thread> sending_threads;
-    std::vector<int> finished_threads;
-    std::mutex thread_list_mutex;
-    std::atomic<int> t(0);
     
     char* local_addr = net_config.address;
     
@@ -450,12 +430,7 @@ void Network::discover_devices() {
     
     // discovery phase
     while (discovered_devices.size() != NUMBER_OF_DEVICES-1) {
-        sending_threads.emplace_back([this, message, &finished_threads, &thread_list_mutex, &t]() {
-            send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message);
-            std::lock_guard<std::mutex> lock(thread_list_mutex);
-            finished_threads.push_back(t.load());
-        });
-        t++;
+        send_message(ssdp_sckt, SSDP_ADDR, SSDP_PORT, message);
         
         for (int i=0; i!=std::max(current_index, current_ack_index); i++) {
             if (*RECEIVING_BUFFER[i] != '\0') {
@@ -471,12 +446,7 @@ void Network::discover_devices() {
                     }) == discovered_devices.end()) {
                         discovered_devices.push_back(addr);
                     } else {
-                        sending_threads.emplace_back([this, addr, &finished_threads, &thread_list_mutex, &t]() {
-                            send_message(disc_sckt, addr, DISC_PORT, "BUDDY");
-                            std::lock_guard<std::mutex> lock(buffer_mutex);
-                            finished_threads.push_back(t.load());
-                        });
-                        t++;
+                        send_message(disc_sckt, addr, DISC_PORT, "BUDDY");
                     }
                 }
                 
@@ -503,21 +473,11 @@ void Network::discover_devices() {
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
-        
-        for (int i=0; i!=finished_threads.size(); i++) {
-            if (sending_threads[i].joinable()) {
-                sending_threads[i].join();
-            }
-        }
     }
     
     std::cout << "Finishd Searching." << std::endl;
     
-    for (int i=0; i!=sending_threads.size(); i++) {
-        if (sending_threads[i].joinable()) {
-            sending_threads[i].join();
-        }
-    }
+    thread_pool.stop_and_flush_threads();
     
     discovering = false;
     
@@ -529,7 +489,7 @@ void Network::discover_devices() {
     std::cout << "Discovered " << discovered_devices.size() << " devices." << std::endl;
     
     for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
-        std::memcpy(net_config.devices[i], discovered_devices[i], INET_ADDRSTRLEN);
+        net_config.add_device(discovered_devices[i]);
         std::cout << "\t" << net_config.devices[i] << std::endl;
         delete[] discovered_devices[i];
     }

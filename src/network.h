@@ -36,6 +36,42 @@ struct Message {
     int port;
     char* msg;
     int timeout;
+    
+    Message() : sckt(0), addr(nullptr), port(0), msg(nullptr), timeout(0) {}
+    
+    Message(int sckt, char* addr, int port, char* msg, int timeout) : sckt(sckt), port(port), timeout(timeout) {
+        this->addr = new char[INET_ADDRSTRLEN];
+        std::memcpy(this->addr, addr, INET_ADDRSTRLEN);
+        
+        this->msg = new char[std::strlen(msg)+1];
+        std::memcpy(this->msg, msg, std::strlen(msg));
+    }
+    
+    Message& operator=(Message& other) {
+        if (this == &other) {
+            return *this;
+        }
+        
+        delete[] addr;
+        delete[] msg;
+        
+        sckt = other.sckt;
+        port = other.port;
+        timeout = other.timeout;
+        
+        addr = new char[INET_ADDRSTRLEN];
+        std::memcpy(addr, other.addr, INET_ADDRSTRLEN);
+        
+        msg = new char[std::strlen(other.msg)+1];
+        std::memcpy(msg, other.msg, std::strlen(other.msg));
+        
+        return *this;
+    }
+    
+    ~Message() {
+        delete[] addr;
+        delete[] msg;
+    }
 };
 
 struct NTPPacket {
@@ -68,6 +104,7 @@ public:
                         if (stop) {
                             break;
                         }
+                        
                         task = std::move(tasks.front());
                         tasks.pop_front();
                     }
@@ -78,15 +115,7 @@ public:
     }
     
     ~ThreadPool() {
-        {
-            std::unique_lock<std::mutex> lock(mutex);
-            stop = true;
-        }
-        
-        condition.notify_all();
-        for (std::thread& t : threads) {
-            t.join();
-        }
+        stop_and_flush_threads();
     }
     
     void enqueue_task(std::function<void()> task) {
@@ -96,13 +125,102 @@ public:
         }
         condition.notify_one();
     }
+    
+    void stop_and_flush_threads() {
+        {
+            std::unique_lock<std::mutex> lock(mutex);
+            stop = true;
+        }
+        
+        condition.notify_all();
+        for (std::thread& t : threads) {
+            t.join();
+        }
+        
+        {
+            std::unique_lock<std::mutex> lock(mutex);
+            tasks.clear();
+        }
+    }
 };
 
 class Network {
 private:
     struct NetworkConfig {
-        char address[INET_ADDRSTRLEN];
+        char* address;
         char** devices;
+        size_t number_of_devices;
+        
+        NetworkConfig() : address(nullptr), devices(nullptr), number_of_devices(0) {}
+        
+        NetworkConfig(size_t number_of_devices) : address(nullptr), number_of_devices(number_of_devices) {
+            devices = new char*[number_of_devices-1];
+            
+            for (int i=0; i!=number_of_devices-1; i++) {
+                devices[i] = new char[INET_ADDRSTRLEN];
+                *devices[i] = '\0';
+            }
+        }
+        
+        NetworkConfig(char* address, char** devices, size_t number_of_devices) {
+            this->address = new char[INET_ADDRSTRLEN];
+            std::memcpy(this->address, address, INET_ADDRSTRLEN);
+            
+            devices = new char*[number_of_devices-1];
+            for (int i=0; i!=number_of_devices-1; i++) {
+                devices[i] = new char[INET_ADDRSTRLEN];
+                *devices[i] = '\0';
+            }
+            
+            this->number_of_devices = number_of_devices;
+        }
+        
+        NetworkConfig& operator=(NetworkConfig &other) {
+            if (this == &other) {
+                return *this;
+            }
+            
+            delete[] address;
+            for (int i=0; i!=number_of_devices-1; i++) {
+                delete[] devices[i];
+            }
+            
+            delete[] devices;
+            
+            std::memcpy(address, other.address, sizeof(INET_ADDRSTRLEN));
+            
+            devices = new char*[other.number_of_devices-1];
+            for (int i=0; i!=other.number_of_devices-1; i++) {
+                devices[i] = new char[INET_ADDRSTRLEN];
+                *devices[i] = '\0';
+            }
+            
+            number_of_devices = other.number_of_devices;
+            
+            return *this;
+        }
+        
+        ~NetworkConfig() {
+            delete[] address;
+            
+            for (int i=0; i!=number_of_devices-1; i++) {
+                delete[] devices[i];
+            }
+            
+            delete[] devices;
+        }
+        
+        void set_address(char* address) {
+            std::memcpy(this->address, address, INET_ADDRSTRLEN);
+        }
+        
+        void add_device(char* device) {
+            for (int i=0; i!=number_of_devices-1; i++) {
+                if (*devices[i] == '\0') {
+                    std::memcpy(devices[i], device, INET_ADDRSTRLEN);
+                }
+            }
+        }
     };
     
     struct Game {
