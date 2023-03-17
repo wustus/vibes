@@ -806,7 +806,7 @@ char* Network::find_challenger(char**& game_status) {
                 break;
             }
             
-            char* buffer_msg;
+            char* buffer_msg = new char[MESSAGE_SIZE];
             {
                 std::lock_guard<std::mutex> lock(buffer_mutex);
                 std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
@@ -820,6 +820,10 @@ char* Network::find_challenger(char**& game_status) {
             if (std::strncmp(addr, challenger, INET_ADDRSTRLEN) != 0) {
                 send_message(chlg_sckt, addr, CHLG_PORT, "DEC");
             }
+            
+            delete[] buffer_msg;
+            delete[] addr;
+            delete[] msg;
         }
         flush_buffer(CHLG_BUFFER, current_chlg_index);
     }
