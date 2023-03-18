@@ -790,7 +790,7 @@ char* Network::find_challenger(char**& game_status) {
 
 void Network::game_status_listener(char**& game_status, bool& listening) {
     
-    while (true) {
+    while (listening) {
         
         for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
             if (*CHLG_BUFFER[i] == '\0') {
