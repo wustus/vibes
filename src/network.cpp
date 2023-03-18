@@ -710,7 +710,7 @@ char* Network::find_challenger(char**& game_status) {
             } else if (i == still_player_size-1) {
                 nearest_neighbors[i] = i-1;
             } else {
-                nearest_neighbors[i] = distances[i] < distances[i+1] ? i-1 : i+1;
+                nearest_neighbors[i] = distances[i-1] < distances[i] ? i-1 : i+1;
             }
         }
         
