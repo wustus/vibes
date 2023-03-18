@@ -314,7 +314,6 @@ private:
     void receive_messages(int sckt, bool& receiving, char**& buffer, int& counter);
 
     void wait_for_challenge(char*& challenger);
-    void game_status_listener(char**& game_status, bool& listening);
     void listen_for_ready(char* addr, bool& is_opponent_ready);
 
     void ntp_server(uint32_t& start_time);
@@ -332,6 +331,7 @@ public:
     short receive_move();
     void make_move(short m);
     void end_game();
+    void game_status_listener(char**& game_status, bool& listening);
     void announce_result(char* addr, const char* result, char**& game_status);
     void announce_master();
     void flush_game_buffer();

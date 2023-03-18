@@ -124,7 +124,6 @@ int Network::create_udp_socket(int port) {
         exit(1);
     }
     
-    
     // receive timeout
     struct timeval timeout;
     std::memset(&timeout, 0, sizeof(timeout));
@@ -607,7 +606,45 @@ void Network::wait_for_challenge(char*& challenger) {
 
 char* Network::find_challenger(char**& game_status) {
     
-    size_t init_players = *game_status[0] == '\0' ? NUMBER_OF_DEVICES : [&game_status](){ int c = 0; for (int i=0; i!=16; i++) { if (*game_status[i] != '\0') { c++; }} return c;}();
+    std::function<size_t()> count_winners = [this, &game_status]() {
+        
+        int c = 0;
+        for (int i=0; i!=16; i++) {
+            if (*game_status[i] == '\0') {
+                break;
+            }
+            
+            char* buffer_msg = new char[MESSAGE_SIZE];
+            
+            {
+                std::lock_guard<std::mutex> lock(buffer_mutex);
+                std::memcpy(buffer_msg, game_status[i], MESSAGE_SIZE);
+            }
+            
+            char* addr1;
+            char* addr2;
+            char* tmp;
+            char* msg;
+            
+            split_buffer_message(addr1, tmp, buffer_msg);
+            split_buffer_message(addr2, msg, tmp);
+            
+            if (std::strncmp(msg, "WIN", 3) == 0) {
+                c++;
+            }
+            
+            delete[] buffer_msg;
+            delete[] addr1;
+            delete[] addr2;
+            delete[] tmp;
+            delete[] msg;
+        }
+        
+        return c;
+    };
+    
+    bool first_game = *game_status[0] == '\0';
+    size_t init_players = first_game ? NUMBER_OF_DEVICES : count_winners();
     
     char** players = new char*[init_players];
     char** losers = new char*[init_players];
@@ -621,8 +658,7 @@ char* Network::find_challenger(char**& game_status) {
     }
     
     // populate
-    
-    if (init_players == NUMBER_OF_DEVICES) {
+    if (first_game) {
         std::memcpy(players[0], net_config.address, INET_ADDRSTRLEN);
         for (int i=1; i!=NUMBER_OF_DEVICES; i++) {
             std::memcpy(players[i], net_config.devices[i-1], INET_ADDRSTRLEN);
@@ -648,8 +684,10 @@ char* Network::find_challenger(char**& game_status) {
             split_buffer_message(winner, tmp_msg, buffer_msg);
             split_buffer_message(loser, msg, tmp_msg);
             
-            std::memcpy(players[i], winner, INET_ADDRSTRLEN);
-            std::memcpy(losers[i], loser, INET_ADDRSTRLEN);
+            if (std::strncmp(msg, "WIN", 3) == 0) {
+                std::memcpy(players[i], winner, INET_ADDRSTRLEN);
+                std::memcpy(losers[i], loser, INET_ADDRSTRLEN);
+            }
             
             delete[] buffer_msg;
             delete[] winner;
@@ -752,7 +790,7 @@ char* Network::find_challenger(char**& game_status) {
 
 void Network::game_status_listener(char**& game_status, bool& listening) {
     
-    while (listening) {
+    while (true) {
         
         for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
             if (*CHLG_BUFFER[i] == '\0') {
@@ -784,6 +822,7 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
             delete[] ref_addr;
             
             if (std::strncmp(msg, "WON", 3) != 0) {
+                delete[] msg;
                 continue;
             }
             
@@ -798,10 +837,11 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
                     break;
                 }
                 
-                c = ++c % 15;
+                c = ++c % 16;
             }
             
-            std::memcpy(game_status[c], CHLG_BUFFER[c], std::strlen(CHLG_BUFFER[c]));
+            std::lock_guard<std::mutex> lock(buffer_mutex);
+            std::memcpy(game_status[c], CHLG_BUFFER[c], MESSAGE_SIZE);
         }
     }
 }
@@ -996,6 +1036,7 @@ void Network::announce_result(char* addr, const char* result, char**& game_statu
         if (*game_status[i] == '\0') {
             size_t own_msg_len = INET_ADDRSTRLEN + 2 + INET_ADDRSTRLEN + 2 + std::strlen(result);
             char* own_msg = new char[own_msg_len];
+            std::snprintf(own_msg, own_msg_len, "%s::%s::%s", local_addr, addr, result);
             std::memcpy(game_status[i], own_msg, own_msg_len);
             break;
         }
