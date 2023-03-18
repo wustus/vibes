@@ -915,7 +915,6 @@ void Network::start_game(char* addr) {
     }
     
     game.is_game_live = true;
-    
     game.game_thread = std::thread(&Network::receive_messages, this, game_sckt, std::ref(game.is_game_live), std::ref(GAME_BUFFER), std::ref(current_game_index));
     
     // new random seed
