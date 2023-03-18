@@ -721,7 +721,7 @@ char* Network::find_challenger(char**& game_status) {
         }
         
         int nn = nearest_neighbors[my_index];
-        if (my_index == nn) {
+        if (my_index == nearest_neighbor[nn]) {
             challenger = new char[INET_ADDRSTRLEN];
             std::memcpy(challenger, still_player[nn], INET_ADDRSTRLEN);
         } else {
