@@ -141,7 +141,7 @@ void SynchronizationHandler::determine_master() {
                 }
                 break;
             }
-            if (c == 1) {
+            if (c == 2) {
                 is_master = true;
                 next_round = false;
                 break;

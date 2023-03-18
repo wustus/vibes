@@ -122,11 +122,11 @@ int main(int argc, const char* argv[]) {
     
     // create frame producer and initialize video context
 #ifdef __APPLE__
-    FrameProducer frame_producer = FrameProducer("/Users/justus/dev/vibes/assets/guitar_pi.mov", FRAMES_IN_BUFFER);
+    FrameProducer frame_producer = FrameProducer("/Users/justus/dev/vibes/assets/snoop.mp4", FRAMES_IN_BUFFER);
 #endif
     
 #ifdef __unix
-    FrameProducer frame_producer = FrameProducer("../assets/guitar_pi.mov", FRAMES_IN_BUFFER);
+    FrameProducer frame_producer = FrameProducer("../assets/snoop.mp4g", FRAMES_IN_BUFFER);
 #endif
     
     // start producing frames
