@@ -694,10 +694,31 @@ char* Network::find_challenger(char**& game_status) {
         distances[i] = abs(std::strcmp(still_player[i], still_player[i+1]));
     }
     
+    char** nearest_neighbors = new char*[still_player_size-1];
+    
+    for (int i=0; i!=still_player_size-1; i++) {
+        nearest_neighbors[i] = new char[INET_ADDRSTRLEN];
+    }
+    
+    // copy nn
+    for (int i=0; i!=still_player_size-1; i++) {
+        if (i == 0) {
+            std::memcpy(nearest_neighbors[i], still_player[i+1], INET_ADDRSTRLEN);
+        } else if (i == still_player_size-1) {
+            std::memcpy(nearest_neighbors[i], still_player[i-1], INET_ADDRSTRLEN);
+        } else {
+            std::memcpy(nearest_neighbors[i], distances[i] < distances[i+1] ? still_player[i] : still_player[i+1], INET_ADDRSTRLEN);
+        }
+    }
+    
     char* challenger = new char[INET_ADDRSTRLEN];
     
-    for (int i=0; i!=still_player_size; i++) {
-    }
+    /*
+        we have the neareest neighbor for every address
+        for every address look if NN points to self, if not create remove that pair from list
+        recalculate, repeat
+        if NN points to self, set challenger and return
+     */
     
     
     return nullptr;
