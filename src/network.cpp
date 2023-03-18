@@ -535,7 +535,9 @@ void Network::discover_devices() {
         message_buffer.clear();
     }
     
+    // flush and start up again
     thread_pool.stop_and_flush_threads();
+    thread_pool.start();
     
     discovering = false;
     

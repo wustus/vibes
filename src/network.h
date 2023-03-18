@@ -98,6 +98,7 @@ struct NTPPacket {
 
 class ThreadPool {
 private:
+    size_t number_of_threads;
     std::vector<std::thread> threads;
     std::list<std::function<void()>> tasks;
     std::mutex mutex;
@@ -105,6 +106,23 @@ private:
     bool stop = false;
 public:
     ThreadPool(size_t number_of_threads) {
+        ThreadPool::number_of_threads = number_of_threads;
+        start();
+    }
+    
+    ~ThreadPool() {
+        stop_and_flush_threads();
+    }
+    
+    void start() {
+        
+        if (!stop) {
+            return;
+        }
+        
+        stop = false;
+        threads.clear();
+        
         for (int i=0; i!=number_of_threads; i++) {
             threads.emplace_back([this] {
                 while (true) {
@@ -126,17 +144,14 @@ public:
         }
     }
     
-    ~ThreadPool() {
-        stop_and_flush_threads();
-    }
-    
     void enqueue_task(std::function<void()> task) {
-        {
-            std::unique_lock<std::mutex> locK(mutex);
-            stop = false;
-            tasks.push_back(task);
+        if (is_running()) {
+            {
+                std::unique_lock<std::mutex> locK(mutex);
+                tasks.push_back(task);
+            }
+            condition.notify_one();
         }
-        condition.notify_one();
     }
     
     void stop_and_flush_threads() {
@@ -147,7 +162,9 @@ public:
         
         condition.notify_all();
         for (std::thread& t : threads) {
-            t.join();
+            if (t.joinable()) {
+                t.join();
+            }
         }
         
         {
