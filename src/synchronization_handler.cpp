@@ -120,7 +120,9 @@ void SynchronizationHandler::determine_master() {
         char* challenger = network.find_challenger(game_status);
         
         if (challenger == nullptr) {
+            std::cout << "Waiting for next Game..." << std::endl;
             wait_for_challenge();
+            continue;
         }
         
         std::cout << "Found Challenger: " << challenger << std::endl;
