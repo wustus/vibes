@@ -104,6 +104,7 @@ public:
     SynchronizationHandler(Network& network);
     void reset_game();
     void play(char*);
+    void wait_for_challenge();
     void determine_master();
     bool get_is_master();
     void set_offset();

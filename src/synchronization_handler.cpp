@@ -94,6 +94,21 @@ void SynchronizationHandler::reset_game() {
     }
 }
 
+void SynchronizationHandler::wait_for_challenge() {
+    
+    while (true) {
+        
+        for (int i=0; i!=16; i++) {
+            if (*game_status[i] == '\0') {
+                break;
+            }
+            
+            return;
+        }
+        
+    }
+}
+
 void SynchronizationHandler::determine_master() {
     
     bool next_round = true;
@@ -103,6 +118,10 @@ void SynchronizationHandler::determine_master() {
     
     while (next_round) {
         char* challenger = network.find_challenger(game_status);
+        
+        if (challenger == nullptr) {
+            wait_for_challenge(challenger);
+        }
         
         std::cout << "Found Challenger: " << challenger << std::endl;
         

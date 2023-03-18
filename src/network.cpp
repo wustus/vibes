@@ -560,52 +560,6 @@ void Network::start_challenge_listener() {
     chlg_thread = std::thread(&Network::receive_messages, this, chlg_sckt, std::ref(chlg_thread_active), std::ref(CHLG_BUFFER), std::ref(current_chlg_index));
 }
 
-void Network::wait_for_challenge(char*& challenger) {
-    
-    bool found_challenger = false;
-    
-    while (!found_challenger) {
-        
-        for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
-            
-            if (*CHLG_BUFFER[i] == '\0') {
-                break;
-            }
-            
-            char* buffer_msg = new char[MESSAGE_SIZE];
-
-            {
-                std::lock_guard<std::mutex> lock(buffer_mutex);
-                std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
-            }
-            
-            char* addr;
-            char* msg;
-            
-            split_buffer_message(addr, msg, buffer_msg);
-            
-            delete[] buffer_msg;
-            
-            if (std::strncmp(msg, "CHLG", 4) == 0) {
-                send_message(chlg_sckt, addr, CHLG_PORT, "ACC");
-                challenger = new char[INET_ADDRSTRLEN];
-                std::memcpy(challenger, addr, INET_ADDRSTRLEN);
-                found_challenger = true;
-                
-                delete[] addr;
-                delete[] msg;
-                
-                break;
-            }
-            
-            delete[] addr;
-            delete[] msg;
-        }
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-}
-
 char* Network::find_challenger(char**& game_status) {
     
     std::function<size_t()> count_winners = [this, &game_status]() {
@@ -756,7 +710,7 @@ char* Network::find_challenger(char**& game_status) {
             } else if (i == still_player_size-1) {
                 nearest_neighbors[i] = i-1;
             } else {
-                nearest_neighbors[i] = distances[i] < distances[i+1] ? i : i+1;
+                nearest_neighbors[i] = distances[i] < distances[i+1] ? i-1 : i+1;
             }
         }
         

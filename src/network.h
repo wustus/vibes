@@ -330,7 +330,6 @@ private:
     void send_message(int sckt, const char* addr, int port, const char* msg, short timeout);
     void receive_messages(int sckt, bool& receiving, char**& buffer, int& counter);
 
-    void wait_for_challenge(char*& challenger);
     void listen_for_ready(char* addr, bool& is_opponent_ready);
 
     void ntp_server(uint32_t& start_time);
