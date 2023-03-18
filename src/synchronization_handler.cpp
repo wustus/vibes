@@ -122,6 +122,7 @@ void SynchronizationHandler::determine_master() {
         if (challenger == nullptr) {
             std::cout << "Waiting for next Game..." << std::endl;
             wait_for_challenge();
+            std::cout << "Found Match" << std::endl;
             continue;
         }
         

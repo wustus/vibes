@@ -600,7 +600,8 @@ char* Network::find_challenger(char**& game_status) {
     };
     
     bool first_game = *game_status[0] == '\0';
-    size_t init_players = first_game ? NUMBER_OF_DEVICES : count_winners();
+    // god forgive me
+    size_t init_players = first_game ? NUMBER_OF_DEVICES : count_winners() + 1;
     
     char** players = new char*[init_players];
     char** losers = new char*[init_players];
