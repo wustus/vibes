@@ -122,7 +122,7 @@ void SynchronizationHandler::determine_master() {
                 is_master = true;
                 break;
             }
-            network.flush_chlg_buffer();
+            network.flush_game_buffer();
         }
     }
     

@@ -22,6 +22,7 @@
 #include <condition_variable>
 #include <functional>
 #include <list>
+#include <algorithm>
 
 #include <sys/socket.h>
 #include <netinet/ip.h>
@@ -285,6 +286,7 @@ private:
     
     std::mutex buffer_mutex;
     std::mutex sender_mutex;
+    std::mutex var_mutex;
 
     NetworkConfig net_config;
     
@@ -311,8 +313,6 @@ private:
     void send_message(int sckt, const char* addr, int port, const char* msg, short timeout);
     void receive_messages(int sckt, bool& receiving, char**& buffer, int& counter);
 
-    void update_losers(char**& game_status, char**& losers);
-    bool challenge_handler(char**& losers, char*& challenger, bool& found_challenger);
     void wait_for_challenge(char*& challenger);
     void game_status_listener(char**& game_status, bool& listening);
     void listen_for_ready(char* addr, bool& is_opponent_ready);
@@ -334,7 +334,7 @@ public:
     void end_game();
     void announce_result(char* addr, const char* result, char**& game_status);
     void announce_master();
-    void flush_chlg_buffer();
+    void flush_game_buffer();
     
     void listen_for_master(char*& addr);
     void start_ntp_server(uint32_t& start_time);

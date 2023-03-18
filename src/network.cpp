@@ -559,99 +559,6 @@ void Network::start_challenge_listener() {
     chlg_thread = std::thread(&Network::receive_messages, this, chlg_sckt, std::ref(chlg_thread_active), std::ref(CHLG_BUFFER), std::ref(current_chlg_index));
 }
 
-bool Network::challenge_handler(char**& losers, char*& challenger, bool& found_challenger) {
-    
-    while (!found_challenger) {
-        
-        for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
-            
-            if (*CHLG_BUFFER[i] == '\0') {
-                break;
-            }
-            
-            char* buffer_msg = new char[MESSAGE_SIZE];
-            
-            {
-                std::lock_guard<std::mutex> lock(buffer_mutex);
-                std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
-            }
-            
-            char* addr;
-            char* msg;
-            
-            split_buffer_message(addr, msg, buffer_msg);
-            
-            delete[] buffer_msg;
-            
-            bool is_loser = false;
-            for (int j=0; j!=NUMBER_OF_DEVICES-1; j++) {
-                if (*losers[j] == '\0') {
-                    break;
-                }
-                
-                if (std::strncmp(addr, losers[j], INET_ADDRSTRLEN) == 0) {
-                    is_loser = true;
-                }
-            }
-            
-            if (is_loser) {
-                continue;
-            }
-            
-            // pending challenge
-            if (challenger != nullptr) {
-                if (std::strcmp(addr, challenger) == 0) {
-                    if (std::strcmp(msg, "ACC") == 0) {
-                        // challenge has been accepted
-                        found_challenger = true;
-                        challenger = new char[INET_ADDRSTRLEN];
-                        std::memcpy(challenger, addr, INET_ADDRSTRLEN);
-                        break;
-                    } else if (std::strcmp(msg, "DEC") == 0) {
-                        // challenge has been declined, carry on
-                        challenger = nullptr;
-                        
-                        // just for tests i dont like it though
-                        if (NUMBER_OF_DEVICES == 3) {
-                            delete[] addr;
-                            delete[] msg;
-                            
-                            return false;
-                        }
-                    } else if (std::strcmp(msg, "CHLG") == 0) {
-                        // pending challenge and challenge received from same device
-                        found_challenger = true;
-                        break;
-                    }
-                } else {
-                    if (std::strncmp(msg, "CHLG", 4) == 0) {
-                        send_message(chlg_sckt, addr, CHLG_PORT, "DEC");
-                    }
-                }
-            } else {
-                if (std::strcmp(msg, "CHLG") == 0) {
-                    send_message(chlg_sckt, addr, CHLG_PORT, "ACC");
-                    found_challenger = true;
-                    challenger = new char[INET_ADDRSTRLEN];
-                    std::memcpy(challenger, addr, INET_ADDRSTRLEN);
-                    
-                    delete[] addr;
-                    delete[] msg;
-                    
-                    break;
-                }
-            }
-            
-            delete[] addr;
-            delete[] msg;
-        }
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
-    }
-    
-    return true;
-}
-
 void Network::wait_for_challenge(char*& challenger) {
     
     bool found_challenger = false;
@@ -698,144 +605,102 @@ void Network::wait_for_challenge(char*& challenger) {
     }
 }
 
-void Network::update_losers(char**& game_status, char**& losers) {
+char* Network::find_challenger(char**& game_status) {
     
+    size_t init_players = *game_status[0] == '\0' ? NUMBER_OF_DEVICES : [&game_status](){ int c = 0; for (int i=0; i!=16; i++) { if (*game_status[i] != '\0') { c++; }} return c;}();
+    
+    char** players = new char*[init_players];
+    char** losers = new char*[init_players];
+    
+    for (int i=0; i!=init_players; i++) {
+        players[i] = new char[INET_ADDRSTRLEN];
+        losers[i] = new char[INET_ADDRSTRLEN];
+        
+        *players[i] = '\0';
+        *losers[i] = '\0';
+    }
+    
+    // populate
     for (int i=0; i!=16; i++) {
+        
         if (*game_status[i] == '\0') {
             break;
         }
         
-        char* addr;
-        char* loser_addr;
-        char* tmp;
+        char* buffer_msg = new char[128];
+        {
+            std::lock_guard<std::mutex> lock(var_mutex);
+            std::memcpy(buffer_msg, game_status[i], 128);
+        }
+        
+        char* winner;
+        char* tmp_msg;
+        char* loser;
         char* msg;
         
-        split_buffer_message(addr, tmp, game_status[i]);
+        split_buffer_message(winner, tmp_msg, buffer_msg);
+        split_buffer_message(loser, msg, tmp_msg);
         
-        split_buffer_message(loser_addr, msg, tmp);
-        
-        for (int j=0; j!=NUMBER_OF_DEVICES-1; j++) {
-            if (*losers[j] != '\0') {
-                if (std::strncmp(loser_addr, losers[j], INET_ADDRSTRLEN) == 0) {
-                    break;
-                }
-            } else {
-                if (std::strncmp(msg, "WIN", 3) == 0) {
-                    std::memmove(losers[j], loser_addr, INET_ADDRSTRLEN);
-                }
-            }
-        }
-        
-        delete[] addr;
-        delete[] tmp;
+        std::memcpy(players[i], winner, INET_ADDRSTRLEN);
+        std::memcpy(losers[i], loser, INET_ADDRSTRLEN);
+
+        delete[] buffer_msg;
+        delete[] winner;
+        delete[] loser;
+        delete[] tmp_msg;
         delete[] msg;
     }
-    
-}
 
-char* Network::find_challenger(char**& game_status) {
-    
-    /*
-     TODO: Fix double acceptance (one device should always wait for challenge if 3)
-     */
-    
-    
-    bool found_challenger = false;
-    bool waiting_for_challenge = false;
-    
-    char* challenger = nullptr;
-    
-    char** losers = new char*[NUMBER_OF_DEVICES-1];
-    for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
-        losers[i] = new char[INET_ADDRSTRLEN];
-        *losers[i] = '\0';
+    // sort out
+    for (int i=0; i!=init_players; i++) {
+        if (*losers[i] == '\0') {
+            break;
+        }
+        
+        for (int j=0; j!=init_players; j++) {
+            if (std::strncmp(players[j], losers[i], INET_ADDRSTRLEN) == 0) {
+                *players[j] = '\0';
+            }
+        }
     }
     
-    std::thread handler_thread([this, &losers, &challenger, &found_challenger, &waiting_for_challenge]() { waiting_for_challenge = !challenge_handler(losers, challenger, found_challenger); });
-    
-    std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 300));
-    
-    int current_addr = 0;
-    int pending_timeout = 10;
-    
-    while (!found_challenger && !waiting_for_challenge) {
-        
-        update_losers(game_status, losers);
-        
-        if (challenger == nullptr) {
-            char* chlg_addr = net_config.devices[current_addr];
-            
-            // don't send challenges to losers
-            for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
-                if (*losers[i] == '\0') {
-                    break;
-                }
-                if (std::strncmp(chlg_addr, losers[i], INET_ADDRSTRLEN) == 0) {
-                    current_addr = ++current_addr % (NUMBER_OF_DEVICES-1);
-                    chlg_addr = nullptr;
-                    break;
-                }
-            }
-            
-            if (chlg_addr == nullptr) {
-                continue;
-            }
-            
-            send_message(chlg_sckt, chlg_addr, CHLG_PORT, "CHLG");
-            challenger = new char[INET_ADDRSTRLEN];
-            std::memcpy(challenger, chlg_addr, INET_ADDRSTRLEN);
+    size_t still_player_size = 0;
+    for (int i=0; i!=init_players; i++) {
+        if (*players[i] != '\0') {
+            still_player_size++;
         }
-        
-        pending_timeout--;
-        
-        if (pending_timeout == 0) {
-            current_addr = ++current_addr % (NUMBER_OF_DEVICES-1);
-            pending_timeout = 10;
-            challenger = nullptr;
-            flush_buffer(CHLG_BUFFER, current_chlg_index);
+    }
+    
+    char** still_player = new char*[still_player_size];
+    int c = 0;
+    for (int i=0; i!=init_players; i++) {
+        if (*players[i] != '\0') {
+            still_player[c] = new char[INET_ADDRSTRLEN];
+            std::memcpy(still_player[c], players[i], INET_ADDRSTRLEN);
         }
+    }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 500));
+    // sort and create list of distances
+    bool lex_compare = [](char* c1, char* c2) {
+        return std::strcmp(c1, c2) < 0;
+    };
+    
+    
+    std::sort(still_player, still_player + still_player_size, lex_compare);
+    int distances[still_player_size-1];
+    
+    c = 0;
+    for (int i=0; i!=still_player_size-1; i++) {
+        distances[i] = abs(std::strcmp(still_player[i], still_player[i+1]));
     }
     
-    handler_thread.join();
+    char* challenger = new char[INET_ADDRSTRLEN];
     
-    if (found_challenger) {
-        for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
-            if (*CHLG_BUFFER[i] == '\0') {
-                break;
-            }
-            
-            char* buffer_msg = new char[MESSAGE_SIZE];
-            {
-                std::lock_guard<std::mutex> lock(buffer_mutex);
-                std::memcpy(buffer_msg, CHLG_BUFFER[i], MESSAGE_SIZE);
-            }
-            
-            char* addr;
-            char* msg;
-            
-            split_buffer_message(addr, msg, buffer_msg);
-            
-            if (std::strncmp(addr, challenger, INET_ADDRSTRLEN) != 0) {
-                send_message(chlg_sckt, addr, CHLG_PORT, "DEC");
-            }
-            
-            delete[] buffer_msg;
-            delete[] addr;
-            delete[] msg;
-        }
-        flush_buffer(CHLG_BUFFER, current_chlg_index);
+    for (int i=0; i!=still_player_size; i++) {
     }
     
-    if (waiting_for_challenge) {
-        std::cout << "Waiting for Challenge..." << std::endl;
-        challenger = nullptr;
-        flush_buffer(CHLG_BUFFER, current_chlg_index);
-        wait_for_challenge(challenger);
-    }
     
-    return challenger;
+    return nullptr;
 }
 
 void Network::game_status_listener(char**& game_status, bool& listening) {
@@ -968,8 +833,8 @@ void Network::start_game(char* addr) {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 }
 
-void Network::flush_chlg_buffer() {
-    flush_buffer(CHLG_BUFFER, current_chlg_index);
+void Network::flush_game_buffer() {
+    flush_buffer(GAME_BUFFER, current_game_index);
 }
 
 short Network::receive_move() {
