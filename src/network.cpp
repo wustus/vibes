@@ -621,34 +621,42 @@ char* Network::find_challenger(char**& game_status) {
     }
     
     // populate
-    for (int i=0; i!=16; i++) {
-        
-        if (*game_status[i] == '\0') {
-            break;
+    
+    if (init_players == NUMBER_OF_DEVICES) {
+        std::memcpy(players[0], net_config.address, INET_ADDRSTRLEN);
+        for (int i=1; i!=NUMBER_OF_DEVICES; i++) {
+            std::memcpy(players[i], net_config.devices[i-1], INET_ADDRSTRLEN);
         }
-        
-        char* buffer_msg = new char[128];
-        {
-            std::lock_guard<std::mutex> lock(var_mutex);
-            std::memcpy(buffer_msg, game_status[i], 128);
+    } else {
+        for (int i=0; i!=16; i++) {
+            
+            if (*game_status[i] == '\0') {
+                break;
+            }
+            
+            char* buffer_msg = new char[128];
+            {
+                std::lock_guard<std::mutex> lock(var_mutex);
+                std::memcpy(buffer_msg, game_status[i], 128);
+            }
+            
+            char* winner;
+            char* tmp_msg;
+            char* loser;
+            char* msg;
+            
+            split_buffer_message(winner, tmp_msg, buffer_msg);
+            split_buffer_message(loser, msg, tmp_msg);
+            
+            std::memcpy(players[i], winner, INET_ADDRSTRLEN);
+            std::memcpy(losers[i], loser, INET_ADDRSTRLEN);
+            
+            delete[] buffer_msg;
+            delete[] winner;
+            delete[] loser;
+            delete[] tmp_msg;
+            delete[] msg;
         }
-        
-        char* winner;
-        char* tmp_msg;
-        char* loser;
-        char* msg;
-        
-        split_buffer_message(winner, tmp_msg, buffer_msg);
-        split_buffer_message(loser, msg, tmp_msg);
-        
-        std::memcpy(players[i], winner, INET_ADDRSTRLEN);
-        std::memcpy(losers[i], loser, INET_ADDRSTRLEN);
-
-        delete[] buffer_msg;
-        delete[] winner;
-        delete[] loser;
-        delete[] tmp_msg;
-        delete[] msg;
     }
 
     // sort out
@@ -677,51 +685,69 @@ char* Network::find_challenger(char**& game_status) {
         if (*players[i] != '\0') {
             still_player[c] = new char[INET_ADDRSTRLEN];
             std::memcpy(still_player[c], players[i], INET_ADDRSTRLEN);
+            c++;
         }
     }
-
-    // sort and create list of distances
-    bool lex_compare = [](char* c1, char* c2) {
+    
+    char* challenger = nullptr;
+    
+    std::function<bool(char*, char*)> lex_compare = [](char* c1, char* c2) {
         return std::strcmp(c1, c2) < 0;
     };
     
-    
-    std::sort(still_player, still_player + still_player_size, lex_compare);
-    int distances[still_player_size-1];
-    
-    c = 0;
-    for (int i=0; i!=still_player_size-1; i++) {
-        distances[i] = abs(std::strcmp(still_player[i], still_player[i+1]));
-    }
-    
-    char** nearest_neighbors = new char*[still_player_size-1];
-    
-    for (int i=0; i!=still_player_size-1; i++) {
-        nearest_neighbors[i] = new char[INET_ADDRSTRLEN];
-    }
-    
-    // copy nn
-    for (int i=0; i!=still_player_size-1; i++) {
-        if (i == 0) {
-            std::memcpy(nearest_neighbors[i], still_player[i+1], INET_ADDRSTRLEN);
-        } else if (i == still_player_size-1) {
-            std::memcpy(nearest_neighbors[i], still_player[i-1], INET_ADDRSTRLEN);
+    while (challenger == nullptr) {
+        
+        // sort and create list of distances
+        std::sort(still_player, still_player + still_player_size, lex_compare);
+        int distances[still_player_size-1];
+        
+        for (int i=0; i!=still_player_size-1; i++) {
+            distances[i] = abs(std::strcmp(still_player[i], still_player[i+1]));
+        }
+        
+        int my_index = [this, &still_player, &still_player_size]() { for (int i=0; i!=still_player_size; i++) {if (std::strncmp(still_player[i], net_config.address, INET_ADDRSTRLEN) == 0) { return i; }}} ();
+        
+        int nearest_neighbors[still_player_size];
+        
+        // copy nn
+        for (int i=0; i!=still_player_size; i++) {
+            if (i == 0) {
+                nearest_neighbors[i] = i+1;
+            } else if (i == still_player_size-1) {
+                nearest_neighbors[i] = i-1;
+            } else {
+                nearest_neighbors[i] = distances[i] < distances[i+1] ? i : i+1;
+            }
+        }
+        
+        int nn = nearest_neighbors[my_index];
+        if (my_index == nn) {
+            challenger = new char[INET_ADDRSTRLEN];
+            std::memcpy(challenger, still_player[nn], INET_ADDRSTRLEN);
         } else {
-            std::memcpy(nearest_neighbors[i], distances[i] < distances[i+1] ? still_player[i] : still_player[i+1], INET_ADDRSTRLEN);
+            int temp = nearest_neighbors[nn];
+            delete[] still_player[nn];
+            delete[] still_player[temp];
+            
+            still_player[nn] = nullptr;
+            still_player[temp] = nullptr;
+            
+            int new_index = 0;
+            for (int i=0; i!=still_player_size; i++) {
+                if (still_player[i] != nullptr) {
+                    still_player[new_index++] = still_player[i];
+                }
+            }
+            
+            still_player_size -= 2;
+        }
+        
+        if (still_player_size == 1) {
+            return nullptr;
         }
     }
     
-    char* challenger = new char[INET_ADDRSTRLEN];
-    
-    /*
-        we have the neareest neighbor for every address
-        for every address look if NN points to self, if not create remove that pair from list
-        recalculate, repeat
-        if NN points to self, set challenger and return
-     */
-    
-    
-    return nullptr;
+    return challenger;
 }
 
 void Network::game_status_listener(char**& game_status, bool& listening) {
