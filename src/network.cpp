@@ -807,8 +807,6 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
             
             // get source addr (the one that has won or lost)
             split_buffer_message(src_addr, temp_msg, buffer_msg);
-             
-            
             
             // get opponent address
             split_buffer_message(ref_addr, msg, temp_msg);
@@ -821,16 +819,23 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
             
                 int c = 0;
                 
+                bool contains_status = false;
+                
                 while (*game_status[c] != '\0') {
                     
                     if (std::strncmp(game_status[c], buffer_msg, MESSAGE_SIZE) != 0) {
+                        break;
+                    } else {
+                        contains_status = true;
                         break;
                     }
                     
                     c = ++c % 16;
                 }
                 
-                std::memcpy(game_status[c], buffer_msg, MESSAGE_SIZE);
+                if (!contains_status) {
+                    std::memcpy(game_status[c], buffer_msg, MESSAGE_SIZE);
+                }
             }
             
             delete[] msg;
