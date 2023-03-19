@@ -613,7 +613,7 @@ char* Network::find_challenger(char**& game_status) {
             if (wait_for_game) {
                 if ((std::strncmp(player1, addr1, INET_ADDRSTRLEN) == 0 && std::strncmp(player2, addr2, INET_ADDRSTRLEN) == 0)
                     || (std::strncmp(player1, addr2, INET_ADDRSTRLEN) == 0 && std::strncmp(player2, addr1, INET_ADDRSTRLEN) == 0)) {
-                    if (std::strncmp(msg, "WON", 3) == 0 || std::strncmp(msg, "LOST", 4) == 0) {
+                    if (std::strncmp(msg, "WIN", 3) == 0 || std::strncmp(msg, "LOSE", 4) == 0) {
                         if (game_index == -1) {
                             wait_for_game = false;
                         } else {
@@ -921,7 +921,7 @@ void Network::wait_for_challenge(char**& game_status) {
             split_buffer_message(addr1, tmp, msg_buffer);
             split_buffer_message(addr2, msg, tmp);
             
-            if (std::strncmp(msg, "WIN", 3) == 0 || std::strncmp(msg, "LOST", 4) == 0) {
+            if (std::strncmp(msg, "WIN", 3) == 0 || std::strncmp(msg, "LOSE", 4) == 0) {
                 challenge_found = true;
             }
             
