@@ -24,7 +24,8 @@ SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {
 }
 
 void SynchronizationHandler::play(char* challenger) {
-    
+
+    network.announce_status(challenger, "GAME", game_status);
     reset_game();
     network.start_game(challenger);
     std::cout << "Waiting Until Opponent is Ready." << std::endl;
@@ -81,9 +82,9 @@ void SynchronizationHandler::play(char* challenger) {
     }
     
     if (ttt.is_won) {
-        network.announce_result(challenger, "WIN", game_status);
+        network.announce_status(challenger, "WIN", game_status);
     } else {
-        network.announce_result(challenger, "LOSE", game_status);
+        network.announce_status(challenger, "LOSE", game_status);
     }
 }
 
@@ -121,6 +122,7 @@ void SynchronizationHandler::determine_master() {
         
         if (challenger == nullptr) {
             std::cout << "Waiting for next Game..." << std::endl;
+            network.announce_status(nullptr, "WAIT", game_status);
             wait_for_challenge();
             std::cout << "Found Match" << std::endl;
             continue;

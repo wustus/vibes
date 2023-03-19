@@ -562,19 +562,34 @@ void Network::start_challenge_listener() {
 
 char* Network::find_challenger(char**& game_status) {
     
-    std::function<size_t()> count_winners = [this, &game_status]() {
+    /*
+        if game has been announced and no winner yet, wait for announcement
+     */
+    
+    bool initial = true;
+    bool wait_for_game = false;
+    
+    while (initial || wait_for_game) {
+        static int game_index = -1;
+        initial = false;
         
-        int c = 0;
+        char* player1 = new char[INET_ADDRSTRLEN];
+        char* player2 = new char[INET_ADDRSTRLEN];
+        *player1 = '\0';
+        *player2 = '\0';
+        
         for (int i=0; i!=16; i++) {
             if (*game_status[i] == '\0') {
+                delete[] player1;
+                delete[] player2;
                 break;
             }
             
-            char* buffer_msg = new char[MESSAGE_SIZE];
+            char* msg_bufffer = new char[MESSAGE_SIZE];
             
             {
                 std::lock_guard<std::mutex> lock(buffer_mutex);
-                std::memcpy(buffer_msg, game_status[i], MESSAGE_SIZE);
+                std::memcpy(msg_bufffer, game_status[i], MESSAGE_SIZE);
             }
             
             char* addr1;
@@ -582,31 +597,53 @@ char* Network::find_challenger(char**& game_status) {
             char* tmp;
             char* msg;
             
-            split_buffer_message(addr1, tmp, buffer_msg);
+            split_buffer_message(addr1, tmp, msg_bufffer);
             split_buffer_message(addr2, msg, tmp);
             
-            if (std::strncmp(msg, "WIN", 3) == 0) {
-                c++;
+            if (std::strncmp(msg, "GAME", 4) == 0) {
+                if (*player1 == '\0') {
+                    wait_for_game = true;
+                    std::memcpy(player1, addr1, INET_ADDRSTRLEN);
+                    std::memcpy(player2, addr2, INET_ADDRSTRLEN);
+                } else if (std::strncmp(player1, addr2, INET_ADDRSTRLEN) != 0 && std::strncmp(player2, addr1, INET_ADDRSTRLEN) != 0) {
+                    game_index = i;
+                }
             }
             
-            delete[] buffer_msg;
+            if (wait_for_game) {
+                if ((std::strncmp(player1, addr1, INET_ADDRSTRLEN) == 0 && std::strncmp(player2, addr2, INET_ADDRSTRLEN) == 0)
+                    || (std::strncmp(player1, addr2, INET_ADDRSTRLEN) == 0 && std::strncmp(player2, addr1, INET_ADDRSTRLEN) == 0)) {
+                    if (std::strncmp(msg, "WON", 3) == 0 || std::strncmp(msg, "LOST", 4) == 0) {
+                        if (game_index == -1) {
+                            wait_for_game = false;
+                        } else {
+                            i = game_index;
+                        }
+                        
+                        delete[] player1;
+                        delete[] player2;
+                        
+                        char* player1 = new char[INET_ADDRSTRLEN];
+                        char* player2 = new char[INET_ADDRSTRLEN];
+                        *player1 = '\0';
+                        *player2 = '\0';
+                    }
+                }
+            }
+            
+            delete[] msg_bufffer;
             delete[] addr1;
             delete[] addr2;
             delete[] tmp;
             delete[] msg;
         }
-        
-        return c;
-    };
+    }
     
-    bool first_game = *game_status[0] == '\0';
-    // god forgive me
-    size_t init_players = first_game ? NUMBER_OF_DEVICES : count_winners() + 1;
     
-    char** players = new char*[init_players];
-    char** losers = new char*[init_players];
+    char** players = new char*[NUMBER_OF_DEVICES];
+    char** losers = new char*[NUMBER_OF_DEVICES];
     
-    for (int i=0; i!=init_players; i++) {
+    for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
         players[i] = new char[INET_ADDRSTRLEN];
         losers[i] = new char[INET_ADDRSTRLEN];
         
@@ -615,52 +652,53 @@ char* Network::find_challenger(char**& game_status) {
     }
     
     // populate
-    if (first_game) {
-        std::memcpy(players[0], net_config.address, INET_ADDRSTRLEN);
-        for (int i=1; i!=NUMBER_OF_DEVICES; i++) {
-            std::memcpy(players[i], net_config.devices[i-1], INET_ADDRSTRLEN);
+    std::memcpy(players[0], net_config.address, INET_ADDRSTRLEN);
+    for (int i=1; i!=NUMBER_OF_DEVICES; i++) {
+        std::memcpy(players[i], net_config.devices[i-1], INET_ADDRSTRLEN);
+    }
+
+    int c = 0;
+    
+    for (int i=0; i!=16; i++) {
+        
+        if (*game_status[i] == '\0') {
+            break;
         }
-    } else {
-        for (int i=0; i!=16; i++) {
-            
-            if (*game_status[i] == '\0') {
-                break;
-            }
-            
-            char* buffer_msg = new char[128];
-            {
-                std::lock_guard<std::mutex> lock(var_mutex);
-                std::memcpy(buffer_msg, game_status[i], 128);
-            }
-            
-            char* winner;
-            char* tmp_msg;
-            char* loser;
-            char* msg;
-            
-            split_buffer_message(winner, tmp_msg, buffer_msg);
-            split_buffer_message(loser, msg, tmp_msg);
-            
-            if (std::strncmp(msg, "WIN", 3) == 0) {
-                std::memcpy(players[i], winner, INET_ADDRSTRLEN);
-                std::memcpy(losers[i], loser, INET_ADDRSTRLEN);
-            }
-            
-            delete[] buffer_msg;
-            delete[] winner;
-            delete[] loser;
-            delete[] tmp_msg;
-            delete[] msg;
+        
+        char* buffer_msg = new char[128];
+        {
+            std::lock_guard<std::mutex> lock(var_mutex);
+            std::memcpy(buffer_msg, game_status[i], 128);
         }
+        
+        char* winner;
+        char* tmp_msg;
+        char* loser;
+        char* msg;
+        
+        split_buffer_message(winner, tmp_msg, buffer_msg);
+        split_buffer_message(loser, msg, tmp_msg);
+        
+        if (std::strncmp(msg, "WIN", 3) == 0) {
+            std::memcpy(players[c], winner, INET_ADDRSTRLEN);
+            std::memcpy(losers[c], loser, INET_ADDRSTRLEN);
+            c++;
+        }
+        
+        delete[] buffer_msg;
+        delete[] winner;
+        delete[] loser;
+        delete[] tmp_msg;
+        delete[] msg;
     }
 
     // sort out
-    for (int i=0; i!=init_players; i++) {
+    for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
         if (*losers[i] == '\0') {
             break;
         }
         
-        for (int j=0; j!=init_players; j++) {
+        for (int j=0; j!=NUMBER_OF_DEVICES; j++) {
             if (std::strncmp(players[j], losers[i], INET_ADDRSTRLEN) == 0) {
                 *players[j] = '\0';
             }
@@ -668,15 +706,16 @@ char* Network::find_challenger(char**& game_status) {
     }
     
     size_t still_player_size = 0;
-    for (int i=0; i!=init_players; i++) {
+    for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
         if (*players[i] != '\0') {
             still_player_size++;
         }
     }
     
     char** still_player = new char*[still_player_size];
-    int c = 0;
-    for (int i=0; i!=init_players; i++) {
+    c = 0;
+    
+    for (int i=0; i!=NUMBER_OF_DEVICES; i++) {
         if (*players[i] != '\0') {
             still_player[c] = new char[INET_ADDRSTRLEN];
             std::memcpy(still_player[c], players[i], INET_ADDRSTRLEN);
@@ -969,17 +1008,21 @@ void Network::end_game() {
     flush_buffer(GAME_BUFFER, current_game_index);
 }
 
-void Network::announce_result(char* addr, const char* result, char**& game_status) {
+void Network::announce_status(char* addr, const char* status, char**& game_status) {
     
     char* local_addr = net_config.address;
     char** devices = net_config.devices;
     
-    // addr::addr::result
-    size_t msg_len = INET_ADDRSTRLEN + 2 + std::strlen(result);
+    if (addr == nullptr) {
+        addr = local_addr;
+    }
+    
+    // addr::addr::status
+    size_t msg_len = INET_ADDRSTRLEN + 2 + std::strlen(status);
     char* msg = new char[msg_len];
     std::memset(msg, 0, msg_len);
 
-    std::snprintf(msg, msg_len, "%s::%s", addr, result);
+    std::snprintf(msg, msg_len, "%s::%s", addr, status);
     
     for (int i=0; i!=NUMBER_OF_DEVICES-1; i++) {
         char* dest_addr = devices[i];
@@ -988,12 +1031,15 @@ void Network::announce_result(char* addr, const char* result, char**& game_statu
         }
     }
     
+    delete[] msg;
+    
     for (int i=0; i!=16; i++) {
         if (*game_status[i] == '\0') {
-            size_t own_msg_len = INET_ADDRSTRLEN + 2 + INET_ADDRSTRLEN + 2 + std::strlen(result);
+            size_t own_msg_len = INET_ADDRSTRLEN + 2 + INET_ADDRSTRLEN + 2 + std::strlen(status);
             char* own_msg = new char[own_msg_len];
-            std::snprintf(own_msg, own_msg_len, "%s::%s::%s", local_addr, addr, result);
+            std::snprintf(own_msg, own_msg_len, "%s::%s::%s", local_addr, addr, status);
             std::memcpy(game_status[i], own_msg, own_msg_len);
+            delete[] own_msg;
             break;
         }
     }

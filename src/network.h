@@ -348,7 +348,7 @@ public:
     void make_move(short m);
     void end_game();
     void game_status_listener(char**& game_status, bool& listening);
-    void announce_result(char* addr, const char* result, char**& game_status);
+    void announce_status(char* addr, const char* result, char**& game_status);
     void announce_master();
     void flush_game_buffer();
     
