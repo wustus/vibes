@@ -897,6 +897,43 @@ void Network::wait_until_ready(char *addr) {
     ready_listener.join();
 }
 
+void Network::wait_for_challenge(char**& game_status) {
+    
+    bool challenge_found = false;
+    while (!challenge_found) {
+        for (int i=0; i!=16; i++) {
+            if (*game_status[i] == '\0') {
+                break;
+            }
+            
+            char* msg_buffer = new char[MESSAGE_SIZE];
+            
+            {
+                std::lock_guard<std::mutex> lock(buffer_mutex);
+                std::memcpy(msg_buffer, game_status[i], MESSAGE_SIZE);
+            }
+            
+            char* addr1;
+            char* addr2;
+            char* tmp;
+            char* msg;
+            
+            split_buffer_message(addr1, tmp, msg_buffer);
+            split_buffer_message(addr2, msg, tmp);
+            
+            if (std::strncmp(msg, "WIN", 3) == 0 || std::strncmp(msg, "LOST", 4)) {
+                challenge_found = true;
+            }
+            
+            delete[] msg_buffer;
+            delete[] addr1;
+            delete[] addr2;
+            delete[] tmp;
+            delete[] msg;
+        }
+g    }
+}
+
 void Network::start_game(char* addr) {
     
     std::memset(&game, 0, sizeof(game));

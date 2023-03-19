@@ -343,6 +343,7 @@ public:
     void start_challenge_listener();
     char* find_challenger(char**& game_status);
     void wait_until_ready(char* addr);
+    void wait_for_challenge(char**& game_status);
     void start_game(char* addr);
     short receive_move();
     void make_move(short m);

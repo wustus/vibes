@@ -95,27 +95,14 @@ void SynchronizationHandler::reset_game() {
     }
 }
 
-void SynchronizationHandler::wait_for_challenge() {
-    
-    while (true) {
-        
-        for (int i=0; i!=16; i++) {
-            if (*game_status[i] == '\0') {
-                break;
-            }
-            
-            return;
-        }
-        
-    }
-}
-
 void SynchronizationHandler::determine_master() {
     
     bool next_round = true;
 
     network.start_challenge_listener();
     std::thread status_listener([this, &next_round]() { network.game_status_listener(game_status, next_round); });
+    
+    int wins = 0;
     
     while (next_round) {
         char* challenger = network.find_challenger(game_status);
@@ -136,20 +123,14 @@ void SynchronizationHandler::determine_master() {
         next_round = ttt.is_won;
         
         if (next_round) {
-            int c = 0;
-            for (int i=0; i!=16; i++) {
-                if (*game_status[i] != '\0') {
-                    c++; 
-                    continue;
-                }
-                break;
-            }
-            if (c == 2) {
-                is_master = true;
-                next_round = false;
-                break;
-            }
+            
+            wins++;
             network.flush_game_buffer();
+            
+            if (wins == 2) {
+                next_round = false;
+                is_master = true;
+            }
         }
     }
     
