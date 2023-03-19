@@ -921,7 +921,7 @@ void Network::wait_for_challenge(char**& game_status) {
             split_buffer_message(addr1, tmp, msg_buffer);
             split_buffer_message(addr2, msg, tmp);
             
-            if (std::strncmp(msg, "WIN", 3) == 0 || std::strncmp(msg, "LOST", 4) == 0g) {
+            if (std::strncmp(msg, "WIN", 3) == 0 || std::strncmp(msg, "LOST", 4) == 0) {
                 challenge_found = true;
             }
             
