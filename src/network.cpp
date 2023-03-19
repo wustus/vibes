@@ -580,8 +580,6 @@ char* Network::find_challenger(char**& game_status) {
         
         for (int i=0; i!=16; i++) {
             if (*game_status[i] == '\0') {
-                delete[] player1;
-                delete[] player2;
                 break;
             }
             
@@ -637,6 +635,9 @@ char* Network::find_challenger(char**& game_status) {
             delete[] tmp;
             delete[] msg;
         }
+        
+        delete[] player1;
+        delete[] player2;
     }
     
     
@@ -817,7 +818,7 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
             delete[] temp_msg;
             delete[] ref_addr;
             
-            if (std::strncmp(msg, "WON", 3) != 0) {
+            if (std::strncmp(msg, "WIN", 3) != 0 || std::strncmp(msg, "LOSE", 3) != 0 || std::strncmp(msg, "WAIT", 3) != 0 || std::strncmp(msg, "GAME", 3) != 0) {
                 delete[] msg;
                 continue;
             }
