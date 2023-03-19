@@ -931,7 +931,7 @@ void Network::wait_for_challenge(char**& game_status) {
             delete[] tmp;
             delete[] msg;
         }
-g    }
+    }
 }
 
 void Network::start_game(char* addr) {
