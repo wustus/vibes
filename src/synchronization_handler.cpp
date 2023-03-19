@@ -18,7 +18,7 @@ SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {
     game_status = new char*[16];
     
     for (int i=0; i!=16; i++) {
-        game_status[i] = new char[128];
+        game_status[i] = new char[MESSAGE_SIZE];
         game_status[i][0] = '\0';
     }
 }
