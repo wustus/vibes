@@ -45,7 +45,7 @@ struct Message {
         this->addr = new char[INET_ADDRSTRLEN];
         std::memcpy(this->addr, addr, INET_ADDRSTRLEN);
         
-        this->msg = new char[std::strlen(msg)+1];
+        this->msg = new char[std::strlen(msg)];
         std::memcpy(this->msg, msg, std::strlen(msg));
     }
     
@@ -74,7 +74,7 @@ struct Message {
         addr = new char[INET_ADDRSTRLEN];
         std::memcpy(addr, other.addr, INET_ADDRSTRLEN);
         
-        msg = new char[std::strlen(other.msg)+1];
+        msg = new char[std::strlen(other.msg)];
         std::memcpy(msg, other.msg, std::strlen(other.msg));
         
         return *this;

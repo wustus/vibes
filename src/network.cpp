@@ -208,7 +208,6 @@ void Network::append_to_buffer(char* addr, char* message, char**& buffer, int& c
     if (*buffer[counter] != '\0') {
         delete[] buffer[counter];
         buffer[counter] = new char[MESSAGE_SIZE];
-        
     }
     
     std::memcpy(buffer[counter], buffer_msg, MESSAGE_SIZE);
@@ -621,8 +620,8 @@ char* Network::find_challenger(char**& game_status) {
                         delete[] player1;
                         delete[] player2;
                         
-                        char* player1 = new char[INET_ADDRSTRLEN];
-                        char* player2 = new char[INET_ADDRSTRLEN];
+                        player1 = new char[INET_ADDRSTRLEN];
+                        player2 = new char[INET_ADDRSTRLEN];
                         *player1 = '\0';
                         *player2 = '\0';
                     }
