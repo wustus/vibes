@@ -818,7 +818,6 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
             delete[] ref_addr;
             
             if (std::strncmp(msg, "WIN", 3) == 0 || std::strncmp(msg, "LOSE", 4) == 0 || std::strncmp(msg, "WAIT", 4) == 0 || std::strncmp(msg, "GAME", 4) == 0) {
-                delete[] msg;
             
                 int c = 0;
                 
