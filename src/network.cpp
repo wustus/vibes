@@ -808,7 +808,7 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
             // get source addr (the one that has won or lost)
             split_buffer_message(src_addr, temp_msg, buffer_msg);
              
-            delete[] buffer_msg;
+            
             
             // get opponent address
             split_buffer_message(ref_addr, msg, temp_msg);
@@ -817,27 +817,25 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
             delete[] temp_msg;
             delete[] ref_addr;
             
-            if (std::strncmp(msg, "WIN", 3) != 0 || std::strncmp(msg, "LOSE", 4) != 0 || std::strncmp(msg, "WAIT", 4) != 0 || std::strncmp(msg, "GAME", 4) != 0) {
+            if (std::strncmp(msg, "WIN", 3) == 0 || std::strncmp(msg, "LOSE", 4) == 0 || std::strncmp(msg, "WAIT", 4) == 0 || std::strncmp(msg, "GAME", 4) == 0) {
                 delete[] msg;
-                continue;
+            
+                int c = 0;
+                
+                while (*game_status[c] != '\0') {
+                    
+                    if (std::strcmp(game_status[c], buffer_msg) != 0) {
+                        break;
+                    }
+                    
+                    c = ++c % 16;
+                }
+                
+                std::memcpy(game_status[c], buffer_msg, MESSAGE_SIZE);
             }
             
             delete[] msg;
-            
-            int c = 0;
-            bool contains_message = false;
-            
-            while (*game_status[c] != '\0') {
-                
-                if (std::strcmp(game_status[c], CHLG_BUFFER[i]) != 0) {
-                    break;
-                }
-                
-                c = ++c % 16;
-            }
-            
-            std::lock_guard<std::mutex> lock(buffer_mutex);
-            std::memcpy(game_status[c], CHLG_BUFFER[c], MESSAGE_SIZE);
+            delete[] buffer_msg;
         }
     }
 }
