@@ -825,7 +825,7 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
                     
                     if (std::strncmp(game_status[c], buffer_msg, MESSAGE_SIZE) != 0) {
                         break;
-                    } else {
+                    } else if (std::strncmp(game_status[c], buffer_msg, MESSAGE_SIZE) == 0) {
                         contains_status = true;
                         break;
                     }
