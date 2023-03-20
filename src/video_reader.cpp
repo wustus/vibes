@@ -23,12 +23,12 @@ bool open_video_reader(const char *filename, VideoReaderContext *video_ctx) {
     format_ctx = avformat_alloc_context();
     
     if (!format_ctx) {
-        std::cout << "Couldn't allocate AvFormatContext." << std::endl;
+        std::cerr << "Couldn't allocate AvFormatContext." << std::endl;
         return false;
     }
     
     if (avformat_open_input(&format_ctx, filename, NULL, NULL) != 0) {
-        std::cout << "Couldn't open file" << std::endl;
+        std::cerr << "Couldn't open file" << std::endl;
         return false;
     }
     
@@ -56,38 +56,38 @@ bool open_video_reader(const char *filename, VideoReaderContext *video_ctx) {
     }
     
     if (video_stream_index == -1) {
-        std::cout << "Couldn't find video stream" << std::endl;
+        std::cerr << "Couldn't find video stream" << std::endl;
         return false;
     }
     
     codec_ctx = avcodec_alloc_context3(codec);
     
     if (!codec_ctx) {
-        std::cout << "Couldn't allocate Codec Context" << std::endl;
+        std::cerr << "Couldn't allocate Codec Context" << std::endl;
         return false;
     }
     
     if (avcodec_parameters_to_context(codec_ctx, codec_params) < 0) {
-        std::cout << "Couldn't initialize Codec Context" << std::endl;
+        std::cerr << "Couldn't initialize Codec Context" << std::endl;
         return false;
     }
     
     if (avcodec_open2(codec_ctx, codec, NULL) < 0) {
-        std::cout << "Couldn't open Codec" << std::endl;
+        std::cerr << "Couldn't open Codec" << std::endl;
         return false;
     }
     
     frame = av_frame_alloc();
     
     if(!frame) {
-        std::cout << "Couldn't allocate frame" << std::endl;
+        std::cerr << "Couldn't allocate frame" << std::endl;
         return false;
     }
     
     packet = av_packet_alloc();
     
     if (!packet) {
-        std::cout << "Couldn't allocate packet" << std::endl;
+        std::cerr << "Couldn't allocate packet" << std::endl;
         return false;
     }
     

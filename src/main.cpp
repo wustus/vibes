@@ -126,7 +126,7 @@ int main(int argc, const char* argv[]) {
 #endif
     
 #ifdef __unix
-    FrameProducer frame_producer = FrameProducer("../assets/snoop.mp4g", FRAMES_IN_BUFFER);
+    FrameProducer frame_producer = FrameProducer("../assets/snoop.mp4", FRAMES_IN_BUFFER);
 #endif
     
     // start producing frames
