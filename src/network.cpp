@@ -823,14 +823,13 @@ void Network::game_status_listener(char**& game_status, bool& listening) {
                 
                 while (*game_status[c] != '\0') {
                     
-                    if (std::strncmp(game_status[c], buffer_msg, MESSAGE_SIZE) != 0) {
-                        break;
-                    } else if (std::strncmp(game_status[c], buffer_msg, MESSAGE_SIZE) == 0) {
+                    if (std::strncmp(game_status[c], buffer_msg, MESSAGE_SIZE) == 0) {
                         contains_status = true;
                         break;
+                    } else {
+                        c = ++c % 16;
                     }
                     
-                    c = ++c % 16;
                 }
                 
                 if (!contains_status) {
