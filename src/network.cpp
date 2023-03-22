@@ -725,15 +725,19 @@ char* Network::find_challenger(char**& game_status) {
     
     char* challenger = nullptr;
     
-    std::function<bool(char*, char*)> lex_compare = [](char* c1, char* c2) {
-        std::string s1 = std::string(c1);
-        std::string s2 = std::string(c2);
+    std::function<int(char*)> get_last_int = [](char* c) {
+        std::string s = std::string(c);
         
-        size_t i1 = s1.find_last_of(".") + 1;
-        size_t i2 = s2.find_last_of(".") + 1;
+        size_t i = s.find_last_of(".") + 1;
         
-        int n1 = std::stoi(s1.substr(i1, s1.size()));
-        int n2 = std::stoi(s2.substr(i2, s2.size()));
+        int n = std::stoi(s.substr(i, s.size()));
+        
+        return n;
+    };
+    
+    std::function<bool(char*, char*)> lex_compare = [get_last_int](char* c1, char* c2) {
+        int n1 = get_last_int(c1);
+        int n2 = get_last_int(c2);
 
         return n1 < n2;
     };
@@ -745,7 +749,7 @@ char* Network::find_challenger(char**& game_status) {
         int distances[still_player_size-1];
         
         for (int i=0; i!=still_player_size-1; i++) {
-            distances[i] = abs(std::strcmp(still_player[i], still_player[i+1]));
+            distances[i] = abs(get_last_int(still_player[i]) - get_last_int(still_player[i+1]));
         }
         
         int my_index = [this, &still_player, &still_player_size]() { for (int i=0; i!=still_player_size; i++) {if (std::strncmp(still_player[i], net_config.address, INET_ADDRSTRLEN) == 0) { return i; }}} ();
