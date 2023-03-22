@@ -348,6 +348,7 @@ public:
     short receive_move();
     void make_move(short m);
     void end_game();
+    int count_wins(char**& game_status);
     void game_status_listener(char**& game_status, bool& listening);
     void announce_status(char* addr, const char* result, char**& game_status);
     void announce_master();
