@@ -733,16 +733,19 @@ char* Network::find_challenger(char**& game_status) {
         
         // sort and create list of distances
         std::sort(still_player, still_player + still_player_size, lex_compare);
-        for (int i=0; i!=still_player_size; i++) {
-            std::cout << still_player[i] << std::endl;
-        }
         int distances[still_player_size-1];
         
         for (int i=0; i!=still_player_size-1; i++) {
             distances[i] = abs(std::strcmp(still_player[i], still_player[i+1]));
         }
         
+        for (int i=0; i!=still_player_size-1; i++) {
+            std::cout << distances[i] << std::endl << std::endl;
+        }
+        
         int my_index = [this, &still_player, &still_player_size]() { for (int i=0; i!=still_player_size; i++) {if (std::strncmp(still_player[i], net_config.address, INET_ADDRSTRLEN) == 0) { return i; }}} ();
+        
+        std::cout << my_index << std::endl << std::endl;
         
         int nearest_neighbors[still_player_size];
         
@@ -755,6 +758,8 @@ char* Network::find_challenger(char**& game_status) {
             } else {
                 nearest_neighbors[i] = distances[i-1] < distances[i] ? i-1 : i+1;
             }
+            
+            std::cout << nearest_neighbors[i] << std::endl << std::endl;
         }
         
         int nn = nearest_neighbors[my_index];
