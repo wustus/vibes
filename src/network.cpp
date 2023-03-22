@@ -17,10 +17,10 @@ Network::Network(int NUMBER_OF_DEVICES) : net_config(NUMBER_OF_DEVICES), thread_
         GAME_BUFFER[i] = new char[MESSAGE_SIZE];
         
         
-        RECEIVING_BUFFER[i][0] = '\0';
-        ACK_BUFFER[i][0] = '\0';
-        CHLG_BUFFER[i][0] = '\0';
-        GAME_BUFFER[i][0] = '\0';
+        std::memset(RECEIVING_BUFFER[i], 0, MESSAGE_SIZE);
+        std::memset(ACK_BUFFER[i], 0, MESSAGE_SIZE);
+        std::memset(CHLG_BUFFER[i], 0, MESSAGE_SIZE);
+        std::memset(GAME_BUFFER[i], 0, MESSAGE_SIZE);
     }
     
     // initialize sockets
@@ -222,6 +222,7 @@ void Network::flush_buffer(char**& buffer, int& counter) {
     for (int i=0; i!=MSG_BUFFER_SIZE; i++) {
         delete[] buffer[i];
         buffer[i] = new char[MESSAGE_SIZE];
+        std::memset(buffer[i], 0, MESSAGE_SIZE);
     }
     
     counter = 0;
