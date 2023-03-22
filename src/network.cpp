@@ -726,7 +726,6 @@ char* Network::find_challenger(char**& game_status) {
     char* challenger = nullptr;
     
     std::function<bool(char*, char*)> lex_compare = [](char* c1, char* c2) {
-        std::cout << c1 << " " <<  c2 << " " << std::strcmp(c1, c2) << std::endl;
         return std::strcmp(c1, c2) < 0;
     };
     
@@ -734,6 +733,9 @@ char* Network::find_challenger(char**& game_status) {
         
         // sort and create list of distances
         std::sort(still_player, still_player + still_player_size, lex_compare);
+        for (int i=0; i!=still_player_size; i++) {
+            std::cout << still_player[i] << std::endl;
+        }
         int distances[still_player_size-1];
         
         for (int i=0; i!=still_player_size-1; i++) {
