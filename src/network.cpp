@@ -481,7 +481,7 @@ void Network::discover_devices() {
                 delete[] buffer_msg;
                 
                 if (std::strncmp(addr, SSDP_ADDR, INET_ADDRSTRLEN) != 0 && std::strncmp(addr, local_addr, INET_ADDRSTRLEN) != 0 && std::strncmp(addr, ROUTER_ADDR, INET_ADDRSTRLEN) != 0) {
-                    if (std::strncmp(msg, "BUDDY", 5) == 0 && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
+                    if ((std::strncmp(msg, "BUDDY", 5) == 0 || std::strncmp(msg, "M-SEARCH *", 10) == 0) && std::find_if(discovered_devices.begin(), discovered_devices.end(), [addr](char* c) {
                         return std::strncmp(addr, c, INET_ADDRSTRLEN) == 0;
                     }) == discovered_devices.end()) {
                         discovered_devices.push_back(addr);
