@@ -976,7 +976,7 @@ void Network::wait_until_ready(char *addr) {
     
     send_message(chlg_sckt, addr, CHLG_PORT, "READY");
     
-    while (listening) {
+    while (listening && !listen_for_ack(addr, (char*) "READY")) {
         send_message(chlg_sckt, addr, CHLG_PORT, "READY");
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
