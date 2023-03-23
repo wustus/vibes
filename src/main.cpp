@@ -187,8 +187,6 @@ int main(int argc, const char* argv[]) {
     MONITOR_WIDTH = video_mode->width;
     MONITOR_HEIGHT = video_mode->height;
     
-    glfwSwapInterval(0);
-    
     // hide cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     
@@ -207,6 +205,12 @@ int main(int argc, const char* argv[]) {
         return -1;
     }
 #endif
+    
+    glfwSwapInterval(0);
+    glClearColor(.0f, .0f, .0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glfwPollEvents();
+    glfwSwapBuffers(window);
     
     // load and compile shaders
 #ifdef __APPLE__
