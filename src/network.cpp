@@ -400,7 +400,7 @@ void Network::transmission_handler() {
     }
 }
 
-void Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=3) {
+void Network::send_message(int sckt, const char* addr, int port, const char* msg, short timeout=5) {
     
     Message message(sckt, (char*) addr, port, (char*) msg, timeout);
     
