@@ -820,10 +820,6 @@ char* Network::find_challenger(char**& game_status) {
         std::sort(still_player, still_player + still_player_size, lex_compare);
         int distances[still_player_size-1];
         
-        for (int i=0; i!=still_player_size; i++) {
-            std::cout << still_player[i] << std::endl;
-        }
-        
         for (int i=0; i!=still_player_size-1; i++) {
             distances[i] = abs(get_last_int(still_player[i]) - get_last_int(still_player[i+1]));
         }
@@ -957,7 +953,7 @@ void Network::listen_for_ready(char* addr, bool& listening) {
             
             delete[] buffer_msg;
             
-            if (std::strcmp(recv_addr, addr) == 0 && std::strncmp(msg, "READY", 5) == 0) {
+            if (std::strncmp(recv_addr, addr, INET_ADDRSTRLEN) == 0 && std::strncmp(msg, "READY", 5) == 0) {
                 listening = false;
                 
                 delete[] recv_addr;
