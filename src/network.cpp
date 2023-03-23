@@ -598,7 +598,7 @@ char* Network::find_challenger(char**& game_status) {
             split_buffer_message(addr1, tmp, msg_bufffer);
             split_buffer_message(addr2, msg, tmp);
             
-            if (std::strncmp(msg, "GAME", 4) == 0) {
+            if (std::strncmp(msg, "GAME", 4) == 0 && std::strncmp(addr1, net_config.address, INET_ADDRSTRLEN) != 0 && std::strncmp(addr2, net_config.address, INET_ADDRSTRLEN) != 0) {
                 if (*player1 == '\0') {
                     wait_for_game = true;
                     std::memcpy(player1, addr1, INET_ADDRSTRLEN);
