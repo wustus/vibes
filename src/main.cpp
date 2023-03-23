@@ -323,6 +323,9 @@ int main(int argc, const char* argv[]) {
             while ((uint32_t) time(NULL) < playback_start_time) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
+
+            time_t t = (time_t)(uint32_t) time(NULL);
+            std::cout << std::ctime(&t) << std::endl;
             
             glfwSetTime(0.0);
         }
