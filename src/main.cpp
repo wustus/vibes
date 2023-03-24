@@ -14,6 +14,8 @@
 #endif
 
 #include <GLFW/glfw3.h>
+#include <ctime>
+#include <iomanip>
 
 int RGB_FRAME_SIZE;
 
