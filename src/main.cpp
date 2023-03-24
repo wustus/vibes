@@ -422,7 +422,7 @@ int main(int argc, const char* argv[]) {
         ss << std::put_time(std::localtime(&t), "%H:%M:%S");
         
         std::cout << "\tTime: " << ss.str() << "." << std::setw(6) << std::setfill('0') << t_ym.count() << std::endl;
-        std::cout << "\tTPF:  " << end_time - start_time << "ms" << std::endl;
+        std::cout << "\tTPF:  " << (end_time - start_time) * 1000 << "ms" << std::endl;
         std::cout << "\t      " << 1 / (end_time - start_time) << "FPS" << std::endl;
         std::cout << "-----------------" << std::endl << std::endl;
         
