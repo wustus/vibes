@@ -328,9 +328,6 @@ int main(int argc, const char* argv[]) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
 
-            time_t t = (time_t)(uint32_t) time(NULL);
-            std::cout << std::ctime(&t) << std::endl;
-            
             glfwSetTime(0.0);
         }
         
@@ -413,8 +410,19 @@ int main(int argc, const char* argv[]) {
         
         end_time = glfwGetTime();
         
-        std::cout << end_time - start_time << "ms" << std::endl;
-        std::cout << 1 / (end_time - start_time) << "FPS" << std::endl << std::endl;
+        std::cout << "---- FRAME " << current_frame + 1 << " ----" << std::endl;
+        auto now = std::chrono::system_clock::now();
+        auto t_s = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+        auto t_ym = std::chrono::duration_cast<std::chrono::microseconds>(now - t_s);
+        std::time_t t = std::chrono::system_clock::to_time_t(t_s);
+        
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&t), "%H:%M:%S");
+        
+        std::cout << "\tTime: " << ss.str() << "." << std::setw(6) << std::setfill('0') << t_ym.count() << std::endl;
+        std::cout << "\tTPF:  " << end_time - start_time << "ms" << std::endl;
+        std::cout << "\t      " << 1 / (end_time - start_time) << "FPS" << std::endl;
+        std::cout << "-----------------" << std::endl << std::endl;
         
         current_frame++;
     }

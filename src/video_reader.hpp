@@ -15,6 +15,7 @@ extern "C" {
     #include <libavformat/avformat.h>
     #include <libswscale/swscale.h>
     #include <libavutil/avutil.h>
+    #include <libavutil/log.h>
 }
 
 struct VideoReaderContext {

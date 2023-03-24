@@ -22,6 +22,9 @@ bool open_video_reader(const char *filename, VideoReaderContext *video_ctx) {
     
     format_ctx = avformat_alloc_context();
     
+    // suppress missing accelerated video conversion message
+    av_log_set_level(AV_LOG_ERROR);
+    
     if (!format_ctx) {
         std::cerr << "Couldn't allocate AvFormatContext." << std::endl;
         return false;
