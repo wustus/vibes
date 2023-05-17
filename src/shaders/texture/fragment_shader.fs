@@ -1,8 +1,8 @@
 #version 330 core
 
-out vec4 frag_color;
-
 in vec2 texture_coords;
+
+out vec4 frag_color;
 
 uniform sampler2D _texture;
 

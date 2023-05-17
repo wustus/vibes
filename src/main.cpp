@@ -14,6 +14,7 @@
 #endif
 
 #include <GLFW/glfw3.h>
+#include "tic_tac_toe_vertices.h"
 #include <ctime>
 #include <iomanip>
 
@@ -96,6 +97,7 @@ int main(int argc, const char* argv[]) {
         throw std::runtime_error("Please add the Number of Devices.");
     }
     
+    /*
     int NUMBER_OF_DEVICES = std::stoi(argv[1]);
 
     // find devices
@@ -118,7 +120,7 @@ int main(int argc, const char* argv[]) {
     time_t unix_time = (time_t) playback_start_time;
     
     std::cout << "Playback Start Time: " << std::ctime(&unix_time) << std::endl;
-    
+    */
     // frames in PBO
     int FRAMES_IN_BUFFER = 16;
     
@@ -141,6 +143,8 @@ int main(int argc, const char* argv[]) {
     
     float VIEWPORT_WIDTH_RATIO = 1 - VIDEO_WIDTH / VIEWPORT_WIDTH;
     float VIEWPORT_HEIGHT_RATIO = 1 - VIDEO_HEIGHT / VIEWPORT_HEIGHT;
+    
+    float ASPECT_RATIO = VIEWPORT_HEIGHT / VIEWPORT_WIDTH;
     
     // get the next bigger number of RGBA_FRAME_SIZE in the series x^n where x in 2^i
     int BUFFER_SIZE = get_next_aligned_number(128);
@@ -216,28 +220,120 @@ int main(int argc, const char* argv[]) {
     
     // load and compile shaders
 #ifdef __APPLE__
-    Shader shader("/Users/justus/dev/vibes/src/shaders/vertex_shader.vs", "/Users/justus/dev/vibes/src/shaders/fragment_shader.fs");
+    Shader shader("/Users/justus/dev/vibes/src/shaders/rgb/vertex_shader.vs", "/Users/justus/dev/vibes/src/shaders/rgb/fragment_shader.fs",
+                  "/Users/justus/dev/vibes/src/shaders/texture/vertex_shader.vs", "/Users/justus/dev/vibes/src/shaders/texture/fragment_shader.fs");
 #endif
     
 #ifdef __unix
-    Shader shader("../src/shaders/vertex_shader_es.vs", "../src/shaders/fragment_shader_es.fs");
+    Shader shader("../src/shaders/rgb/vertex_shader_es.vs", "../src/shaders/rgb/fragment_shader_es.fs",
+                  "../src/shaders/texture/vertex_shader_es.vs", "../src/shaders/texture/fragment_shader_es.fs");
 #endif
     
     // change viewPort (renderable area) with window size
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
-    GLfloat vertices[] = {
-        // vertices                                                   padding  texture
-        1 - VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO,  0,     0,       1, 1,
-        1 - VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO,  0,     0,       1, 0,
-        -1 + VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO,  0,     0,       0, 0,
-        -1 + VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO,  0,     0,       0, 1
+    float vertices[] = {
+        // vertices                                            texture
+         1 - VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO, 1, 1,
+         1 - VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO, 1, 0,
+        -1 + VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO, 0, 0,
+        -1 + VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO, 0, 1
     };
     
-    GLuint indices[] = {
+    unsigned int indices[] = {
         0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
+        1, 2, 3, // second triangle
     };
+    
+    Tic_Tac_Toe_Vertices ttt_vertices = Tic_Tac_Toe_Vertices();
+    
+    auto TIC_TAC_TOE_FIELD = ttt_vertices.TIC_TAC_TOE_FIELD;
+    auto TIC_TAC_TOE_FIELD_INDICES = ttt_vertices.TIC_TAC_TOE_FIELD_INDICES;
+    
+    auto TIC_TAC_TOE_PLAYER_ONE = ttt_vertices.TIC_TAC_TOE_PLAYER_ONE;
+    auto TIC_TAC_TOE_PLAYER_ONE_INDICES = ttt_vertices.TIC_TAC_TOE_PLAYER_ONE_INDICES;
+
+    auto TIC_TAC_TOE_PLAYER_TWO = ttt_vertices.TIC_TAC_TOE_PLAYER_TWO;
+    auto TIC_TAC_TOE_PLAYER_TWO_INDICES = ttt_vertices.TIC_TAC_TOE_PLAYER_TWO_INDICES;
+    
+    
+    unsigned int RGB_VBO;
+    glGenBuffers(1, &RGB_VBO);
+    
+    // create element buffer object, which is sent to GPU as a whole
+    // EBO uses indices to draw triangles in a given order to avoid overlap
+    unsigned int RGB_EBO;
+    glGenBuffers(1, &RGB_EBO);
+    
+    unsigned int RGB_VAO;
+    glGenVertexArrays(1, &RGB_VAO);
+    
+    // bind vertex array object
+    glBindVertexArray(RGB_VAO);
+    
+    // copy vertices array in a buffer for OpenGL to use
+    glBindBuffer(GL_ARRAY_BUFFER, RGB_VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(TIC_TAC_TOE_FIELD) * sizeof(float), TIC_TAC_TOE_FIELD, GL_STATIC_DRAW);
+    
+    // position attributes
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*) 0);
+    glEnableVertexAttribArray(0);
+    
+    // vertex sequence
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RGB_EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(TIC_TAC_TOE_FIELD_INDICES), TIC_TAC_TOE_FIELD_INDICES, GL_STATIC_DRAW);
+    
+    shader.use_rgb_shader();
+    shader.set_float("u_aspect_ratio", ASPECT_RATIO);
+    
+    glBindVertexArray(RGB_VAO);
+    
+    while (!glfwWindowShouldClose(window)) {
+        
+        process_input(window);
+        
+        // clear the colorbuffer
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        
+        // copy vertices array in a buffer for OpenGL to use
+        glBindBuffer(GL_ARRAY_BUFFER, RGB_VBO);
+        glBufferData(GL_ARRAY_BUFFER, ttt_vertices.get_tic_tac_toe_field_vertices_size() * sizeof(float), TIC_TAC_TOE_FIELD, GL_STATIC_DRAW);
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RGB_EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, ttt_vertices.get_tic_tac_toe_field_indices_size() * sizeof(float), TIC_TAC_TOE_FIELD_INDICES, GL_STATIC_DRAW);
+        
+        glDrawElements(GL_TRIANGLES, (int)(ttt_vertices.get_tic_tac_toe_field_indices_size()), GL_UNSIGNED_INT, 0);
+        
+        // PLAYER ONE
+        glBindBuffer(GL_ARRAY_BUFFER, RGB_VBO);
+        glBufferData(GL_ARRAY_BUFFER, ttt_vertices.get_player_one_vertices_size() * sizeof(float), TIC_TAC_TOE_PLAYER_ONE, GL_STATIC_DRAW);
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RGB_EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, ttt_vertices.get_player_one_indices_size() * sizeof(float), TIC_TAC_TOE_PLAYER_ONE_INDICES, GL_STATIC_DRAW);
+        
+        glDrawElements(GL_TRIANGLES, (int)(ttt_vertices.get_player_one_indices_size()), GL_UNSIGNED_INT, 0);
+        
+        // PLAYER TWO
+        glBindBuffer(GL_ARRAY_BUFFER, RGB_VBO);
+        glBufferData(GL_ARRAY_BUFFER, ttt_vertices.get_player_two_number_vertices() * sizeof(float), TIC_TAC_TOE_PLAYER_TWO, GL_STATIC_DRAW);
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RGB_EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, ttt_vertices.get_player_two_indices_size() * sizeof(float), TIC_TAC_TOE_PLAYER_TWO_INDICES, GL_STATIC_DRAW);
+        
+        glDrawElements(GL_TRIANGLES, (int) ttt_vertices.get_player_two_indices_size(), GL_UNSIGNED_INT, 0);
+        
+    
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    /*
+    // VIDEO RENDER
     
     // create and bind texture
     unsigned int texture;
@@ -277,11 +373,11 @@ int main(int argc, const char* argv[]) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices) + 8, vertices, GL_STATIC_DRAW);
     
     // position attributes
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*) 0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*) 0);
     glEnableVertexAttribArray(0);
     
     // vertex sequence
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(4 * sizeof(GLfloat)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
     
     // copy index array in element buffer for OpenGL to use
@@ -304,10 +400,8 @@ int main(int argc, const char* argv[]) {
     }
     
     glBindVertexArray(VAO);
-    
-    shader.use();
-    
-    
+    */
+    shader.use_texture_shader();
     /*
      *  Render Loop Parameters
      */
@@ -326,10 +420,11 @@ int main(int argc, const char* argv[]) {
         static bool initial_frame = true;
         
         if (initial_frame) {
+            /*
             while ((uint32_t) time(NULL) < playback_start_time) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
-
+            */
             glfwSetTime(0.0);
         }
         

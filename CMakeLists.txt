@@ -31,6 +31,7 @@ list(APPEND SOURCES
 	src/video_reader.cpp
 	src/video_reader.hpp
 	src/shader.h
+	src/tic_tac_toe_vertices.h
 	src/frame_producer.cpp
 	src/frame_producer.hpp
 	src/shaders
