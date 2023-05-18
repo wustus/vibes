@@ -14,7 +14,19 @@ class SynchronizationHandler {
 private:
     Network& network;
     
+    char** game_status;
+    
+    std::thread handler_thread;
+    
+    bool is_master;
+    char* ntp_server;
+    
+    uint32_t start_time;
+    uint32_t offset;
+    
     struct tic_tac_toe {
+        
+        // game
         char field[9];
         char player;
         char opponent;
@@ -22,6 +34,11 @@ private:
         bool is_over;
         bool is_draw;
         bool is_won;
+        
+        // synchronization / rendering
+        std::mutex mtx;
+        std::condition_variable cv;
+        bool new_move = false;
         
         bool is_game_over() {
             for (int i=0; i!=9; i+=3) {
@@ -76,6 +93,8 @@ private:
         }
         
         void make_move(short m) {
+            std::lock_guard<std::mutex> lock(mtx);
+            
             if (field[m] == ' ') {
                 field[m] = is_move ? player : opponent;
             } else {
@@ -83,25 +102,18 @@ private:
             }
             
             print_field();
+            new_move = true;
+            cv.notify_one();
             
             is_move = !is_move;
         }
     };
     
-    tic_tac_toe ttt;
-    
-    char** game_status;
-    
-    std::thread handler_thread;
-    
-    bool is_master;
-    char* ntp_server;
-    
-    uint32_t start_time;
-    uint32_t offset;
-    
 public:
     SynchronizationHandler(Network& network);
+    
+    tic_tac_toe ttt;
+    
     void reset_game();
     void play(char*);
     void determine_master();
@@ -109,6 +121,8 @@ public:
     void set_offset();
     uint32_t get_offset();
     uint32_t get_start_time();
+    
+
     
 };
 

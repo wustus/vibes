@@ -57,14 +57,17 @@ public:
             vertex_indices.push_back(vertex_index + 2);
             vertex_indices.push_back(vertex_index + 3);
         }
+        
+        TIC_TAC_TOE_PLAYER_TWO_INDICES = Tic_Tac_Toe_Vertices::vertex_indices.data();
     }
     
     float* get_tic_tac_toe_player_two(short index) {
         
         std::vector<float> tmp = vertices;
+
         for (int i=0; i!=tmp.size(); i+=5) {
-            tmp[i] = index % 3 == 0 ? -0.66 : (index % 3 == 1 ? 0 : 0.67);
-            tmp[i+1] = index < 3 ? 0.66 : (index < 6 ? 0 : -0.67);
+            tmp[i] += index % 3 == 0 ? -0.66 : (index % 3 == 1 ? 0 : 0.67);
+            tmp[i+1] += index < 3 ? 0.66 : (index < 6 ? 0 : -0.67);
         }
         
         float* verts = new float[tmp.size()];

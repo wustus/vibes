@@ -97,30 +97,29 @@ int main(int argc, const char* argv[]) {
         throw std::runtime_error("Please add the Number of Devices.");
     }
     
-    /*
-    int NUMBER_OF_DEVICES = std::stoi(argv[1]);
+    
+     int NUMBER_OF_DEVICES = std::stoi(argv[1]);
+     
+     // find devices
+     Network network = Network(NUMBER_OF_DEVICES);
+     
+     std::cout << "Setting Local Address." << std::endl;
+     network.set_local_addr();
+     std::cout << "\tLocal Address: " << network.get_network_config()->address << std::endl;
+     network.discover_devices();
+     
+     // determine master
+     SynchronizationHandler sync_handler = SynchronizationHandler(network);
+     sync_handler.determine_master();
+     
+     sync_handler.set_offset();
+     uint32_t offset = sync_handler.get_offset();
+     
+     uint32_t playback_start_time = sync_handler.get_start_time();
+     time_t unix_time = (time_t) playback_start_time;
+     
+     std::cout << "Playback Start Time: " << std::ctime(&unix_time) << std::endl;
 
-    // find devices
-    Network network = Network(NUMBER_OF_DEVICES);
-    
-    std::cout << "Setting Local Address." << std::endl;
-    network.set_local_addr();
-    std::cout << "\tLocal Address: " << network.get_network_config()->address << std::endl;
-    network.discover_devices();
-    
-    // determine master
-    SynchronizationHandler sync_handler = SynchronizationHandler(network);
-    
-    sync_handler.determine_master();
-    
-    sync_handler.set_offset();
-    uint32_t offset = sync_handler.get_offset();
-    
-    uint32_t playback_start_time = sync_handler.get_start_time();
-    time_t unix_time = (time_t) playback_start_time;
-    
-    std::cout << "Playback Start Time: " << std::ctime(&unix_time) << std::endl;
-    */
     // frames in PBO
     int FRAMES_IN_BUFFER = 16;
     
@@ -234,8 +233,8 @@ int main(int argc, const char* argv[]) {
     
     float vertices[] = {
         // vertices                                            texture
-         1 - VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO, 1, 1,
-         1 - VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO, 1, 0,
+        1 - VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO, 1, 1,
+        1 - VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO, 1, 0,
         -1 + VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO, 0, 0,
         -1 + VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO, 0, 1
     };
@@ -249,13 +248,6 @@ int main(int argc, const char* argv[]) {
     
     const float* TIC_TAC_TOE_FIELD = ttt_vertices.TIC_TAC_TOE_FIELD;
     const unsigned int* TIC_TAC_TOE_FIELD_INDICES = ttt_vertices.TIC_TAC_TOE_FIELD_INDICES;
-    
-    float* TIC_TAC_TOE_PLAYER_ONE = ttt_vertices.get_tic_tac_toe_player_one(0);
-    const unsigned int* TIC_TAC_TOE_PLAYER_ONE_INDICES = ttt_vertices.TIC_TAC_TOE_PLAYER_ONE_INDICES;
-
-    float* TIC_TAC_TOE_PLAYER_TWO = ttt_vertices.get_tic_tac_toe_player_two(1);
-    unsigned int* TIC_TAC_TOE_PLAYER_TWO_INDICES = ttt_vertices.TIC_TAC_TOE_PLAYER_TWO_INDICES;
-    
     
     unsigned int RGB_VBO;
     glGenBuffers(1, &RGB_VBO);
@@ -291,6 +283,8 @@ int main(int argc, const char* argv[]) {
     
     glBindVertexArray(RGB_VAO);
     
+    std::mutex* mtx = &sync_handler.ttt.mtx;
+    
     while (!glfwWindowShouldClose(window)) {
         
         process_input(window);
@@ -309,27 +303,50 @@ int main(int argc, const char* argv[]) {
         
         glDrawElements(GL_TRIANGLES, (int)(ttt_vertices.get_tic_tac_toe_field_indices_size()), GL_UNSIGNED_INT, 0);
         
-        // PLAYER ONE
-        glBindBuffer(GL_ARRAY_BUFFER, RGB_VBO);
-        glBufferData(GL_ARRAY_BUFFER, ttt_vertices.get_player_one_vertices_size() * sizeof(float), TIC_TAC_TOE_PLAYER_ONE, GL_STATIC_DRAW);
+        auto ttt_field = sync_handler.ttt.field;
         
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RGB_EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, ttt_vertices.get_player_one_indices_size() * sizeof(float), TIC_TAC_TOE_PLAYER_ONE_INDICES, GL_STATIC_DRAW);
+        std::vector<float*> vertices;
+        std::vector<const unsigned int*> indices;
         
-        glDrawElements(GL_TRIANGLES, (int)(ttt_vertices.get_player_one_indices_size()), GL_UNSIGNED_INT, 0);
+        std::vector<size_t> vertex_sizes;
+        std::vector<size_t> index_sizes;
         
-        // PLAYER TWO
-        glBindBuffer(GL_ARRAY_BUFFER, RGB_VBO);
-        glBufferData(GL_ARRAY_BUFFER, ttt_vertices.get_player_two_number_vertices() * sizeof(float), TIC_TAC_TOE_PLAYER_TWO, GL_STATIC_DRAW);
+        for (int i=0; i!=9; i++) {
+            if (ttt_field[i] == 'X') {
+                vertices.push_back(ttt_vertices.get_tic_tac_toe_player_one(i));
+                indices.push_back(ttt_vertices.TIC_TAC_TOE_PLAYER_ONE_INDICES);
+                vertex_sizes.push_back(ttt_vertices.get_player_one_vertices_size());
+                index_sizes.push_back(ttt_vertices.get_player_one_indices_size());
+            } else if (ttt_field[i] == 'O') {
+                vertices.push_back(ttt_vertices.get_tic_tac_toe_player_two(i));
+                indices.push_back(ttt_vertices.TIC_TAC_TOE_PLAYER_TWO_INDICES);
+                vertex_sizes.push_back(ttt_vertices.get_player_two_number_vertices());
+                index_sizes.push_back(ttt_vertices.get_player_two_indices_size());
+            }
+        }
         
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RGB_EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, ttt_vertices.get_player_two_indices_size() * sizeof(float), TIC_TAC_TOE_PLAYER_TWO_INDICES, GL_STATIC_DRAW);
+        // DRAW MOVES
+        for (int i=0; i!=vertices.size(); i++) {
+            auto move_vertices = vertices[i];
+            auto move_indices = indices[i];
+            auto move_vertex_size = vertex_sizes[i];
+            auto move_index_size = index_sizes[i];
+            
+            glBindBuffer(GL_ARRAY_BUFFER, RGB_VBO);
+            glBufferData(GL_ARRAY_BUFFER, move_vertex_size * sizeof(float), move_vertices, GL_STATIC_DRAW);
+            
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RGB_EBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, move_index_size * sizeof(float), move_indices, GL_STATIC_DRAW);
+            
+            glDrawElements(GL_TRIANGLES, (int) move_index_size, GL_UNSIGNED_INT, 0);
+        }
         
-        glDrawElements(GL_TRIANGLES, (int) ttt_vertices.get_player_two_indices_size(), GL_UNSIGNED_INT, 0);
-        
-    
         glfwSwapBuffers(window);
         glfwPollEvents();
+        
+        std::unique_lock<std::mutex> lock(*mtx);
+        while (!sync_handler.ttt.new_move) sync_handler.ttt.cv.wait(lock);
+        sync_handler.ttt.new_move = false;
     }
 
     /*
