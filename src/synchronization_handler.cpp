@@ -26,7 +26,7 @@ SynchronizationHandler::SynchronizationHandler(Network& net) : network(net) {
 void SynchronizationHandler::play(char* challenger) {
 
     network.announce_status(challenger, "GAME", game_status);
-    reset_game();
+    ttt.reset();
     network.start_game(challenger);
     std::cout << "Waiting Until Opponent is Ready." << std::endl;
     network.wait_until_ready(challenger);
@@ -85,13 +85,6 @@ void SynchronizationHandler::play(char* challenger) {
         network.announce_status(challenger, "WIN", game_status);
     } else {
         network.announce_status(challenger, "LOSE", game_status);
-    }
-}
-
-void SynchronizationHandler::reset_game() {
-    memset(&ttt, 0, sizeof(ttt));
-    for (int i=0; i!=9; i++) {
-        ttt.field[i] = ' ';
     }
 }
 

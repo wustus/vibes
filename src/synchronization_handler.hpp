@@ -100,12 +100,26 @@ private:
             } else {
                 return;
             }
-            
+
             print_field();
             new_move = true;
             cv.notify_one();
             
             is_move = !is_move;
+        }
+        
+        void reset() {
+            for (int i=0; i!=9; i++) {
+                field[i] = ' ';
+            }
+            
+            player = '\0';
+            opponent = '\0';
+            is_move = false;
+            is_over = false;
+            is_draw = false;
+            is_won = false;
+            new_move = false;
         }
     };
     
@@ -114,7 +128,6 @@ public:
     
     tic_tac_toe ttt;
     
-    void reset_game();
     void play(char*);
     void determine_master();
     bool get_is_master();
