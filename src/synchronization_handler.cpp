@@ -120,7 +120,7 @@ void SynchronizationHandler::determine_master() {
             wins = network.count_wins(game_status);
             network.flush_game_buffer();
             
-            if (wins == 2) {
+            if (wins == 1) {
                 next_round = false;
                 is_master = true;
             }

@@ -108,18 +108,6 @@ int main(int argc, const char* argv[]) {
      std::cout << "\tLocal Address: " << network.get_network_config()->address << std::endl;
      network.discover_devices();
      
-     // determine master
-     SynchronizationHandler sync_handler = SynchronizationHandler(network);
-     sync_handler.determine_master();
-     
-     sync_handler.set_offset();
-     uint32_t offset = sync_handler.get_offset();
-     
-     uint32_t playback_start_time = sync_handler.get_start_time();
-     time_t unix_time = (time_t) playback_start_time;
-     
-     std::cout << "Playback Start Time: " << std::ctime(&unix_time) << std::endl;
-
     // frames in PBO
     int FRAMES_IN_BUFFER = 16;
     
@@ -283,6 +271,10 @@ int main(int argc, const char* argv[]) {
     
     glBindVertexArray(RGB_VAO);
     
+    // determine master
+    SynchronizationHandler sync_handler = SynchronizationHandler(network);
+    std::thread ttt_thread([&sync_handler]() { sync_handler.determine_master(); });
+    
     std::mutex* mtx = &sync_handler.ttt.mtx;
     
     while (!glfwWindowShouldClose(window)) {
@@ -348,6 +340,14 @@ int main(int argc, const char* argv[]) {
         while (!sync_handler.ttt.new_move) sync_handler.ttt.cv.wait(lock);
         sync_handler.ttt.new_move = false;
     }
+    
+    sync_handler.set_offset();
+    uint32_t offset = sync_handler.get_offset();
+    
+    uint32_t playback_start_time = sync_handler.get_start_time();
+    time_t unix_time = (time_t) playback_start_time;
+    
+    std::cout << "Playback Start Time: " << std::ctime(&unix_time) << std::endl;
 
     /*
     // VIDEO RENDER
