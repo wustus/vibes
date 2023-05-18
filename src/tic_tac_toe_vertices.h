@@ -15,10 +15,12 @@ class Tic_Tac_Toe_Vertices {
     std::vector <float> vertices;
     std::vector <unsigned int> vertex_indices;
     
+    int num_segments;
+    
 public:
-    Tic_Tac_Toe_Vertices() {
+    Tic_Tac_Toe_Vertices(int num_segments) {
         
-        const int num_segments = 100;
+        Tic_Tac_Toe_Vertices::num_segments = num_segments;
         const float outer_radius = 0.33f;
         const float inner_radius = 0.31f;
         const float pi2 = M_PI * 2;
@@ -54,14 +56,23 @@ public:
             vertex_indices.push_back(vertex_index);
             vertex_indices.push_back(vertex_index + 2);
             vertex_indices.push_back(vertex_index + 3);
-            
         }
-        
-        Tic_Tac_Toe_Vertices::TIC_TAC_TOE_PLAYER_TWO = vertices.data();
-        Tic_Tac_Toe_Vertices::TIC_TAC_TOE_PLAYER_TWO_INDICES = vertex_indices.data();
     }
     
-    float* TIC_TAC_TOE_PLAYER_TWO;
+    float* get_tic_tac_toe_player_two(short index) {
+        
+        std::vector<float> tmp = vertices;
+        for (int i=0; i!=tmp.size(); i+=5) {
+            tmp[i] = index % 3 == 0 ? -0.66 : (index % 3 == 1 ? 0 : 0.67);
+            tmp[i+1] = index < 3 ? 0.66 : (index < 6 ? 0 : -0.67);
+        }
+        
+        float* verts = new float[tmp.size()];
+        std::copy(tmp.begin(), tmp.end(), verts);
+        
+        return verts;
+    }
+    
     unsigned int* TIC_TAC_TOE_PLAYER_TWO_INDICES;
     
     
@@ -91,34 +102,30 @@ public:
         return vertex_indices.size();
     }
 
-    float* get_tic_tac_toe_field(int x_offset, int y_offset) {
-        
-        float* arr = new float[] {
-            // left line
-            // x                        y                         r     g     b
-            -0.33f + 0.01f + x_offset,  0.85f         + y_offset, 1.0f, 1.0f, 1.0f,
-            -0.33f + 0.01f + x_offset, -0.85f         + y_offset, 1.0f, 1.0f, 1.0f,
-            -0.33f - 0.01f + x_offset, -0.85f         + y_offset, 1.0f, 1.0f, 1.0f,
-            -0.33f - 0.01f + x_offset,  0.85f         + y_offset, 1.0f, 1.0f, 1.0f,
-            // right line
-             0.33f + 0.01f + x_offset,  0.85f         + y_offset, 1.0f, 1.0f, 1.0f,
-             0.33f + 0.01f + x_offset, -0.85f         + y_offset, 1.0f, 1.0f, 1.0f,
-             0.33f - 0.01f + x_offset, -0.85f         + y_offset, 1.0f, 1.0f, 1.0f,
-             0.33f - 0.01f + x_offset,  0.85f         + y_offset, 1.0f, 1.0f, 1.0f,
-            // top line
-             0.85f         + x_offset,  0.33f + 0.01f + y_offset, 1.0f, 1.0f, 1.0f,
-            -0.85f         + x_offset,  0.33f + 0.01f + y_offset, 1.0f, 1.0f, 1.0f,
-            -0.85f         + x_offset,  0.33f - 0.01f + y_offset, 1.0f, 1.0f, 1.0f,
-             0.85f         + x_offset,  0.33f - 0.01f + y_offset, 1.0f, 1.0f, 1.0f,
-            // bottom line
-             0.85f         + x_offset, -0.33f + 0.01f + y_offset, 1.0f, 1.0f, 1.0f,
-            -0.85f         + x_offset, -0.33f + 0.01f + y_offset, 1.0f, 1.0f, 1.0f,
-            -0.85f         + x_offset, -0.33f - 0.01f + y_offset, 1.0f, 1.0f, 1.0f,
-             0.85f         + x_offset, -0.33f - 0.01f + y_offset, 1.0f, 1.0f, 1.0f
-        };
-        
-        return arr;
-    }
+    
+    static constexpr float TIC_TAC_TOE_FIELD[] = {
+        // left line
+        // x             y              r     g     b
+        -0.33f + 0.01f,  0.99f        , 1.0f, 1.0f, 1.0f,
+        -0.33f + 0.01f, -0.99f        , 1.0f, 1.0f, 1.0f,
+        -0.33f - 0.01f, -0.99f        , 1.0f, 1.0f, 1.0f,
+        -0.33f - 0.01f,  0.99f        , 1.0f, 1.0f, 1.0f,
+        // right line
+         0.33f + 0.01f,  0.99f        , 1.0f, 1.0f, 1.0f,
+         0.33f + 0.01f, -0.99f        , 1.0f, 1.0f, 1.0f,
+         0.33f - 0.01f, -0.99f        , 1.0f, 1.0f, 1.0f,
+         0.33f - 0.01f,  0.99f        , 1.0f, 1.0f, 1.0f,
+        // top line
+         0.99f        ,  0.33f + 0.01f, 1.0f, 1.0f, 1.0f,
+        -0.99f        ,  0.33f + 0.01f, 1.0f, 1.0f, 1.0f,
+        -0.99f        ,  0.33f - 0.01f, 1.0f, 1.0f, 1.0f,
+         0.99f        ,  0.33f - 0.01f, 1.0f, 1.0f, 1.0f,
+        // bottom line
+         0.99f        , -0.33f + 0.01f, 1.0f, 1.0f, 1.0f,
+        -0.99f        , -0.33f + 0.01f, 1.0f, 1.0f, 1.0f,
+        -0.99f        , -0.33f - 0.01f, 1.0f, 1.0f, 1.0f,
+         0.99f        , -0.33f - 0.01f, 1.0f, 1.0f, 1.0f
+    };
 
     static constexpr unsigned int TIC_TAC_TOE_FIELD_INDICES[] = {
         // left line
@@ -136,7 +143,12 @@ public:
     };
 
 
-    float* get_tic_tac_toe_player_one(int x_offset, int y_offset) {
+    float* get_tic_tac_toe_player_one(short index) {
+        
+        float x_offset, y_offset = 0;
+        
+        x_offset = index % 3 == 0 ? -0.66 : (index % 3 == 1 ? 0 : 0.67);
+        y_offset = index < 3 ? 0.66 : (index < 6 ? 0 : -0.67);
         
         float* arr = new float[] {
              // x                       y                         r     g     b

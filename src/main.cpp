@@ -245,16 +245,16 @@ int main(int argc, const char* argv[]) {
         1, 2, 3, // second triangle
     };
     
-    Tic_Tac_Toe_Vertices ttt_vertices = Tic_Tac_Toe_Vertices();
+    Tic_Tac_Toe_Vertices ttt_vertices = Tic_Tac_Toe_Vertices(100);
     
-    auto TIC_TAC_TOE_FIELD = ttt_vertices.TIC_TAC_TOE_FIELD;
-    auto TIC_TAC_TOE_FIELD_INDICES = ttt_vertices.TIC_TAC_TOE_FIELD_INDICES;
+    const float* TIC_TAC_TOE_FIELD = ttt_vertices.TIC_TAC_TOE_FIELD;
+    const unsigned int* TIC_TAC_TOE_FIELD_INDICES = ttt_vertices.TIC_TAC_TOE_FIELD_INDICES;
     
-    auto TIC_TAC_TOE_PLAYER_ONE = ttt_vertices.TIC_TAC_TOE_PLAYER_ONE;
-    auto TIC_TAC_TOE_PLAYER_ONE_INDICES = ttt_vertices.TIC_TAC_TOE_PLAYER_ONE_INDICES;
+    float* TIC_TAC_TOE_PLAYER_ONE = ttt_vertices.get_tic_tac_toe_player_one(0);
+    const unsigned int* TIC_TAC_TOE_PLAYER_ONE_INDICES = ttt_vertices.TIC_TAC_TOE_PLAYER_ONE_INDICES;
 
-    auto TIC_TAC_TOE_PLAYER_TWO = ttt_vertices.TIC_TAC_TOE_PLAYER_TWO;
-    auto TIC_TAC_TOE_PLAYER_TWO_INDICES = ttt_vertices.TIC_TAC_TOE_PLAYER_TWO_INDICES;
+    float* TIC_TAC_TOE_PLAYER_TWO = ttt_vertices.get_tic_tac_toe_player_two(1);
+    unsigned int* TIC_TAC_TOE_PLAYER_TWO_INDICES = ttt_vertices.TIC_TAC_TOE_PLAYER_TWO_INDICES;
     
     
     unsigned int RGB_VBO;
