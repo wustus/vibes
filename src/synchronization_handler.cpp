@@ -81,6 +81,9 @@ void SynchronizationHandler::play(char* challenger) {
         std::cout << " -------------------" << std::endl;
     }
     
+    ttt.is_over = true;
+    ttt.cv.notify_one();
+    
     if (ttt.is_won) {
         network.announce_status(challenger, "WIN", game_status);
     } else {

@@ -201,6 +201,8 @@ int main(int argc, const char* argv[]) {
     
     glfwSwapInterval(0);
     glClearColor(.0f, .0f, .0f, 1.0f);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClear(GL_COLOR_BUFFER_BIT);
     glfwPollEvents();
     glfwSwapBuffers(window);
@@ -256,11 +258,11 @@ int main(int argc, const char* argv[]) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(TIC_TAC_TOE_FIELD) * sizeof(float), TIC_TAC_TOE_FIELD, GL_STATIC_DRAW);
     
     // position attributes
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*) 0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*) 0);
     glEnableVertexAttribArray(0);
     
     // vertex sequence
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RGB_EBO);
@@ -277,6 +279,14 @@ int main(int argc, const char* argv[]) {
     
     std::mutex* mtx = &sync_handler.ttt.mtx;
     
+    float* player_vertices = ttt_vertices.get_current_player_indices(sync_handler.ttt.player);
+    const unsigned int* player_indices = sync_handler.ttt.player == 'X' ? ttt_vertices.TIC_TAC_TOE_PLAYER_ONE_INDICES : ttt_vertices.TIC_TAC_TOE_PLAYER_TWO_INDICES;
+    size_t player_vertices_size = sync_handler.ttt.player == 'X' ? ttt_vertices.get_player_one_vertices_size() : ttt_vertices.get_player_two_number_vertices();
+    size_t player_indices_size = sync_handler.ttt.player == 'X' ? ttt_vertices.get_player_one_indices_size() : ttt_vertices.get_player_two_indices_size();
+    
+    bool winner_determined = false;
+    float r,g,b,alpha = 0.0f;
+    
     while (!glfwWindowShouldClose(window)) {
         
         process_input(window);
@@ -284,7 +294,43 @@ int main(int argc, const char* argv[]) {
         // clear the colorbuffer
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
+        
+        if (sync_handler.ttt.is_over) {
+            shader.set_bool("u_use_ratio", false);
+            
+            winner_determined = true;
+            if (sync_handler.ttt.is_won) {
+                r = 25.0f  / 255.0f;
+                g = 135.0f / 255.0f;
+                b = 84.0f  / 255.0f;
+            } else {
+                r = 220.0f / 255.0f;
+                g = 53.0f  / 255.0f;
+                b = 69.0f  / 255.0f;
+            }
+        
+            glBindBuffer(GL_ARRAY_BUFFER, RGB_VBO);
+            glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), ttt_vertices.get_tic_tac_toe_screen(r, g, b, alpha), GL_STATIC_DRAW);
+            
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RGB_EBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(float), ttt_vertices.TIC_TAC_TOE_SCREEN_INDICES, GL_STATIC_DRAW);
+            
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            
+            alpha += 0.01f;
+            glfwWaitEventsTimeout(0.005f);
+        }
+        
+        shader.set_bool("u_use_ratio", true);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, RGB_VBO);
+        glBufferData(GL_ARRAY_BUFFER, player_vertices_size * sizeof(float), player_vertices, GL_STATIC_DRAW);
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RGB_EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, player_indices_size * sizeof(float), player_indices, GL_STATIC_DRAW);
+        
+        glDrawElements(GL_TRIANGLES, (int) player_indices_size, GL_UNSIGNED_INT, 0);
+        
         
         // copy vertices array in a buffer for OpenGL to use
         glBindBuffer(GL_ARRAY_BUFFER, RGB_VBO);
@@ -336,10 +382,32 @@ int main(int argc, const char* argv[]) {
         glfwSwapBuffers(window);
         glfwPollEvents();
         
-        std::unique_lock<std::mutex> lock(*mtx);
-        while (!sync_handler.ttt.new_move) sync_handler.ttt.cv.wait(lock);
+        // delete allocated vertex-memory
+        for (float* x : vertices) {
+            delete[] x;
+        }
+        
+        if (!winner_determined) {
+            std::unique_lock<std::mutex> lock(*mtx);
+            while (!sync_handler.ttt.new_move && !sync_handler.ttt.is_over) sync_handler.ttt.cv.wait(lock);
+        }
+        
         sync_handler.ttt.new_move = false;
+        if (alpha > 1.0f) {
+            /*
+            // empty window
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+            */
+            break;
+        }
     }
+
+    ttt_thread.join();
+    
+    delete[] player_vertices;
     
     sync_handler.set_offset();
     uint32_t offset = sync_handler.get_offset();
@@ -349,7 +417,7 @@ int main(int argc, const char* argv[]) {
     
     std::cout << "Playback Start Time: " << std::ctime(&unix_time) << std::endl;
 
-    /*
+    
     // VIDEO RENDER
     
     // create and bind texture
@@ -417,7 +485,7 @@ int main(int argc, const char* argv[]) {
     }
     
     glBindVertexArray(VAO);
-    */
+    
     shader.use_texture_shader();
     /*
      *  Render Loop Parameters

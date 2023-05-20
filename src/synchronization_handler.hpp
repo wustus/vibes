@@ -41,6 +41,11 @@ private:
         bool new_move = false;
         
         bool is_game_over() {
+            
+            if (is_over) {
+                return true;
+            }
+            
             for (int i=0; i!=9; i+=3) {
                 if (field[i] != ' ' && field[i] == field[i+1] && field[i+1] == field[i+2]) {
                     is_won = field[i] == player;
@@ -119,7 +124,8 @@ private:
             is_over = false;
             is_draw = false;
             is_won = false;
-            new_move = false;
+            new_move = true;
+            cv.notify_one();
         }
     };
     
