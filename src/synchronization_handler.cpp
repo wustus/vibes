@@ -44,7 +44,7 @@ void SynchronizationHandler::play(char* challenger) {
     }
     
     ttt.new_move = true;
-    cv.notify_one();
+    ttt.cv.notify_one();
     
     std::cout << " -------------------" << std::endl;
     std::cout << " | Player: " << ttt.player << "       |" << std::endl;
