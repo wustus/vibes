@@ -124,8 +124,7 @@ private:
             is_over = false;
             is_draw = false;
             is_won = false;
-            new_move = true;
-            cv.notify_one();
+            new_move = false;
         }
     };
     

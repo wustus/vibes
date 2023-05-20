@@ -279,6 +279,11 @@ int main(int argc, const char* argv[]) {
     
     std::mutex* mtx = &sync_handler.ttt.mtx;
     
+    {
+        std::unique_lock<std::mutex> lock(*mtx);
+        while (!sync_handler.ttt.new_move) sync_handler.ttt.cv.wait(lock);
+    }
+    
     float* player_vertices = ttt_vertices.get_current_player_indices(sync_handler.ttt.player);
     const unsigned int* player_indices = sync_handler.ttt.player == 'X' ? ttt_vertices.TIC_TAC_TOE_PLAYER_ONE_INDICES : ttt_vertices.TIC_TAC_TOE_PLAYER_TWO_INDICES;
     size_t player_vertices_size = sync_handler.ttt.player == 'X' ? ttt_vertices.get_player_one_vertices_size() : ttt_vertices.get_player_two_number_vertices();

@@ -43,6 +43,9 @@ void SynchronizationHandler::play(char* challenger) {
         ttt.is_move = false;
     }
     
+    ttt.new_move = true;
+    cv.notify_one();
+    
     std::cout << " -------------------" << std::endl;
     std::cout << " | Player: " << ttt.player << "       |" << std::endl;
     std::cout << " | Opponent: " << ttt.opponent << "     |" << std::endl;
