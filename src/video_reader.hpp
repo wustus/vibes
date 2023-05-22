@@ -16,16 +16,25 @@ extern "C" {
     #include <libswscale/swscale.h>
     #include <libavutil/avutil.h>
     #include <libavutil/log.h>
+    #include <libavfilter/avfilter.h>
+    #include <libavfilter/buffersrc.h>
+    #include <libavfilter/buffersink.h>
 }
 
 struct VideoReaderContext {
     int width, height;
+    short position;
     int rgb_frame_size;
     AVRational time_base;
-    AVFormatContext *format_ctx;
-    AVCodecContext *codec_ctx;
-    AVCodecParameters *codec_params;
+    AVFormatContext* format_ctx;
+    AVCodecContext* codec_ctx;
+    AVCodecParameters* codec_params;
     int video_stream_index;
+    AVFilterContext* buffersrc_ctx;
+    AVFilterContext* buffersink_ctx;
+    AVFilterGraph* filter_graph;
+    AVFilterInOut* filter_inputs;
+    AVFilterInOut* filter_outputs;
     AVFrame *frame;
     AVPacket *packet;
     SwsContext *scaler_ctx;

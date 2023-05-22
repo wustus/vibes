@@ -11,12 +11,14 @@
 #include <stdlib.h>
 #include <deque>
 #include <thread>
+#include <fstream>
+#include <sstream>
 
 #include "video_reader.hpp"
 
 class FrameProducer {
 public:
-    FrameProducer(const char* video_path, int frames_in_buffer);
+    FrameProducer(const char* video_path, const int number_of_devices, const char* position_path, const int frames_in_buffer);
     ~FrameProducer();
     bool produce_frame(void*& data, int64_t*& pts);
     void start_thread();
@@ -29,7 +31,8 @@ public:
     int get_timebase_den();
 private:
     VideoReaderContext video_ctx;
-    int frames_in_buffer;
+    const int number_of_devices;
+    const int frames_in_buffer;
     std::deque<void*> frame_buffer;
     std::deque<int64_t> pts_buffer;
     std::thread producer;

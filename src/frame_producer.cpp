@@ -7,14 +7,28 @@
 
 #include "frame_producer.hpp"
 
-FrameProducer::FrameProducer(const char* video_path, int frames_in_buffer) {
+FrameProducer::FrameProducer(const char* video_path, const int number_of_devices, const char* position_path, const int frames_in_buffer): number_of_devices(number_of_devices), frames_in_buffer(frames_in_buffer) {
+    
+    std::ifstream file_stream;
+    file_stream.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+    std::stringstream str_stream;
+    
+    try {
+        // open file
+        file_stream.open(position_path);
+        // read stream
+        str_stream << file_stream.rdbuf();
+        file_stream.close();
+        // set monitor position
+        video_ctx.position = std::stoi(str_stream.str());
+    } catch (std::ifstream::failure e) {
+        std::cerr << "Failed to read position file: " << e.what() << std::endl;
+    }
     
     // open video reader and create context
     if (!open_video_reader(video_path, &video_ctx)) {
         throw std::runtime_error("Couldn't open video reader");
     }
-    
-    FrameProducer::frames_in_buffer = frames_in_buffer;
 }
 
 FrameProducer::~FrameProducer() {

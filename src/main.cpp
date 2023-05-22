@@ -33,9 +33,6 @@ float MONITOR_HEIGHT;
     float VIEWPORT_HEIGHT = 768;
 #endif
 
-float VIDEO_WIDTH;
-float VIDEO_HEIGHT;
-
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
 }
@@ -97,27 +94,27 @@ int main(int argc, const char* argv[]) {
         throw std::runtime_error("Please add the Number of Devices.");
     }
     
-    
-     int NUMBER_OF_DEVICES = std::stoi(argv[1]);
-     
-     // find devices
-     Network network = Network(NUMBER_OF_DEVICES);
-     
-     std::cout << "Setting Local Address." << std::endl;
-     network.set_local_addr();
-     std::cout << "\tLocal Address: " << network.get_network_config()->address << std::endl;
-     network.discover_devices();
+    const int NUMBER_OF_DEVICES = std::stoi(argv[1]);
+    float VIDEO_WIDTH, VIDEO_HEIGHT;
+
+    // find devices
+    Network network = Network(NUMBER_OF_DEVICES);
+
+    std::cout << "Setting Local Address." << std::endl;
+    network.set_local_addr();
+    std::cout << "\tLocal Address: " << network.get_network_config()->address << std::endl;
+    network.discover_devices();
      
     // frames in PBO
-    int FRAMES_IN_BUFFER = 16;
+    const int FRAMES_IN_BUFFER = 16;
     
     // create frame producer and initialize video context
 #ifdef __APPLE__
-    FrameProducer frame_producer = FrameProducer("/Users/justus/dev/vibes/assets/snoop.mp4", FRAMES_IN_BUFFER);
+    FrameProducer frame_producer = FrameProducer("/Users/justus/dev/vibes/assets/video_split.mov", NUMBER_OF_DEVICES, "/Users/justus/dev/vibes/assets/POSITION", FRAMES_IN_BUFFER);
 #endif
     
 #ifdef __unix
-    FrameProducer frame_producer = FrameProducer("../assets/snoop.mp4", FRAMES_IN_BUFFER);
+    FrameProducer frame_producer = FrameProducer("../assets/video_split.mov", NUMBER_OF_DEVICES, "../assets/POSITION" FRAMES_IN_BUFFER));
 #endif
     
     // start producing frames
@@ -223,8 +220,8 @@ int main(int argc, const char* argv[]) {
     
     float vertices[] = {
         // vertices                                            texture
-        1 - VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO, 1, 1,
-        1 - VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO, 1, 0,
+         1 - VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO, 1, 1,
+         1 - VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO, 1, 0,
         -1 + VIEWPORT_WIDTH_RATIO, -1 + VIEWPORT_HEIGHT_RATIO, 0, 0,
         -1 + VIEWPORT_WIDTH_RATIO,  1 - VIEWPORT_HEIGHT_RATIO, 0, 1
     };
