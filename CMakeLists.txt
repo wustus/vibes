@@ -34,7 +34,8 @@ list(APPEND SOURCES
 	src/tic_tac_toe_vertices.h
 	src/frame_producer.cpp
 	src/frame_producer.hpp
-	src/shaders
+	src/shaders/rgb
+	src/shaders/texture
 	src/network.cpp
 	src/network.h
 	src/synchronization_handler.cpp
