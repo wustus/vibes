@@ -109,6 +109,7 @@ public:
             tex_fragment_code = tex_f_shader_stream.str();
         } catch(std::ifstream::failure e) {
             std::cout << "ERROR::SHADER::FILE_NOT_SUCESSFULLY_READ" << std::endl;
+            std::cout << "\t" << e.what() << std::endl;
         }
         
         const char* rgb_v_shader_code = rgb_vertex_code.c_str();
