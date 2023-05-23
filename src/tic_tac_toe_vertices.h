@@ -171,7 +171,7 @@ public:
         x_offset = index % 3 == 0 ? -0.67 : (index % 3 == 1 ? 0 : 0.67);
         y_offset = index < 3 ? 0.67 : (index < 6 ? 0 : -0.67);
         
-        float* arr = new float[] {
+        float* arr = new float[48] {
              // x                       y                         r     g     b     a
              // first line
              0.33f - 0.01f + x_offset,  0.33f         + y_offset, 1.0f, 1.0f, 1.0f, 1.0f,
@@ -198,7 +198,7 @@ public:
     };
     
     float* get_tic_tac_toe_screen(float r, float g, float b, float a) {
-        float* arr = new float[] {
+        float* arr = new float[24] {
              1,  1, r, g, b, a,
              1, -1, r, g, b, a,
             -1, -1, r, g, b, a,

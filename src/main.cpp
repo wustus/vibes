@@ -114,7 +114,7 @@ int main(int argc, const char* argv[]) {
 #endif
     
 #ifdef __unix
-    FrameProducer frame_producer = FrameProducer("../assets/video_split.mov", NUMBER_OF_DEVICES, "../assets/POSITION" FRAMES_IN_BUFFER));
+    FrameProducer frame_producer = FrameProducer("../assets/video_split.mov", NUMBER_OF_DEVICES, "../assets/POSITION" FRAMES_IN_BUFFER);
 #endif
     
     // start producing frames
