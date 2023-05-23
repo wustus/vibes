@@ -20,7 +20,7 @@ if (APPLE)
     	)
 else()
 	list (APPEND EXTRA_LIBS
-		"-lGL -ldl -lX11 -pthread -lavcodec -lavformat -lswscale -lavutil -lswresample -lm -lz"
+		"-lGL -ldl -lX11 -pthread -lavcodec -lavformat -lswscale -lavutil -lavfilter -lswresample -lm -lz"
 		)
 
 	list(APPEND SOURCES lib/glad/banana/glad.c)
