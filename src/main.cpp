@@ -141,7 +141,12 @@ int main(int argc, const char* argv[]) {
      *  GLFW / OpenGL Confiuration
      */
     
-    glfwInit();
+    
+    if (!glfwInit()) {
+        std::cout << "Failed to initialize GLFW." << std::endl;
+        return 1;
+    }
+    
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -211,8 +216,8 @@ int main(int argc, const char* argv[]) {
 #endif
     
 #ifdef __unix
-    Shader shader("../src/shaders/rgb/vertex_shader_es.vs", "../src/shaders/rgb/fragment_shader_es.fs",
-                  "../src/shaders/texture/vertex_shader_es.vs", "../src/shaders/texture/fragment_shader_es.fs");
+    Shader shader("shaders/rgb/vertex_shader_es.vs", "shaders/rgb/fragment_shader_es.fs",
+                  "shaders/texture/vertex_shader_es.vs", "shaders/texture/fragment_shader_es.fs");
 #endif
     
     // change viewPort (renderable area) with window size
