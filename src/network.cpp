@@ -43,7 +43,7 @@ Network::Network(int NUMBER_OF_DEVICES) : net_config(NUMBER_OF_DEVICES), thread_
     response = setsockopt(ssdp_sckt, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
     
     if (response < 0) {
-        std::cerr << "Error setting Multicast socket option: " << std::strerror(errno) << std::endl;
+        std::cerr << "Error setting Multicast socket option: " << strerror(errno) << std::endl;
         exit(1);
     }
 
@@ -112,7 +112,7 @@ int Network::create_udp_socket(int port) {
     bind_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     
     if (bind(sckt, (struct sockaddr*) &bind_addr, sizeof(bind_addr)) < 0) {
-        std::cerr << "Error while binding address to port " << port << ": " << std::strerror(errno) << std::endl;
+        std::cerr << "Error while binding address to port " << port << ": " << strerror(errno) << std::endl;
         exit(1);
     }
     
@@ -120,7 +120,7 @@ int Network::create_udp_socket(int port) {
     
     // reuse address
     if (setsockopt(sckt, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-        std::cerr << "Error while setting socket option for port" << port << ": " << std::strerror(errno) << std::endl;
+        std::cerr << "Error while setting socket option for port" << port << ": " << strerror(errno) << std::endl;
         exit(1);
     }
     
@@ -131,7 +131,7 @@ int Network::create_udp_socket(int port) {
     timeout.tv_usec = 0;
     
     if (setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
-        std::cerr << "Error while setting timeout for port " << port << ": " << std::strerror(errno) << std::endl;
+        std::cerr << "Error while setting timeout for port " << port << ": " << strerror(errno) << std::endl;
         exit(1);
     }
     
@@ -145,7 +145,7 @@ void Network::set_local_addr() {
     char ip_addr[INET_ADDRSTRLEN];
     
     if (getifaddrs(&ifaddr) < 0) {
-        std::cerr << "Error while getting network interface addresses: " << std::strerror(errno) << std::endl;
+        std::cerr << "Error while getting network interface addresses: " << strerror(errno) << std::endl;
         exit(1);
     }
     
@@ -254,7 +254,7 @@ void Network::ack_listener() {
         
         if (recvfrom(ack_sckt, recv_buffer, MESSAGE_SIZE, 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
             if (errno != 0x23 && errno != 0xB) {
-                std::cerr << "Failed to receive ACK message: " << std::strerror(errno) << std::endl;
+                std::cerr << "Failed to receive ACK message: " << strerror(errno) << std::endl;
             }
             
             delete[] recv_buffer;
@@ -356,7 +356,7 @@ void Network::send_ack(char* addr, char* msg) {
     std::snprintf(ack_msg, ack_msg_size, "%s::%d", net_config.address, chksum);
     
     if (sendto(ack_sckt, (void*)(intptr_t) ack_msg, ack_msg_size, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
-        std::cerr << "Failed sending ACK for message: \n\t" << msg << std::endl << "Error: " << std::strerror(errno) << std::endl;
+        std::cerr << "Failed sending ACK for message: \n\t" << msg << std::endl << "Error: " << strerror(errno) << std::endl;
     }
     
     delete[] ack_msg;
@@ -390,7 +390,7 @@ void Network::transmission_handler() {
         dest_addr.sin_port = htons(port);
         
         if (sendto(sckt, (void*)(intptr_t) msg, std::strlen(msg), 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
-            std::cerr << "Error while sending message: " << std::strerror(errno) << std::endl;
+            std::cerr << "Error while sending message: " << strerror(errno) << std::endl;
             continue;
         }
         
@@ -421,7 +421,7 @@ void Network::receive_messages(int sckt, bool& receiving, char**& buffer, int& c
         
         if (recvfrom(sckt, recv_buffer, MESSAGE_SIZE, 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
             if (errno != 0x23 && errno != 0xB) {
-                std::cerr << "Error while receiving message: " << std::strerror(errno) << std::endl;
+                std::cerr << "Error while receiving message: " << strerror(errno) << std::endl;
             }
             delete[] recv_buffer;
             continue;
@@ -1279,7 +1279,7 @@ void Network::ntp_server(uint32_t& start_time) {
         
         if (recvfrom(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
             if (errno != 0x23 && errno != 0xB) {
-                std::cerr << "Error Receiving NTP Request: " << std::strerror(errno) << std::endl;
+                std::cerr << "Error Receiving NTP Request: " << strerror(errno) << std::endl;
             }
             continue;
         }
@@ -1300,7 +1300,7 @@ void Network::ntp_server(uint32_t& start_time) {
             packet.start_time = htonl(start_time);
             
             if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, src_addr_len) < 0) {
-                std::cerr << "Error sending start time: " << std::strerror(errno) << std::endl;
+                std::cerr << "Error sending start time: " << strerror(errno) << std::endl;
             }
         }
     }
@@ -1320,7 +1320,7 @@ NTPPacket Network::ntp_listener(bool* received=nullptr, bool time_request=false)
         
         if (recvfrom(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &src_addr, &src_addr_len) < 0) {
             if (errno != 0x23 && errno != 0xB) {
-                std::cerr << "Error Receiving NTP Response: " << std::strerror(errno) << std::endl;
+                std::cerr << "Error Receiving NTP Response: " << strerror(errno) << std::endl;
             }
             continue;
         }
@@ -1364,7 +1364,7 @@ NTPPacket Network::request_time(char* addr) {
         
         packet.req_trans_time = htonl((uint32_t) time(NULL) + 2208988800UL);
         if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
-            std::cerr << "Error Requesting NTP: " << std::strerror(errno) << std::endl;
+            std::cerr << "Error Requesting NTP: " << strerror(errno) << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
@@ -1396,7 +1396,7 @@ uint32_t Network::request_start_time(char* addr) {
         dest_addr.sin_addr.s_addr = inet_addr(addr);
         
         if (sendto(ntp_sckt, &packet, NTP_PACKET_SIZE, 0, (struct sockaddr*) &dest_addr, sizeof(dest_addr)) < 0) {
-            std::cerr << "Error sending start time: " << std::strerror(errno) << std::endl;
+            std::cerr << "Error sending start time: " << strerror(errno) << std::endl;
             continue;
         }
         

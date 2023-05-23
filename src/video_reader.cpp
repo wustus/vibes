@@ -98,12 +98,12 @@ bool open_video_reader(const char *filename, VideoReaderContext *video_ctx) {
                                  "[out]buffersink", 2 * width, 2 * height, AV_PIX_FMT_YUV420P, width, height, width * (position % 2), height * (position > 1));
     
     if (avfilter_graph_parse2(filter_graph, args, &filter_inputs, &filter_outputs) < 0) {
-        std::cerr << "Couldn't parse filter graph: " << std::strerror(errno) << std::endl;
+        std::cerr << "Couldn't parse filter graph: " << strerror(errno) << std::endl;
         return false;
     }
     
     if (avfilter_graph_config(filter_graph, NULL) < 0) {
-        std::cerr << "Couldn't set filter graph config: " << std::strerror(errno) << std::endl;
+        std::cerr << "Couldn't set filter graph config: " << strerror(errno) << std::endl;
         return false;
     }
     
@@ -202,12 +202,12 @@ bool read_frame(VideoReaderContext *video_ctx, uint8_t *frame_buffer, int64_t *p
     delete[](error_buffer);
     
     if (av_buffersrc_add_frame(buffersrc_ctx, frame) < 0) {
-        std::cerr << "Couldn't add frame to buffersrc: " << std::strerror(errno) << std::endl;
+        std::cerr << "Couldn't add frame to buffersrc: " << strerror(errno) << std::endl;
         return false;
     }
     
     if (av_buffersink_get_frame(buffersink_ctx, frame) < 0) {
-        std::cerr << "Couldn't get frame from buffersink: " << std::strerror(errno) << std::endl;
+        std::cerr << "Couldn't get frame from buffersink: " << strerror(errno) << std::endl;
         return false;
     }
     
