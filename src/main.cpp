@@ -216,8 +216,8 @@ int main(int argc, const char* argv[]) {
 #endif
     
 #ifdef __unix
-    Shader shader("../src/rgb/vertex_shader_es.vs", "../src/rgb/fragment_shader_es.fs",
-                  "../src/texture/vertex_shader_es.vs", "../src/texture/fragment_shader_es.fs");
+    Shader shader("../src/shaders/rgb/vertex_shader_es.vs", "../src/shaders/rgb/fragment_shader_es.fs",
+                  "../src/shaders/texture/vertex_shader_es.vs", "../src/shaders/texture/fragment_shader_es.fs");
 #endif
     
     // change viewPort (renderable area) with window size
