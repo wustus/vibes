@@ -4,7 +4,7 @@ in vec2 v_pos;
 in vec4 v_color;
 
 uniform float u_aspect_ratio;
-uniform float u_use_ratio;
+uniform bool u_use_ratio;
 
 out vec4 rgb_color;
 
